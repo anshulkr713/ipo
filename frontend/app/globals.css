@@ -1,0 +1,349 @@
+/* ============================================
+   Brutalist Editorial Design System
+   ============================================ */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  /* Brutalist Color Palette */
+  --yellow: #FFED4E;
+  --red: #FF3B30;
+  --blue: #007AFF;
+  --black: #000000;
+  --white: #FFFFFF;
+  --gray: #F5F5F5;
+
+  /* Semantic Colors */
+  --color-primary: var(--yellow);
+  --color-accent: var(--red);
+  --color-positive: var(--blue);
+  --color-negative: var(--red);
+
+  /* Text Colors */
+  --color-text-primary: var(--black);
+  --color-text-secondary: #333333;
+  --color-text-muted: #666666;
+
+  /* Background Colors */
+  --color-bg-primary: var(--white);
+  --color-bg-secondary: var(--gray);
+  --color-bg-tertiary: #EBEBEB;
+  --color-bg-card: var(--white);
+
+  /* Border Colors */
+  --color-border: var(--black);
+  --color-border-light: #CCCCCC;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-error: var(--red);
+  --color-error-light: #fee2e2;
+  --color-info: var(--blue);
+  --color-info-light: #dbeafe;
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Border Radius - Brutalist is sharp */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+
+  /* Brutalist Shadows - Hard offset shadows */
+  --shadow-xs: 2px 2px 0 var(--black);
+  --shadow-sm: 3px 3px 0 var(--black);
+  --shadow-md: 4px 4px 0 var(--black);
+  --shadow-lg: 6px 6px 0 var(--black);
+  --shadow-xl: 8px 8px 0 var(--black);
+  --shadow-card: 4px 4px 0 var(--black);
+  --shadow-card-hover: 6px 6px 0 var(--black);
+
+  /* Transitions */
+  --transition-fast: all 0.1s ease;
+  --transition-base: all 0.15s ease;
+  --transition-slow: all 0.2s ease;
+
+  /* Typography */
+  --font-heading: 'Archivo Black', sans-serif;
+  --font-body: 'Space Mono', monospace;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-base);
+}
+
+a:hover {
+  color: var(--color-text-primary);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  transition: var(--transition-base);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Utility Classes */
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+/* Brutalist Card Styles */
+.card {
+  background: var(--color-bg-card);
+  border: 4px solid var(--black);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-slow);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--yellow);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: rotate(1deg) translateY(-4px);
+}
+
+/* Badge Styles - Brutalist */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-body);
+  border: 2px solid var(--black);
+}
+
+.badge-success {
+  background-color: var(--black);
+  color: var(--yellow);
+}
+
+.badge-warning {
+  background-color: var(--yellow);
+  color: var(--black);
+}
+
+.badge-info {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+.badge-error,
+.badge-live {
+  background-color: var(--red);
+  color: var(--white);
+  animation: pulse-live 1.5s ease-in-out infinite;
+}
+
+/* Brutalist Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-base);
+  border: 3px solid var(--black);
+  font-family: var(--font-body);
+}
+
+.btn-primary {
+  background: var(--black);
+  color: var(--yellow);
+}
+
+.btn-primary:hover {
+  background: var(--yellow);
+  color: var(--black);
+  transform: rotate(-2deg);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--white);
+  color: var(--black);
+}
+
+.btn-secondary:hover {
+  background-color: var(--yellow);
+  transform: rotate(-2deg);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 3px solid var(--black);
+  color: var(--black);
+}
+
+.btn-outline:hover {
+  background: var(--black);
+  color: var(--yellow);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-live {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(255, 59, 48, 0);
+  }
+}
+
+@keyframes rotate-shake {
+
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+
+  50% {
+    transform: rotate(1deg);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease forwards;
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--yellow);
+  color: var(--black);
+}
+
+/* Scrollbar styling - Brutalist */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray);
+  border: 2px solid var(--black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}

@@ -1,0 +1,198 @@
+.sectionHeader {
+    margin-bottom: 3rem;
+    animation: slideUp 0.6s ease-out;
+}
+
+.sectionTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.sectionSubtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+}
+
+.allotmentGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.allotmentCard {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    transition: var(--transition-slow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.allotmentCard:hover {
+    transform: translateY(-4px);
+    border-color: rgba(79, 70, 229, 0.2);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.companyName {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+.categoryBadge {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.smeBadge {
+    background-color: var(--color-info-light);
+    color: #1d4ed8;
+}
+
+.mainboardBadge {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+}
+
+.statusBadge {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    width: fit-content;
+}
+
+.statusOut {
+    background-color: var(--color-success-light);
+    color: #047857;
+}
+
+.statusPending {
+    background-color: var(--color-warning-light);
+    color: #b45309;
+}
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-border-light);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.value {
+    font-size: 0.9375rem;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.checkButton {
+    background: var(--gradient-primary);
+    color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-align: center;
+    text-decoration: none;
+    transition: var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.checkButton:hover {
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+    transform: translateY(-2px);
+}
+
+.externalIcon {
+    font-size: 1.125rem;
+    transition: transform 0.3s ease;
+}
+
+.checkButton:hover .externalIcon {
+    transform: translate(2px, -2px);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .sectionTitle {
+        font-size: 1.875rem;
+    }
+
+    .allotmentGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .companyName {
+        font-size: 1.125rem;
+    }
+}

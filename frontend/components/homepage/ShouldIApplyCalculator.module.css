@@ -1,0 +1,207 @@
+/* ============================================
+   Should I Apply Calculator - Brutalist Editorial Style
+   ============================================ */
+
+.container {
+    background: var(--color-bg-card);
+    border: 4px solid var(--black);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    padding: 1.5rem;
+}
+
+/* Input Section */
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.8125rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.select,
+.input {
+    padding: 1rem 1.25rem;
+    border: 3px solid var(--black);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background-color: var(--white);
+    transition: all 0.15s ease;
+    width: 100%;
+}
+
+.select:hover,
+.input:hover {
+    background-color: var(--gray);
+}
+
+.select:focus,
+.input:focus {
+    outline: none;
+    background-color: var(--yellow);
+}
+
+.select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23000000' stroke-width='2.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.25rem center;
+    padding-right: 3.5rem;
+}
+
+.calculateButton {
+    padding: 1.125rem;
+    background: var(--black);
+    color: var(--yellow);
+    border: 3px solid var(--black);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.calculateButton:hover {
+    background: var(--yellow);
+    color: var(--black);
+    transform: rotate(-2deg);
+    box-shadow: var(--shadow-md);
+}
+
+.calculateButton:disabled {
+    background: var(--gray);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    border-color: var(--color-border-light);
+}
+
+/* Results Section */
+.results {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 4px solid var(--black);
+}
+
+.recommendation {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--yellow);
+    border: 3px solid var(--black);
+    margin-bottom: 1.25rem;
+}
+
+.recIcon {
+    font-size: 1.75rem;
+}
+
+.recText {
+    font-size: 1rem;
+    font-family: var(--font-heading);
+    font-weight: 400;
+    color: var(--black);
+    text-transform: uppercase;
+}
+
+.metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border: 3px solid var(--black);
+}
+
+.resultCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 1rem;
+    background-color: var(--gray);
+    transition: all 0.15s ease;
+    border-right: 3px solid var(--black);
+    border-bottom: 3px solid var(--black);
+}
+
+.resultCard:nth-child(2n) {
+    border-right: none;
+}
+
+.resultCard:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.resultCard:hover {
+    background: var(--yellow);
+}
+
+.resultLabel {
+    font-size: 0.625rem;
+    font-family: var(--font-body);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.resultValue {
+    font-size: 1.375rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.profit {
+    color: var(--blue);
+}
+
+.loss {
+    color: var(--red);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.25rem;
+    }
+
+    .metricsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .resultCard {
+        border-right: none;
+        border-bottom: 3px solid var(--black);
+    }
+
+    .resultCard:last-child {
+        border-bottom: none;
+    }
+
+    .resultCard {
+        padding: 0.875rem;
+    }
+
+    .resultValue {
+        font-size: 1.125rem;
+    }
+}

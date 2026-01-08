@@ -1,0 +1,255 @@
+/* ============================================
+   Homepage Layout - Brutalist Editorial Style
+   ============================================ */
+
+.homepage {
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  gap: 1.5rem;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--black);
+  border-top-color: var(--yellow);
+  border-radius: 0;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 1rem;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Hero Section - Brutalist Black with Yellow Accents */
+.heroSection {
+  background: var(--black);
+  padding: 4rem 2rem 3rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 8px solid var(--yellow);
+}
+
+/* Diagonal stripe pattern */
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 20px,
+      rgba(255, 237, 78, 0.03) 20px,
+      rgba(255, 237, 78, 0.03) 40px);
+  pointer-events: none;
+}
+
+/* Giant LIVE watermark */
+.heroSection::after {
+  content: 'LIVE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  font-family: var(--font-heading);
+  font-size: 20rem;
+  color: var(--white);
+  opacity: 0.03;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.heroContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-family: var(--font-heading);
+  color: var(--white);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  line-height: 1;
+  transform: rotate(-1deg);
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  font-family: var(--font-body);
+  color: var(--gray);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+/* Featured Grid */
+.featuredGrid {
+  max-width: 1400px;
+  margin: 0 auto 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 0 2rem;
+}
+
+.noFeatured {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background: var(--color-bg-card);
+  border: 4px solid var(--black);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+.noFeaturedSub {
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Hero Bottom - Market Sentiment & Quick Actions */
+.heroBottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Section Styling - Brutalist */
+.dashboardSection,
+.filtersSection,
+.calculatorSection,
+.heatmapSection,
+.calendarSection,
+.comparisonSection {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  position: relative;
+}
+
+.dashboardSection::after,
+.calculatorSection::after,
+.heatmapSection::after,
+.calendarSection::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 4px;
+  background: var(--black);
+}
+
+.filtersSection::after,
+.comparisonSection::after {
+  display: none;
+}
+
+.filtersSection {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-family: var(--font-heading);
+  color: var(--black);
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  background: var(--yellow);
+  padding: 0.5rem 1.5rem;
+  transform: rotate(-1deg);
+  text-transform: uppercase;
+}
+
+.sectionTitle::before {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .heroBottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 2.5rem 1rem 2rem;
+  }
+
+  .heroSection::after {
+    font-size: 8rem;
+  }
+
+  .heroTitle {
+    font-size: 2.25rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.9375rem;
+    margin-bottom: 2rem;
+  }
+
+  .featuredGrid {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    gap: 1.25rem;
+  }
+
+  .heroBottom {
+    padding: 0 1rem;
+    gap: 1.25rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.375rem;
+    padding: 0.375rem 1rem;
+  }
+
+  .dashboardSection,
+  .filtersSection,
+  .calculatorSection,
+  .heatmapSection,
+  .calendarSection,
+  .comparisonSection {
+    padding: 2rem 1rem;
+  }
+
+  .dashboardSection::after,
+  .calculatorSection::after,
+  .heatmapSection::after,
+  .calendarSection::after {
+    left: 1rem;
+    right: 1rem;
+  }
+}

@@ -1,0 +1,254 @@
+.sectionHeader {
+  margin-bottom: 3rem;
+  animation: slideUp 0.6s ease-out;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.categorySection {
+  margin-bottom: 4rem;
+}
+
+.categoryTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.categoryIcon {
+  font-size: 1.75rem;
+}
+
+.categoryCount {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.gmpGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.gmpCard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  transition: var(--transition-slow);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.gmpCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.gmpCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.gmpCard:hover::before {
+  transform: scaleX(1);
+}
+
+.gmpHeader {
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+.badgeStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.gmpCompany {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.categoryBadge {
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.smeBadge {
+  background-color: var(--color-info-light);
+  color: #1d4ed8;
+}
+
+.mainboardBadge {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.statusBadge {
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.statusOpen {
+  background-color: var(--color-success-light);
+  color: #047857;
+}
+
+.statusOpeningSoon {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.statusClosed {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.gmpValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-success);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.gmpValue.negative {
+  color: var(--color-error);
+}
+
+.gmpPercentage {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.profitText {
+  color: var(--color-success);
+}
+
+.lossText {
+  color: var(--color-error);
+}
+
+.gmpInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-light);
+  user-select: text;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.infoValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.875rem;
+  }
+
+  .categoryTitle {
+    font-size: 1.25rem;
+  }
+
+  .gmpGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .gmpValue {
+    font-size: 2rem;
+  }
+
+  .gmpPercentage {
+    font-size: 1.125rem;
+  }
+}

@@ -1,0 +1,308 @@
+/* ============================================
+   IPO Filters - Brutalist Editorial Style
+   ============================================ */
+
+.filtersContainer {
+    background: var(--color-bg-card);
+    border: 4px solid var(--black);
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+}
+
+.filtersHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--black);
+}
+
+.filtersTitle {
+    font-size: 1.25rem;
+    font-family: var(--font-heading);
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    background: var(--yellow);
+    padding: 0.375rem 1rem;
+    transform: rotate(-1deg);
+}
+
+.clearButton {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--white);
+    color: var(--black);
+    border: 3px solid var(--black);
+    font-size: 0.875rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.clearButton:hover {
+    background-color: var(--black);
+    color: var(--yellow);
+    transform: rotate(-2deg);
+}
+
+.filterGroup {
+    margin-bottom: 1.5rem;
+}
+
+.filterGroup:last-child {
+    margin-bottom: 0;
+}
+
+.filterLabel {
+    font-size: 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.filterOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.filterButton {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--white);
+    color: var(--black);
+    border: 3px solid var(--black);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.filterButton:hover {
+    background-color: var(--yellow);
+    transform: rotate(-1deg);
+}
+
+.filterButton.active {
+    background: var(--black);
+    color: var(--yellow);
+}
+
+.filterButton .count {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    background-color: var(--gray);
+    font-size: 0.75rem;
+    border: 1px solid var(--black);
+}
+
+.filterButton.active .count {
+    background-color: var(--yellow);
+    color: var(--black);
+}
+
+.searchBox {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    padding-left: 3.5rem;
+    border: 3px solid var(--black);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background-color: var(--white);
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35' stroke='%23000000' stroke-width='2.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 1.25rem center;
+    transition: all 0.15s ease;
+}
+
+.searchBox:hover {
+    background-color: var(--gray);
+}
+
+.searchBox:focus {
+    outline: none;
+    background-color: var(--yellow);
+}
+
+.searchBox::placeholder {
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rangeFilter {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.rangeInput {
+    padding: 1rem 1.25rem;
+    border: 3px solid var(--black);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background-color: var(--white);
+    transition: all 0.15s ease;
+}
+
+.rangeInput:hover {
+    background-color: var(--gray);
+}
+
+.rangeInput:focus {
+    outline: none;
+    background-color: var(--yellow);
+}
+
+.rangeSeparator {
+    font-size: 1rem;
+    font-family: var(--font-body);
+    color: var(--black);
+    font-weight: 700;
+}
+
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    color: var(--color-text-primary);
+    transition: color 0.15s ease;
+    text-transform: uppercase;
+}
+
+.checkboxLabel:hover {
+    color: var(--black);
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--black);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    appearance: none;
+    position: relative;
+    background-color: var(--white);
+}
+
+.checkbox:hover {
+    background-color: var(--gray);
+}
+
+.checkbox:checked {
+    background: var(--black);
+}
+
+.checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 7px;
+    width: 6px;
+    height: 10px;
+    border: solid var(--yellow);
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.activeFiltersBar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--gray);
+    border: 3px solid var(--black);
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.activeFiltersLabel {
+    font-size: 0.75rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.activeFilterTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--black);
+    color: var(--yellow);
+    font-size: 0.875rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.removeFilterButton {
+    background: none;
+    border: none;
+    color: var(--yellow);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.15s ease;
+}
+
+.removeFilterButton:hover {
+    transform: rotate(90deg);
+}
+
+@media (max-width: 768px) {
+    .filtersContainer {
+        padding: 1.5rem;
+    }
+
+    .filtersHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .filterOptions {
+        gap: 0.5rem;
+    }
+
+    .filterButton {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .rangeFilter {
+        grid-template-columns: 1fr;
+    }
+
+    .rangeSeparator {
+        display: none;
+    }
+}
