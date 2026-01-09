@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import FeaturedIPOCard from '@/components/homepage/FeaturedIPOCard';
-import MarketSentimentGauge from '@/components/homepage/MarketSentimentGauge';
-import QuickActionButtons from '@/components/homepage/QuickActionButtons';
+import IPOCategoryChart from '@/components/homepage/IPOCategoryChart';
 import DashboardTabs from '@/components/homepage/DashboardTabs';
 import IPOFilters from '@/components/homepage/IPOFilters';
 import ShouldIApplyCalculator from '@/components/homepage/ShouldIApplyCalculator';
@@ -13,13 +12,11 @@ import IPOCalendarWidget from '@/components/homepage/IPOCalendarWidget';
 import ComparisonTable from '@/components/homepage/ComparisonTable';
 import {
   fetchFeaturedIPOs,
-  fetchMarketSentiment,
   fetchOpenIPOs,
 } from '@/lib/api';
 
 export default function Home() {
   const [featuredIPOs, setFeaturedIPOs] = useState<any[]>([]);
-  const [marketSentiment, setMarketSentiment] = useState<any>(null);
   const [openIPOs, setOpenIPOs] = useState<any[]>([]);
   const [filteredCategory, setFilteredCategory] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -32,13 +29,11 @@ export default function Home() {
 
   async function loadData() {
     try {
-      const [featured, sentiment, open] = await Promise.all([
+      const [featured, open] = await Promise.all([
         fetchFeaturedIPOs(),
-        fetchMarketSentiment(),
         fetchOpenIPOs(),
       ]);
       setFeaturedIPOs(featured);
-      setMarketSentiment(sentiment);
       setOpenIPOs(open);
     } catch (error) {
       console.error('Error loading homepage data:', error);
@@ -61,14 +56,17 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Track Market Intelligence in Real-Time</h1>
+          <h1 className={styles.heroTitle}>TRACK MARKET INTELLIGENCE IN REAL-TIME</h1>
           <p className={styles.heroSubtitle}>
             Live GMP tracking, subscription data, and comprehensive IPO analysis for informed investment decisions
           </p>
         </div>
+      </section>
 
+      {/* Cards Section */}
+      <div className={styles.container}>
         {/* Featured IPO Cards */}
-        <div className={styles.featuredGrid}>
+        <div className={styles.cardsGrid}>
           {featuredIPOs.length > 0 ? (
             featuredIPOs.map((ipo: any) => (
               <FeaturedIPOCard key={ipo.id} ipo={ipo} />
@@ -81,12 +79,9 @@ export default function Home() {
           )}
         </div>
 
-        {/* Market Sentiment & Quick Actions */}
-        <div className={styles.heroBottom}>
-          <MarketSentimentGauge data={marketSentiment} />
-          <QuickActionButtons />
-        </div>
-      </section>
+        {/* IPO Category Chart Section */}
+        <IPOCategoryChart />
+      </div>
 
       {/* Dashboard Section */}
       <section className={styles.dashboardSection}>

@@ -81,9 +81,9 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', label: 'Home', icon: HomeIcon },
-    { href: '/upcoming-ipos', label: 'Upcoming IPOs', icon: CalendarIcon, badge: 'NEW' },
-    { href: '/shareholders', label: 'Shareholders', icon: UsersIcon },
-    { href: '/gmp', label: 'GMP', icon: TrendingIcon, highlight: true },
+    { href: '/upcoming-ipos', label: 'Upcoming IPOs', icon: CalendarIcon },
+    { href: '/shareholders', label: 'Shareholders Category', icon: UsersIcon },
+    { href: '/gmp', label: 'GMP', icon: TrendingIcon },
     { href: '/allotment', label: 'Check Allotment', icon: CheckCircleIcon },
   ];
 
@@ -94,16 +94,6 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Top Promo Bar */}
-      <div className={styles.topBar}>
-        <div className={styles.topBarContent}>
-          <div className={styles.promoText}>
-            <span className={styles.sparkle}><SparkleIcon /></span>
-            <span>Track IPOs in real-time with live GMP updates</span>
-            <span className={styles.sparkle}><SparkleIcon /></span>
-          </div>
-        </div>
-      </div>
 
       {/* Main Navigation */}
       <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>

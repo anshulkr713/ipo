@@ -1,9 +1,5 @@
-/* ============================================
-   Brutalist Editorial Design System
-   ============================================ */
-
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -13,12 +9,21 @@
 
 :root {
   /* Brutalist Color Palette */
-  --yellow: #FFED4E;
+  /* --yellow: #FFED4E; */
+  /* --black: #000000; */
+  /* --dark-bg: #1a1a1a; */
+  /* --red: #FF3B30;
+  --blue: #007AFF;
+  --white: #FFFFFF;
+  --gray: #F5F5F5; */
+  
+  --yellow: #E5F0D1;
   --red: #FF3B30;
   --blue: #007AFF;
-  --black: #000000;
+  --black: #143D3D;
   --white: #FFFFFF;
   --gray: #F5F5F5;
+  --dark-bg: #E5F0D1;
 
   /* Semantic Colors */
   --color-primary: var(--yellow);
@@ -80,7 +85,8 @@
 
   /* Typography */
   --font-heading: 'Archivo Black', sans-serif;
-  --font-body: 'Space Mono', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Space Mono', monospace;
 }
 
 html,
@@ -91,6 +97,7 @@ body {
   color: var(--color-text-primary);
   background: var(--color-bg-secondary);
   line-height: 1.6;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
