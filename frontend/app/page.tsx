@@ -56,10 +56,79 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>TRACK MARKET INTELLIGENCE IN REAL-TIME</h1>
-          <p className={styles.heroSubtitle}>
-            Live GMP tracking, subscription data, and comprehensive IPO analysis for informed investment decisions
-          </p>
+          {/* Left side - Text */}
+          <div className={styles.heroText}>
+            <div className={styles.heroBadge}>
+              <div className={styles.pulseDot}></div>
+              <span className={styles.badgeText}>Real-Time Market Intelligence</span>
+            </div>
+
+            <h1 className={styles.heroTitle}>
+              TRACK MARKET<br />
+              <span className={styles.gradientText}>INTELLIGENCE</span><br />
+              IN REAL-TIME
+            </h1>
+
+            <p className={styles.heroSubtitle}>
+              Live GMP tracking, subscription data, and comprehensive IPO analysis for informed investment decisions
+            </p>
+
+            <div className={styles.heroStats}>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>50+</div>
+                <div className={styles.statLabel}>Active IPOs Tracked</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>Real-Time</div>
+                <div className={styles.statLabel}>GMP Updates</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>100%</div>
+                <div className={styles.statLabel}>Accurate Data</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Floating Card */}
+          {featuredIPOs.length > 0 && (
+            <div className={styles.heroCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>{featuredIPOs[0].company_name || 'TATA TECHNOLOGIES'}</h3>
+                <div className={styles.liveBadge}>
+                  <span className={styles.liveDot}></span>
+                  LIVE
+                </div>
+              </div>
+              <div className={styles.cardMetrics}>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>GMP</div>
+                  <div className={styles.metricValue}>₹{featuredIPOs[0].current_gmp || 485}</div>
+                </div>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>GAIN</div>
+                  <div className={`${styles.metricValue} ${styles.positive}`}>+{featuredIPOs[0].expected_gain_percent || 97}%</div>
+                </div>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>SUB</div>
+                  <div className={styles.metricValue}>{featuredIPOs[0].subscription_total || 69.43}x</div>
+                </div>
+              </div>
+              <div className={styles.cardFooter}>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Retail Subscription</span>
+                  <span className={styles.footerValue}>{featuredIPOs[0].subscription_retail || 12.87}x</span>
+                </div>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Issue Price</span>
+                  <span className={styles.footerValue}>₹{featuredIPOs[0].price_band_low || 50}</span>
+                </div>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Time Remaining</span>
+                  <span className={styles.footerValue}>3 Days</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -89,13 +158,7 @@ export default function Home() {
         <DashboardTabs />
       </section>
 
-      {/* Filters */}
-      <section className={styles.filtersSection}>
-        <IPOFilters
-          selectedCategory={filteredCategory}
-          onCategoryChange={setFilteredCategory}
-        />
-      </section>
+
 
       {/* Calculator */}
       <section className={styles.calculatorSection}>
@@ -105,8 +168,8 @@ export default function Home() {
 
       {/* Heatmap */}
       <section className={styles.heatmapSection}>
-        <h2 className={styles.sectionTitle}>🔥 Subscription Heatmap</h2>
-        <SubscriptionHeatmap ipos={openIPOs} />
+        <h2 className={styles.sectionTitle}>🔥 Heatmap</h2>
+        <SubscriptionHeatmap />
       </section>
 
       {/* Calendar */}

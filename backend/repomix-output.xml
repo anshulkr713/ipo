@@ -40,7 +40,15 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+ipo-data-pipeline/scrapers/comprehensive_ipo_scraper.py
+ipo-data-pipeline/scrapers/core/base_scraper.py
+ipo-data-pipeline/scrapers/free_api_scraper.py
+ipo-data-pipeline/scrapers/ipo_scrapers/enhanced_gmp_scraper.py
+ipo-data-pipeline/scrapers/ipo_scrapers/subscription_scraper.py
+ipo-data-pipeline/scrapers/orchestrator.py
+ipo-data-pipeline/scrapers/web_scraper.py
 requirements.txt
+scheduler.py
 scrape_shareholder.py
 scraper.py
 </directory_structure>
@@ -48,12 +56,1019 @@ scraper.py
 <files>
 This section contains the contents of the repository's files.
 
+<file path="ipo-data-pipeline/scrapers/comprehensive_ipo_scraper.py">
+import os
+import re
+import time
+import random
+import requests
+from bs4 import BeautifulSoup
+from supabase import create_client
+from dotenv import load_dotenv
+from datetime import datetime
+import json
+import sys
+sys.path.append('../..')
+from scraper import fetch_gmp_data as old_scraper_gmp, fetch_dates_data as old_scraper_dates
+
+
+load_dotenv()
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+
+class SafeScraper:
+    """Base scraper with anti-ban measures"""
+    
+    USER_AGENTS = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) Firefox/122.0"
+    ]
+    
+    @staticmethod
+    def random_delay():
+        """Random delay between 2-5 seconds"""
+        time.sleep(random.uniform(2, 5))
+    
+    @staticmethod
+    def get_headers():
+        return {
+            "User-Agent": random.choice(SafeScraper.USER_AGENTS),
+            "Accept": "text/html,application/xhtml+xml,application/xml",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1"
+        }
+    
+    @staticmethod
+    def fetch_url(url, max_retries=2):
+        for attempt in range(max_retries):
+            try:
+                resp = requests.get(url, headers=SafeScraper.get_headers(), timeout=15)
+                if resp.status_code == 200:
+                    return resp
+                time.sleep(3)
+            except:
+                time.sleep(3)
+        return None
+
+def clean_text(text):
+    if not text: return ""
+    return text.replace('\n', '').replace('\t', '').strip()
+
+def parse_number(text):
+    if not text or text == "-": return None
+    text = str(text).replace(',', '').replace('₹', '').replace('Rs.', '')
+    match = re.search(r'[\d.]+', text)
+    return float(match.group()) if match else None
+
+def create_slug(name):
+    slug = name.lower()
+    slug = re.sub(r'\(sme\)|\(mainboard\)|ipo|limited|ltd\.?|pvt\.?', '', slug)
+    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    return slug.strip('-')
+
+def parse_date(date_str):
+    """Parse various date formats to YYYY-MM-DD"""
+    if not date_str or date_str == "-":
+        return None
+    try:
+        date_str = clean_text(date_str)
+        for fmt in ['%b %d, %Y', '%d %b %Y', '%d-%b-%Y', '%d/%m/%Y', '%Y-%m-%d']:
+            try:
+                return datetime.strptime(date_str, fmt).strftime('%Y-%m-%d')
+            except:
+                continue
+    except:
+        pass
+    return None
+
+# ==================== SOURCE 1: NSE OFFICIAL API ====================
+def scrape_nse_api():
+    """NSE Official API - Free, No Rate Limit Issues"""
+    print("\n📡 Fetching from NSE Official API...")
+    
+    url = "https://www.nseindia.com/api/ipo-current-issues"
+    
+    # NSE requires cookies, so we simulate browser session
+    session = requests.Session()
+    session.get("https://www.nseindia.com", headers=SafeScraper.get_headers())
+    SafeScraper.random_delay()
+    
+    try:
+        resp = session.get(url, headers=SafeScraper.get_headers(), timeout=10)
+        data = resp.json()
+        
+        ipos = []
+        for ipo in data.get('data', []):
+            try:
+                ipos.append({
+                    "ipo_name": ipo.get('companyName', '') + " IPO",
+                    "company_name": ipo.get('companyName', ''),
+                    "slug": create_slug(ipo.get('companyName', '')),
+                    "category": "Mainboard",
+                    "issue_size_cr": parse_number(ipo.get('issueSize')),
+                    "min_price": int(parse_number(ipo.get('priceRangeMin')) or 0),
+                    "max_price": int(parse_number(ipo.get('priceRangeMax')) or 0),
+                    "lot_size": int(parse_number(ipo.get('lotSize')) or 1),
+                    "open_date": parse_date(ipo.get('issueStartDate')),
+                    "close_date": parse_date(ipo.get('issueEndDate')),
+                    "listing_date": parse_date(ipo.get('listingDate')),
+                    "status": "open" if ipo.get('status') == 'Active' else "upcoming"
+                })
+            except Exception as e:
+                print(f"  ⚠️ Error parsing NSE IPO: {e}")
+        
+        print(f"  ✅ Got {len(ipos)} IPOs from NSE")
+        return ipos
+        
+    except Exception as e:
+        print(f"  ❌ NSE API failed: {e}")
+        return []
+
+# ==================== SOURCE 2: CHITTORGARH ====================
+def scrape_chittorgarh():
+    """Chittorgarh - Comprehensive IPO data"""
+    print("\n🔄 Scraping Chittorgarh...")
+    
+    url = "https://www.chittorgarh.com/ipo/ipo_dashboard.asp"
+    resp = SafeScraper.fetch_url(url)
+    
+    if not resp:
+        print("  ❌ Failed to fetch")
+        return []
+    
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    table = soup.find('table', {'class': 'table'})
+    
+    if not table:
+        print("  ❌ Table not found")
+        return []
+    
+    ipos = []
+    rows = table.find_all('tr')[1:]
+    
+    for row in rows[:15]:  # Limit to avoid scraping too much
+        try:
+            cols = row.find_all('td')
+            if len(cols) < 6: continue
+            
+            ipo_name = clean_text(cols[0].text)
+            category = "SME" if "SME" in ipo_name else "Mainboard"
+            
+            # Extract price range
+            price_text = clean_text(cols[3].text)
+            prices = re.findall(r'\d+', price_text)
+            
+            ipos.append({
+                "ipo_name": ipo_name,
+                "company_name": ipo_name.replace(" IPO", "").replace(" (SME)", ""),
+                "slug": create_slug(ipo_name),
+                "category": category,
+                "min_price": int(prices[0]) if len(prices) > 0 else None,
+                "max_price": int(prices[-1]) if len(prices) > 0 else None,
+                "lot_size": int(parse_number(cols[4].text) or 100),
+                "open_date": parse_date(cols[1].text),
+                "close_date": parse_date(cols[2].text),
+                "issue_size_cr": parse_number(cols[5].text) if len(cols) > 5 else None,
+                "status": "upcoming"
+            })
+            
+        except Exception as e:
+            continue
+    
+    print(f"  ✅ Got {len(ipos)} IPOs from Chittorgarh")
+    SafeScraper.random_delay()
+    return ipos
+
+# ==================== SOURCE 3: GMP FROM IPOWATCH ====================
+def scrape_gmp_data():
+    """IPOWatch - GMP and Kostak"""
+    print("\n💰 Scraping GMP from IPOWatch...")
+    
+    url = "https://ipowatch.in/ipo-grey-market-premium-latest-ipo-gmp/"
+    resp = SafeScraper.fetch_url(url)
+    
+    if not resp:
+        return {}
+    
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    table = soup.find('table')
+    
+    if not table:
+        return {}
+    
+    gmp_dict = {}
+    rows = table.find_all('tr')[1:]
+    
+    for row in rows[:20]:  # Limit rows
+        try:
+            cols = row.find_all('td')
+            if len(cols) < 3: continue
+            
+            name = clean_text(cols[0].text)
+            slug = create_slug(name)
+            
+            gmp_text = clean_text(cols[1].text)
+            gmp_amount = int(parse_number(gmp_text) or 0)
+            
+            # Extract percentage if present
+            gmp_pct = None
+            if '(' in gmp_text and '%' in gmp_text:
+                pct_match = re.search(r'\(([\d.]+)%\)', gmp_text)
+                if pct_match:
+                    gmp_pct = float(pct_match.group(1))
+            
+            # Try to get kostak/sauda from additional columns
+            kostak = None
+            sauda = None
+            if len(cols) > 3:
+                kostak = int(parse_number(cols[3].text) or 0)
+            if len(cols) > 4:
+                sauda = int(parse_number(cols[4].text) or 0)
+            
+            gmp_dict[slug] = {
+                "gmp_amount": gmp_amount,
+                "gmp_percentage": gmp_pct,
+                "kostak_rate": kostak,
+                "subject_to_sauda": sauda,
+                "gmp_updated_at": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            continue
+    
+    print(f"  ✅ Got GMP for {len(gmp_dict)} IPOs")
+    SafeScraper.random_delay()
+    return gmp_dict
+
+# ==================== SOURCE 4: SUBSCRIPTION DATA ====================
+def scrape_subscription_data():
+    """Chittorgarh - Live subscription"""
+    print("\n📊 Scraping Subscription Data...")
+    
+    url = "https://www.chittorgarh.com/ipo/ipo_subscription_status_live.asp"
+    resp = SafeScraper.fetch_url(url)
+    
+    if not resp:
+        return {}
+    
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    table = soup.find('table', {'class': 'table'})
+    
+    if not table:
+        return {}
+    
+    sub_dict = {}
+    rows = table.find_all('tr')[1:]
+    
+    for row in rows[:10]:
+        try:
+            cols = row.find_all('td')
+            if len(cols) < 6: continue
+            
+            name = clean_text(cols[0].text)
+            slug = create_slug(name)
+            
+            sub_dict[slug] = {
+                "subscription_retail": parse_number(cols[1].text) or 0,
+                "subscription_nii": parse_number(cols[2].text) or 0,
+                "subscription_qib": parse_number(cols[3].text) or 0,
+                "subscription_total": parse_number(cols[4].text) or 0,
+                "subscription_updated_at": datetime.now().isoformat()
+            }
+            
+        except:
+            continue
+    
+    print(f"  ✅ Got subscription for {len(sub_dict)} IPOs")
+    SafeScraper.random_delay()
+    return sub_dict
+
+# ==================== SOURCE 5: FINANCIAL DATA (INVESTORGAIN) ====================
+def scrape_financials():
+    """InvestorGain - Company financials"""
+    print("\n💼 Scraping Financial Data...")
+    
+    url = "https://www.investorgain.com/report/live-ipo-gmp/331/"
+    resp = SafeScraper.fetch_url(url)
+    
+    if not resp:
+        return {}
+    
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    
+    # InvestorGain has detailed pages per IPO
+    # For now, we'll just grab basic data from listing page
+    financials = {}
+    
+    try:
+        rows = soup.find_all('tr')
+        for row in rows[:15]:
+            cols = row.find_all('td')
+            if len(cols) < 4: continue
+            
+            name = clean_text(cols[0].text)
+            slug = create_slug(name)
+            
+            # Try to extract PE ratio, issue size, etc.
+            financials[slug] = {
+                "issue_size_cr": parse_number(cols[2].text) if len(cols) > 2 else None,
+                # More fields can be added by parsing individual IPO pages
+            }
+    except:
+        pass
+    
+    print(f"  ✅ Got financials for {len(financials)} IPOs")
+    SafeScraper.random_delay()
+    return financials
+
+# ==================== SOURCE 6: REGISTRAR & ALLOTMENT ====================
+def scrape_registrar_info():
+    """Get registrar details from Chittorgarh"""
+    print("\n📋 Scraping Registrar Info...")
+    
+    url = "https://www.chittorgarh.com/ipo/ipo_registrars_list.asp"
+    resp = SafeScraper.fetch_url(url)
+    
+    if not resp:
+        return {}
+    
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    
+    registrar_map = {
+        "link": "Link Intime India Pvt Ltd",
+        "kfin": "KFin Technologies Ltd",
+        "bigshare": "Bigshare Services Pvt Ltd"
+    }
+    
+    # This would need to match IPO names to registrars
+    # For simplicity, returning common registrars
+    
+    SafeScraper.random_delay()
+    return {}
+
+# ==================== MERGE & UPLOAD ====================
+def merge_all_sources():
+    print("\n🔄 Using working scrapers as fallback...")
+    
+    # Use your existing working scraper
+    gmp_data = old_scraper_gmp()
+    date_data = old_scraper_dates()
+    
+    ipos = []
+    for item in gmp_data:
+        slug = create_slug(item['ipo_name'])
+        
+        ipos.append({
+            "ipo_name": item['ipo_name'],
+            "company_name": item['ipo_name'].replace(' IPO', ''),
+            "slug": slug,
+            "category": item['category'],
+            "status": "upcoming",
+            "max_price": int(parse_number(item['ipo_price']) or 0),
+            "lot_size": 100,
+            "gmp_amount": int(parse_number(item['ipo_gmp']) or 0),
+            "open_date": date_data.get(slug, {}).get('open_date'),
+            "close_date": date_data.get(slug, {}).get('close_date')
+        })
+    
+    return ipos
+
+
+def upload_to_supabase(ipos):
+    """Upload with proper error handling"""
+    print(f"\n📤 Uploading {len(ipos)} IPOs to Supabase...")
+    
+    try:
+        # Upsert (insert or update based on slug)
+        result = supabase.table('ipos').upsert(
+            ipos,
+            on_conflict='slug'
+        ).execute()
+        
+        print(f"✅ SUCCESS! Database updated")
+        print(f"\n📊 Sample Records:")
+        for ipo in ipos[:3]:
+            print(f"  • {ipo['ipo_name']} | {ipo['status']} | GMP: ₹{ipo.get('gmp_amount', 0)}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Upload Error: {e}")
+        print(f"\n🔍 First record (for debugging):")
+        if ipos:
+            print(json.dumps(ipos[0], indent=2, default=str))
+        return False
+
+def main():
+    """Main execution"""
+    ipos = merge_all_sources()
+    
+    if ipos:
+        upload_to_supabase(ipos)
+
+    else:
+        print("\n❌ No data collected!")
+
+if __name__ == "__main__":
+    main()
+</file>
+
+<file path="ipo-data-pipeline/scrapers/core/base_scraper.py">
+import os
+import time
+import random
+import requests
+from bs4 import BeautifulSoup
+from abc import ABC, abstractmethod
+from supabase import create_client, Client
+from dotenv import load_dotenv
+from functools import wraps
+
+load_dotenv()
+
+class BaseScraper(ABC):
+    """Base class for all scrapers with common functionality"""
+    
+    def __init__(self):
+        self.supabase: Client = create_client(
+            os.getenv("SUPABASE_URL"), 
+            os.getenv("SUPABASE_KEY")
+        )
+        self.session = requests.Session()
+        self.user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) Firefox/121.0"
+        ]
+        
+    def get_headers(self):
+        """Rotate user agents to avoid blocking"""
+        return {
+            "User-Agent": random.choice(self.user_agents),
+            "Accept": "text/html,application/json",
+            "Accept-Language": "en-US,en;q=0.9"
+        }
+    
+    def fetch_page(self, url, method="GET", data=None, max_retries=3):
+        """Fetch page with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                if method == "GET":
+                    resp = self.session.get(url, headers=self.get_headers(), timeout=10)
+                else:
+                    resp = self.session.post(url, headers=self.get_headers(), 
+                                            data=data, timeout=10)
+                
+                if resp.status_code == 200:
+                    return resp
+                elif resp.status_code == 403:
+                    print(f"⚠️  Blocked! Waiting {2 ** attempt}s...")
+                    time.sleep(2 ** attempt)
+                else:
+                    print(f"❌ Status {resp.status_code}")
+                    return None
+                    
+            except Exception as e:
+                print(f"⚠️  Attempt {attempt + 1} failed: {e}")
+                time.sleep(2 ** attempt)
+        
+        return None
+    
+    @staticmethod
+    def clean_text(text):
+        """Clean scraped text"""
+        if not text:
+            return ""
+        return text.replace('\n', '').replace('\t', '').strip()
+    
+    @staticmethod
+    def normalize_name(name):
+        """Normalize IPO names for matching"""
+        import re
+        name = name.lower()
+        name = re.sub(r'\(sme\)|\(mainboard\)|ipo|limited|ltd\.?|pvt\.?', '', name)
+        name = re.sub(r'\s+', ' ', name)
+        return name.strip()
+    
+    @staticmethod
+    def parse_number(text):
+        """Extract number from text like '5.2x', '₹150', '50%'"""
+        import re
+        if not text or text == "-":
+            return None
+        match = re.search(r'[\d,]+\.?\d*', text.replace(',', ''))
+        return float(match.group()) if match else None
+    
+    def upsert_data(self, table, data, conflict_column='slug'):
+        """Insert or update data in Supabase"""
+        try:
+            result = self.supabase.table(table).upsert(
+                data, 
+                on_conflict=conflict_column
+            ).execute()
+            print(f"✅ Upserted {len(data)} rows to {table}")
+            return result
+        except Exception as e:
+            print(f"❌ DB Error: {e}")
+            return None
+    
+    @abstractmethod
+    def scrape(self):
+        """Main scraping logic - must be implemented by child classes"""
+        pass
+</file>
+
+<file path="ipo-data-pipeline/scrapers/free_api_scraper.py">
+import os
+import requests
+import re
+from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Initialize Supabase
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+
+# ==================== DATE PARSING LOGIC ====================
+
+def clean_ordinal_date_string(date_str):
+    """
+    Parses complex strings like: "2026-01-13 06th – 08th Jan 2026"
+    Returns standard YYYY-MM-DD strings for start and end dates.
+    """
+    if not date_str or date_str == '-': return None, None
+    try:
+        # 1. Clean the string (remove the leading ISO date if present)
+        parts = date_str.split(' ', 1)
+        text_range = parts[1] if len(parts) > 1 and re.match(r'\d{4}-\d{2}-\d{2}', parts[0]) else date_str
+
+        # 2. Remove ordinals (st, nd, rd, th)
+        clean_text = re.sub(r'(?<=\d)(st|nd|rd|th)', '', text_range)
+        
+        # 3. Split start/end
+        if '–' in clean_text: sep = '–'
+        elif '-' in clean_text: sep = '-'
+        else: return None, None
+
+        raw_start, raw_end = clean_text.split(sep, 1)
+        raw_start, raw_end = raw_start.strip(), raw_end.strip()
+
+        # 4. Parse End Date
+        end_dt = datetime.strptime(raw_end, "%d %b %Y")
+        
+        # 5. Parse Start Date
+        try:
+            start_dt = datetime.strptime(raw_start, "%d %b %Y")
+        except ValueError:
+            # Handle short formats like "06" -> use month/year from end_dt
+            day_part = int(re.search(r'\d+', raw_start).group())
+            start_dt = end_dt.replace(day=day_part)
+
+        return start_dt.strftime('%Y-%m-%d'), end_dt.strftime('%Y-%m-%d')
+
+    except Exception as e:
+        # Silently fail for bad dates so we don't crash
+        return None, None
+
+def clean_price(price_str):
+    """Parses '₹76 – ₹81' -> (76, 81)"""
+    if not price_str: return None, None
+    nums = [int(p) for p in re.findall(r'\d+', str(price_str).replace(',', ''))]
+    if not nums: return None, None
+    if len(nums) == 1: return nums[0], nums[0]
+    return nums[0], nums[-1]
+
+def create_slug(name):
+    if not name: return ""
+    slug = name.lower()
+    slug = re.sub(r'\(sme\)|\(mainboard\)|ipo|limited|ltd\.?|pvt\.?', '', slug)
+    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    return slug.strip('-')
+
+# ==================== MAIN SCRAPER ====================
+
+def fetch_rapidapi_ipos():
+    print("\n🇮🇳 Fetching from RapidAPI (Indian IPOs)...")
+    
+    api_key = os.getenv("RAPIDAPI_KEY")
+    if not api_key: 
+        print("❌ RAPIDAPI_KEY is missing.")
+        return
+
+    host = "indian-ipos1.p.rapidapi.com"
+    headers = {
+        "x-rapidapi-key": api_key,
+        "x-rapidapi-host": host
+    }
+
+    # We will fetch both endpoints to populate the DB
+    endpoints = [
+        {"url": f"https://{host}/upcoming-ipos", "status_tag": "upcoming"},
+        {"url": f"https://{host}/closed-ipos", "status_tag": "closed"}
+    ]
+    
+    all_valid_rows = []
+
+    for ep in endpoints:
+        try:
+            print(f"  👉 Requesting {ep['status_tag']} IPOs...")
+            resp = requests.get(ep['url'], headers=headers, timeout=15)
+            
+            # API returns a list directly or a dict with data?
+            # Based on your logs, likely a list directly.
+            raw_data = resp.json()
+            
+            # Normalize to list
+            if isinstance(raw_data, dict) and 'data' in raw_data:
+                items = raw_data['data']
+            elif isinstance(raw_data, list):
+                items = raw_data
+            else:
+                items = []
+
+            print(f"     Found {len(items)} raw items.")
+
+            for item in items:
+                name = item.get('name')
+                if not name: continue
+
+                # 1. Strict Date Parsing
+                open_date, close_date = clean_ordinal_date_string(item.get('ipoDate'))
+                
+                # SKIP if dates are missing (Supabase constraint violation)
+                if not open_date or not close_date:
+                    continue
+
+                # 2. Parse Prices
+                min_p, max_p = clean_price(item.get('priceRange'))
+                
+                # 3. Category & Listing Date
+                category = "SME" if "SME" in name or "sme" in item.get('symbol', '').lower() else "Mainboard"
+                
+                listing_date = None
+                if item.get('listingDate'):
+                    try:
+                        # Clean raw listing date "13 Jan 2026"
+                        clean_l_date = re.sub(r'(st|nd|rd|th)', '', item.get('listingDate'))
+                        listing_date = datetime.strptime(clean_l_date.strip(), "%d %b %Y").strftime("%Y-%m-%d")
+                    except: pass
+
+                # 4. Build Schema-Compliant Row
+                row = {
+                    "ipo_name": name,
+                    "company_name": name,
+                    "slug": create_slug(name),
+                    "category": category,
+                    "status": ep['status_tag'], # 'upcoming' or 'closed'
+                    
+                    # Financials
+                    "min_price": min_p,
+                    "max_price": max_p,
+                    "lot_size": 1, # Defaulting to 1 as API doesn't provide it
+                    
+                    # Dates
+                    "open_date": open_date,
+                    "close_date": close_date,
+                    "listing_date": listing_date,
+                    
+                    # Meta
+                    "source": "rapidapi_indian_ipos",
+                    "updated_at": datetime.now().isoformat()
+                }
+                all_valid_rows.append(row)
+
+        except Exception as e:
+            print(f"  ❌ Error fetching {ep['status_tag']}: {e}")
+
+    # ================= SAVE TO DB =================
+    
+    if all_valid_rows:
+        print(f"\n💾 Saving {len(all_valid_rows)} IPOs to Supabase...")
+        try:
+            # Deduplicate by slug before inserting (use the latest one)
+            unique_map = {row['slug']: row for row in all_valid_rows}
+            unique_rows = list(unique_map.values())
+            
+            result = supabase.table('ipos').upsert(
+                unique_rows, 
+                on_conflict='slug'
+            ).execute()
+            
+            print(f"✅ Success! {len(unique_rows)} IPOs synced to database.")
+        except Exception as e:
+            print(f"❌ Database Error: {e}")
+            if 'source' in str(e):
+                print("💡 Remember to add the 'source' column to your table!")
+    else:
+        print("\n⚠️ No valid data found to save (check date parsing if items were found).")
+
+if __name__ == "__main__":
+    fetch_rapidapi_ipos()
+</file>
+
+<file path="ipo-data-pipeline/scrapers/ipo_scrapers/enhanced_gmp_scraper.py">
+from core.base_scraper import BaseScraper 
+from datetime import datetime
+from bs4 import BeautifulSoup
+
+class GMPScraper(BaseScraper):
+    """Multi-source GMP scraper with history tracking"""
+    
+    SOURCES = [
+        {
+            "name": "IPOWatch",
+            "url": "https://ipowatch.in/ipo-grey-market-premium-latest-ipo-gmp/",
+            "parser": "parse_ipowatch"
+        },
+        {
+            "name": "InvestorGain",
+            "url": "https://www.investorgain.com/report/live-ipo-gmp/331/",
+            "parser": "parse_investorgain"
+        }
+    ]
+    
+    def scrape(self):
+        print("\n💰 Starting Multi-Source GMP Scrape...")
+        
+        all_gmp_data = {}
+        
+        for source in self.SOURCES:
+            print(f"\n📡 Fetching from {source['name']}...")
+            data = getattr(self, source['parser'])(source['url'])
+            
+            # Merge with existing data (average if conflict)
+            for slug, gmp_info in data.items():
+                if slug in all_gmp_data:
+                    # Average the GMP values
+                    existing = all_gmp_data[slug]['gmp_amount']
+                    new = gmp_info['gmp_amount']
+                    all_gmp_data[slug]['gmp_amount'] = int((existing + new) / 2)
+                else:
+                    all_gmp_data[slug] = gmp_info
+        
+        # Convert to list and upload
+        updates = []
+        history_records = []
+        
+        for slug, data in all_gmp_data.items():
+            updates.append({
+                "slug": slug,
+                "gmp_amount": data['gmp_amount'],
+                "gmp_percentage": data['gmp_percentage'],
+                "gmp_updated_at": datetime.now().isoformat(),
+                "expected_listing_price": data['expected_listing_price'],
+                "kostak_rate": data.get('kostak_rate'),
+                "subject_to_sauda": data.get('subject_to_sauda')
+            })
+            
+            # Store in history table
+            history_records.append({
+                "ipo_name": data['ipo_name'],
+                "gmp_amount": data['gmp_amount'],
+                "gmp_percentage": data['gmp_percentage'],
+                "issue_price": data.get('issue_price', 0),
+                "expected_listing_price": data['expected_listing_price']
+            })
+        
+        if updates:
+            self.upsert_data('ipos', updates)
+            # Also insert into history for tracking
+            self.supabase.table('gmp_history').insert(history_records).execute()
+            print(f"✅ Updated {len(updates)} GMP records\n")
+    
+    def parse_ipowatch(self, url):
+        """Parse IPOWatch format"""
+        resp = self.fetch_page(url)
+        if not resp:
+            return {}
+        
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        table = soup.find('table')
+        if not table:
+            return {}
+        
+        result = {}
+        rows = table.find_all('tr')[1:]
+        
+        for row in rows:
+            cols = row.find_all('td')
+            if len(cols) < 3:
+                continue
+            
+            name = self.clean_text(cols[0].text)
+            slug = self.normalize_name(name).replace(' ', '-')
+            
+            gmp_text = self.clean_text(cols[1].text)
+            gmp_amount = self.parse_number(gmp_text) or 0
+            
+            price_text = self.clean_text(cols[2].text)
+            issue_price = self.parse_number(price_text) or 0
+            
+            expected_price = issue_price + gmp_amount
+            gmp_pct = (gmp_amount / issue_price * 100) if issue_price > 0 else 0
+            
+            result[slug] = {
+                "ipo_name": name,
+                "gmp_amount": int(gmp_amount),
+                "gmp_percentage": round(gmp_pct, 2),
+                "issue_price": int(issue_price),
+                "expected_listing_price": int(expected_price)
+            }
+        
+        return result
+    
+    def parse_investorgain(self, url):
+        """Parse InvestorGain format (similar logic)"""
+        # Implementation similar to above
+        return {}
+</file>
+
+<file path="ipo-data-pipeline/scrapers/ipo_scrapers/subscription_scraper.py">
+from ..core.base_scraper import BaseScraper
+from datetime import datetime
+import json
+
+class SubscriptionScraper(BaseScraper):
+    """Scrape live subscription data from Chittorgarh"""
+    
+    def scrape(self):
+        print("\n🔄 Starting Subscription Scrape...")
+        url = "https://www.chittorgarh.com/ipo/ipo_subscription_status_live.asp"
+        
+        resp = self.fetch_page(url)
+        if not resp:
+            print("❌ Failed to fetch subscription data")
+            return
+        
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        
+        # Find the subscription table
+        table = soup.find('table', {'class': 'table'})
+        if not table:
+            print("❌ Subscription table not found")
+            return
+        
+        rows = table.find_all('tr')[1:]  # Skip header
+        updates = []
+        
+        for row in rows:
+            cols = row.find_all('td')
+            if len(cols) < 7:
+                continue
+            
+            try:
+                ipo_name = self.clean_text(cols[0].text)
+                
+                # Parse subscription data
+                retail = self.parse_number(cols[1].text) or 0
+                nii = self.parse_number(cols[2].text) or 0
+                bnii = self.parse_number(cols[3].text) or 0
+                qib = self.parse_number(cols[4].text) or 0
+                total = self.parse_number(cols[5].text) or 0
+                
+                # Create day-wise record
+                day_record = {
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "time": datetime.now().strftime("%H:%M"),
+                    "retail": retail,
+                    "nii": nii,
+                    "qib": qib,
+                    "total": total
+                }
+                
+                # Create slug
+                slug = self.normalize_name(ipo_name).replace(' ', '-')
+                
+                update = {
+                    "slug": slug,
+                    "ipo_name": ipo_name,
+                    "subscription_retail": retail,
+                    "subscription_nii": nii,
+                    "subscription_bnii": bnii,
+                    "subscription_qib": qib,
+                    "subscription_total": total,
+                    "subscription_updated_at": datetime.now().isoformat(),
+                    "day_wise_subscription": json.dumps([day_record])  # We'll append in next iteration
+                }
+                
+                updates.append(update)
+                print(f"📊 {ipo_name}: Total {total}x")
+                
+            except Exception as e:
+                print(f"⚠️  Error parsing row: {e}")
+                continue
+        
+        # Upload to database
+        if updates:
+            self.upsert_data('ipos', updates)
+        
+        print(f"✅ Updated {len(updates)} IPOs\n")
+</file>
+
+<file path="ipo-data-pipeline/scrapers/orchestrator.py">
+from apscheduler.schedulers.blocking import BlockingScheduler
+from ipo_scrapers.subscription_scraper import SubscriptionScraper
+from ipo_scrapers.enhanced_gmp_scraper import GMPScraper
+
+def run_subscription_scraper():
+    scraper = SubscriptionScraper()
+    scraper.scrape()
+
+def run_gmp_scraper():
+    scraper = GMPScraper()
+    scraper.scrape()
+
+if __name__ == "__main__":
+    scheduler = BlockingScheduler()
+    
+    # Run subscription scraper every 2 hours during market hours
+    scheduler.add_job(run_subscription_scraper, 'cron', 
+                      hour='9-17/2', day_of_week='mon-fri')
+    
+    # Run GMP scraper every 6 hours
+    scheduler.add_job(run_gmp_scraper, 'interval', hours=6)
+    
+    print("🚀 Scheduler started. Press Ctrl+C to exit.")
+    scheduler.start()
+</file>
+
+<file path="ipo-data-pipeline/scrapers/web_scraper.py">
+
+</file>
+
 <file path="requirements.txt">
 flask
 requests
 beautifulsoup4
 supabase
 python-dotenv
+anthropic
+PyPDF2
+apscheduler
+</file>
+
+<file path="scheduler.py">
+from apscheduler.schedulers.blocking import BlockingScheduler
+import subprocess
+import sys
+
+def run_script(script_name):
+    """Run scraper as subprocess"""
+    print(f"\n{'='*60}")
+    print(f"🤖 Running: {script_name}")
+    print(f"{'='*60}")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, f"scrapers/{script_name}"],
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        print(result.stdout)
+        if result.stderr:
+            print(f"⚠️ Errors: {result.stderr}")
+    except Exception as e:
+        print(f"❌ Error: {e}")
+
+def run_api_fetcher():
+    run_script("free_api_scraper.py")
+
+def run_web_scraper():
+    run_script("comprehensive_ipo_scraper.py")
+
+if __name__ == "__main__":
+    scheduler = BlockingScheduler()
+    
+    # API calls - Every 6 hours (rate limited)
+    scheduler.add_job(
+        run_api_fetcher,
+        'interval',
+        hours=6,
+        id='api_fetch'
+    )
+    
+    # Web scraping - Every 3 hours (unlimited)
+    scheduler.add_job(
+        run_web_scraper,
+        'interval',
+        hours=3,
+        id='web_scrape'
+    )
+    
+    print("🚀 Scheduler Started")
+    print("  • API Fetch: Every 6 hours")
+    print("  • Web Scrape: Every 3 hours")
+    print("  Press Ctrl+C to stop\n")
+    
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        print("\n👋 Stopped")
 </file>
 
 <file path="scrape_shareholder.py">

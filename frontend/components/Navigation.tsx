@@ -85,6 +85,7 @@ export default function Navigation() {
     { href: '/shareholders', label: 'Shareholders Category', icon: UsersIcon },
     { href: '/gmp', label: 'GMP', icon: TrendingIcon },
     { href: '/allotment', label: 'Check Allotment', icon: CheckCircleIcon },
+    { href: '/portfolio-optimizer', label: 'Portfolio Optimizer', icon: SparkleIcon },
   ];
 
   const isActive = (href: string) => {

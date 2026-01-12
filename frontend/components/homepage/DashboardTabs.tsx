@@ -42,18 +42,18 @@ export default function DashboardTabs() {
 
     const tabs = [
         { id: 'open' as TabType, label: 'Currently Open', count: data.open.length, icon: '🟢' },
-        { id: 'closing' as TabType, label: 'Closing Soon', count: data.closing.length, icon: '⏰' },
         { id: 'listed' as TabType, label: 'Recently Listed', count: data.listed.length, icon: '📈' },
-        { id: 'upcoming' as TabType, label: 'Upcoming This Week', count: data.upcoming.length, icon: '📅' }
+        { id: 'upcoming' as TabType, label: 'Upcoming This Week', count: data.upcoming.length, icon: '📅' },
+        { id: 'closing' as TabType, label: 'Closed', count: data.closing.length, icon: '🔴' }
     ];
 
     const renderIPOCard = (ipo: any, type: TabType) => {
-        const daysLeft = type === 'open' || type === 'closing' 
+        const daysLeft = type === 'open' || type === 'closing'
             ? Math.ceil((new Date(ipo.close_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
             : null;
 
-        const listingGain = type === 'listed' && ipo.listing_gain_percent 
-            ? ipo.listing_gain_percent 
+        const listingGain = type === 'listed' && ipo.listing_gain_percent
+            ? ipo.listing_gain_percent
             : null;
 
         return (

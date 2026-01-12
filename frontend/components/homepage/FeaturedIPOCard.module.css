@@ -1,79 +1,104 @@
 /* ============================================
-   Featured IPO Card - Brutalist White Theme
+   Featured IPO Card - Cream/Teal Theme
    ============================================ */
 
 .card {
-    background: var(--white);
-    border: 4px solid var(--black);
+    background: #f5f5eb;
+    border: 4px solid #1a1a1a;
     overflow: visible;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: 6px 6px 0 var(--black);
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
     text-decoration: none;
     position: relative;
-    transform: rotate(-1.5deg);
+    transform: rotate(-1.5deg) translateZ(0);
+
+    /* Advanced Rendering Optimization for Sharp Text */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    will-change: transform;
+    outline: 1px solid transparent;
+    /* Anti-aliasing hack */
+    perspective: 1000px;
 }
 
+.card:nth-child(4n+1) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
 
-.card:nth-child(4n+1) { transform: rotate(-1.5deg); }
-.card:nth-child(4n+2) { transform: rotate(-1.5deg); }
-.card:nth-child(4n+3) { transform: rotate(-1.5deg); }
-.card:nth-child(4n)   { transform: rotate(-1.5deg); }
+.card:nth-child(4n+2) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
+
+.card:nth-child(4n+3) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
+
+.card:nth-child(4n) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
 
 /* Tilt animation on hover */
 .card:hover {
-    box-shadow: 8px 8px 0 var(--black);
+    box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
     transform: rotate(0deg) translateY(-8px) scale(1.02);
-    border-color: var(--black);
+    border-color: #1a1a1a;
 }
 
 .cardHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 1.5rem 1.5rem 1rem;
+    padding: 24px;
     gap: 1rem;
-    border-bottom: 2px solid var(--black);
+    border-bottom: 3px solid #1a1a1a;
+    background: #f5f5eb;
 }
 
 .titleSection {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 8px;
 }
 
 .companyName {
-    font-size: 1.375rem;
-    font-family: var(--font-heading);
-    color: var(--black);
+    font-size: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    color: #1a1a1a;
     line-height: 1.15;
     margin: 0;
-    text-transform: uppercase;
+    letter-spacing: -0.3px;
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.6875rem;
-    font-family: var(--font-body);
-    font-weight: 700;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.5px;
     width: fit-content;
-    border: 2px solid var(--black);
+    border: 2px solid #1a1a1a;
+    background: transparent;
+    color: #1a1a1a;
 }
 
 .smeBadge {
-    background-color: var(--white);
-    color: var(--black);
+    background-color: transparent;
+    color: #1a1a1a;
 }
 
 .mainboardBadge {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: transparent;
+    color: #1a1a1a;
 }
 
 .statusSection {
@@ -83,27 +108,28 @@
 .statusBadge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-    font-family: var(--font-body);
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     white-space: nowrap;
     text-transform: uppercase;
-    border: 2px solid currentColor;
+    letter-spacing: 0.5px;
+    border: 2px solid #1a1a1a;
 }
 
 .openStatus {
-    background-color: var(--red);
-    color: var(--white);
-    border-color: var(--red);
+    background-color: #ff4444;
+    color: white;
+    border-color: #1a1a1a;
 }
 
 .openStatus::before {
     content: '';
     width: 8px;
     height: 8px;
-    background: var(--white);
+    background: currentColor;
     border-radius: 50%;
     animation: pulse-dot 1.5s ease-in-out infinite;
 }
@@ -123,16 +149,16 @@
 }
 
 .upcomingStatus {
-    background-color: var(--yellow);
-    color: var(--black);
-    border-color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
+    border-color: #1a1a1a;
 }
 
 .upcomingStatus::before {
     content: '';
     width: 8px;
     height: 8px;
-    background: var(--black);
+    background: #1a1a1a;
     border-radius: 50%;
 }
 
@@ -140,17 +166,18 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0;
-    background: var(--white);
-    border-bottom: 2px solid var(--black);
+    background: #f5f5eb;
+    border-bottom: 3px solid #1a1a1a;
+    padding: 24px;
 }
 
 .metric {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 1.25rem 1rem;
-    border-right: 2px solid var(--black);
+    align-items: flex-start;
+    gap: 8px;
+    padding: 0 12px;
+    border-right: 2px solid #1a1a1a;
 }
 
 .metric:last-child {
@@ -158,93 +185,102 @@
 }
 
 .metricLabel {
-    font-size: 0.6875rem;
-    font-family: var(--font-body);
-    color: var(--color-text-muted);
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #666;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.5px;
     font-weight: 600;
 }
 
 .metricValue {
-    font-size: 1.5rem;
-    font-family: var(--font-mono);
+    font-size: 28px;
+    font-family: 'Courier New', Courier, monospace;
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
+    line-height: 1.2;
 }
 
 .positive {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .negative {
-    color: var(--red);
+    color: #ff4444;
 }
 
 .progressSection {
-    padding: 1rem 1.5rem;
-    background: var(--white);
-    border-bottom: 2px solid var(--black);
+    padding: 20px 24px;
+    background: #f5f5eb;
+    border-bottom: 3px solid #1a1a1a;
 }
 
 .progressLabel {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
-    font-size: 0.8125rem;
-    font-family: var(--font-body);
-    color: var(--color-text-secondary);
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .timer {
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
+    font-size: 12px;
 }
 
 .progressBar {
-    height: 6px;
-    background-color: var(--gray);
-    border: 1px solid var(--black);
+    width: 100%;
+    height: 12px;
+    background-color: #c4b9a4;
+    border: 2px solid #1a1a1a;
     overflow: hidden;
 }
 
 .progressFill {
     height: 100%;
-    transition: width 0.5s ease;
-    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    transition: width 0.6s ease;
+    background: #22c55e;
 }
 
-/* Yellow Footer */
+/* Footer with darker cream background */
 .footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
+    padding: 20px 24px;
     margin-top: auto;
-    background: var(--yellow);
+    background: #c4b9a4;
 }
 
 .price {
-    font-size: 1rem;
-    font-family: var(--font-body);
-    font-weight: 700;
-    color: var(--black);
+    font-size: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .viewDetails {
-    font-size: 0.9375rem;
-    font-family: var(--font-body);
-    font-weight: 700;
-    color: var(--black);
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
+    padding: 10px 20px;
+    background: #1a1a1a;
+    color: #dfd8c8;
+    text-decoration: none;
+    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid #1a1a1a;
 }
 
 .card:hover .viewDetails {
-    transform: translateX(4px);
+    background: #2c5f5f;
+    border-color: #1a1a1a;
 }
 
 /* Compatibility class names */
@@ -258,7 +294,7 @@
     flex-direction: column;
     gap: 1rem;
     flex: 1;
-    background: var(--white);
+    background: #dfd8c8;
 }
 
 .priceTag {
@@ -267,15 +303,15 @@
 
 .currentPrice {
     font-size: 1.75rem;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', Courier, monospace;
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
     line-height: 1;
 }
 
 .originalPrice {
     font-size: 0.875rem;
-    color: var(--color-text-muted);
+    color: #666;
     text-decoration: line-through;
     margin-top: 0.25rem;
 }
@@ -284,14 +320,14 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
-    border: 2px solid var(--black);
+    border: 2px solid #1a1a1a;
     overflow: hidden;
 }
 
 .cardMetrics .metric {
     border: none;
-    border-right: 2px solid var(--black);
-    background: var(--white);
+    border-right: 2px solid #1a1a1a;
+    background: #dfd8c8;
 }
 
 .cardMetrics .metric:nth-child(2n) {
@@ -299,23 +335,23 @@
 }
 
 .gmpPositive {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .gmpNegative {
-    color: var(--red);
+    color: #ff4444;
 }
 
 .subscriptionHigh {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .subscriptionMedium {
-    color: var(--black);
+    color: #1a1a1a;
 }
 
 .subscriptionLow {
-    color: var(--color-text-muted);
+    color: #666;
 }
 
 .cardFooter {
@@ -325,11 +361,11 @@
 .viewButton {
     width: 100%;
     padding: 1rem;
-    background: var(--yellow);
-    color: var(--black);
+    background: #1a1a1a;
+    color: #dfd8c8;
     border: none;
     font-size: 0.9375rem;
-    font-family: var(--font-body);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -342,33 +378,43 @@
 }
 
 .viewButton:hover {
-    background: var(--black);
-    color: var(--yellow);
+    background: #2c5f5f;
+    color: #dfd8c8;
 }
 
 .statusOpen {
-    background-color: var(--red);
-    color: var(--white);
+    background-color: #ff4444;
+    color: white;
 }
 
 .statusClosing {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
 }
 
 .statusUpcoming {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
 }
 
+/* Tablets */
 @media (max-width: 768px) {
     .card {
         transform: rotate(0deg);
+        box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
     }
 
     .card:nth-child(2),
-    .card:nth-child(3) {
+    .card:nth-child(3),
+    .card:nth-child(4n+1),
+    .card:nth-child(4n+2),
+    .card:nth-child(4n+3),
+    .card:nth-child(4n) {
         transform: rotate(0deg);
+    }
+
+    .card:hover {
+        transform: translateY(-4px) scale(1.01);
     }
 
     .cardHeader {
@@ -378,26 +424,112 @@
     }
 
     .metricsRow {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        padding: 1.25rem;
     }
 
     .metric {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0.875rem 1.25rem;
-        border-right: none;
-        border-bottom: 2px solid var(--black);
+        padding: 0 8px;
     }
 
-    .metric:last-child {
-        border-bottom: none;
+    .metricValue {
+        font-size: 24px;
     }
 
     .companyName {
         font-size: 1.125rem;
     }
 
+    .footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .viewDetails {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .card {
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+        border-width: 3px;
+    }
+
+    .cardHeader {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .titleSection {
+        gap: 6px;
+    }
+
+    .companyName {
+        font-size: 1rem;
+        letter-spacing: -0.2px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+
+    .statusBadge {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+
+    .metricsRow {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .metric {
+        padding: 0 6px;
+        gap: 6px;
+    }
+
+    .metricLabel {
+        font-size: 10px;
+    }
+
     .metricValue {
-        font-size: 1.25rem;
+        font-size: 20px;
+    }
+
+    .progressSection {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .progressLabel {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .timer {
+        font-size: 11px;
+    }
+
+    .progressBar {
+        height: 10px;
+    }
+
+    .footer {
+        padding: 1rem;
+    }
+
+    .price {
+        font-size: 14px;
+    }
+
+    .viewDetails {
+        padding: 10px 16px;
+        font-size: 12px;
     }
 }

@@ -436,13 +436,23 @@ export default function CheckAllotment() {
 }
 
 :root {
-  /* Brutalist Color Palette */
-  --yellow: #FFED4E;
+  /* Elegant Theme Color Palette */
+  --beige: #e8e5d6;
+  --beige-dark: #d0cbb8;
+  --teal-dark: #1a3a3a;
+  --teal-mid: #2d4a4a;
+  --teal-light: #2d5555;
+  --accent-green: #22c55e;
+  --accent-blue: #3b82f6;
+
+  /* Core Colors (mapped to elegant theme) */
+  --yellow: #e8e5d6;
   --red: #FF3B30;
   --blue: #007AFF;
-  --black: #000000;
+  --black: #1a3a3a;
   --white: #FFFFFF;
-  --gray: #F5F5F5;
+  --gray: #e8e5d6;
+  --dark-bg: #e8e5d6;
 
   /* Semantic Colors */
   --color-primary: var(--yellow);
@@ -459,7 +469,7 @@ export default function CheckAllotment() {
   --color-bg-primary: var(--white);
   --color-bg-secondary: var(--gray);
   --color-bg-tertiary: #EBEBEB;
-  --color-bg-card: var(--white);
+  --color-bg-card: #f5f5eb;
 
   /* Border Colors */
   --color-border: var(--black);
@@ -1563,12 +1573,25 @@ export default function GMPModal({ ipo, onClose }: GMPModalProps) {
     font-size: 1.875rem;
   }
 
+  .sectionSubtitle {
+    font-size: 1rem;
+  }
+
+  .categorySection {
+    margin-bottom: 3rem;
+  }
+
   .categoryTitle {
     font-size: 1.25rem;
   }
 
   .gmpGrid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .gmpCard {
+    padding: 1.5rem;
   }
 
   .gmpValue {
@@ -1577,6 +1600,100 @@ export default function GMPModal({ ipo, onClose }: GMPModalProps) {
 
   .gmpPercentage {
     font-size: 1.125rem;
+  }
+
+  .gmpInfo {
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+  }
+
+  .infoLabel {
+    font-size: 0.6875rem;
+  }
+
+  .infoValue {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionHeader {
+    margin-bottom: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .sectionSubtitle {
+    font-size: 0.875rem;
+  }
+
+  .categorySection {
+    margin-bottom: 2.5rem;
+  }
+
+  .categoryTitle {
+    font-size: 1.125rem;
+    gap: 0.5rem;
+  }
+
+  .categoryIcon {
+    font-size: 1.5rem;
+  }
+
+  .categoryCount {
+    font-size: 0.875rem;
+  }
+
+  .gmpCard {
+    padding: 1.25rem;
+  }
+
+  .gmpHeader {
+    margin-bottom: 1.25rem;
+  }
+
+  .headerTop {
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .gmpCompany {
+    font-size: 1.125rem;
+  }
+
+  .categoryBadge,
+  .statusBadge {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+
+  .gmpValue {
+    font-size: 1.75rem;
+  }
+
+  .gmpPercentage {
+    font-size: 1rem;
+  }
+
+  .gmpInfo {
+    gap: 0.5rem;
+    padding-top: 1rem;
+  }
+
+  .infoItem {
+    gap: 0.125rem;
+  }
+
+  .infoLabel {
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .infoValue {
+    font-size: 0.875rem;
   }
 }
 </file>
@@ -3149,6 +3266,8 @@ export default function IPOLayout({
 }
 
 /* ===== RESPONSIVE ===== */
+
+/* Large tablets */
 @media (max-width: 1024px) {
   .metricsGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -3164,15 +3283,42 @@ export default function IPOLayout({
   .prosConsGrid {
     grid-template-columns: 1fr;
   }
+
+  .section {
+    padding: 1.5rem;
+  }
+
+  .hero {
+    padding: 2rem;
+  }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+
   .hero {
     padding: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .heroHeader {
     flex-direction: column;
+    gap: 1rem;
+  }
+
+  .heroLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .companyLogo {
+    width: 64px;
+    height: 64px;
+    font-size: 1.5rem;
   }
 
   .heroTitle {
@@ -3181,10 +3327,33 @@ export default function IPOLayout({
 
   .metricsGrid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .metricCard {
+    padding: 1rem;
+  }
+
+  .metricValue {
+    font-size: 1.25rem;
+  }
+
+  .section {
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
   }
 
   .factsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .factItem {
+    padding: 0.75rem 1rem;
   }
 
   .highlights {
@@ -3198,6 +3367,14 @@ export default function IPOLayout({
   .reviewHeader {
     flex-direction: column;
     text-align: center;
+  }
+
+  .financialCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .categoryCards {
+    grid-template-columns: 1fr;
   }
 
   .floatingCta {
@@ -3217,6 +3394,177 @@ export default function IPOLayout({
   .ctaButton {
     flex: 1;
     text-align: center;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .hero {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .heroHeader {
+    gap: 0.75rem;
+  }
+
+  .companyLogo {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+  }
+
+  .heroTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .statusBadge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .alertButton {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .metricsGrid {
+    gap: 0.5rem;
+  }
+
+  .metricCard {
+    padding: 0.875rem;
+  }
+
+  .metricLabel {
+    font-size: 0.6875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .metricValue {
+    font-size: 1.125rem;
+  }
+
+  .section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+    margin-bottom: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .sectionIcon {
+    font-size: 1rem;
+  }
+
+  .factLabel {
+    font-size: 0.8125rem;
+  }
+
+  .factValue {
+    font-size: 0.875rem;
+  }
+
+  .subscriptionOverall {
+    padding: 1.25rem;
+  }
+
+  .overallValue {
+    font-size: 2.25rem;
+  }
+
+  .categoryCard {
+    padding: 1rem;
+  }
+
+  .categoryName {
+    font-size: 0.6875rem;
+  }
+
+  .categoryValue {
+    font-size: 1rem;
+  }
+
+  .gmpMainCard {
+    padding: 1rem;
+  }
+
+  .gmpAmount {
+    font-size: 2rem;
+  }
+
+  .financialCards {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .financialCard {
+    padding: 0.75rem;
+  }
+
+  .financialLabel {
+    font-size: 0.6875rem;
+  }
+
+  .financialValue {
+    font-size: 1rem;
+  }
+
+  .highlightItem {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .highlightIcon {
+    font-size: 1rem;
+  }
+
+  .highlightText {
+    font-size: 0.8125rem;
+  }
+
+  .ratingStars {
+    font-size: 1.5rem;
+  }
+
+  .ratingName {
+    min-width: 80px;
+    font-size: 0.6875rem;
+  }
+
+  .prosList li,
+  .consList li {
+    padding: 0.625rem 0;
+    font-size: 0.8125rem;
+  }
+
+  .recommendationBox {
+    padding: 1rem;
+  }
+
+  .floatingCta {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .ctaInfo {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ctaButton,
+  .ctaSecondary {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
   }
 }
 </file>
@@ -4025,12 +4373,12 @@ export default function RootLayout({
 
 <file path="app/page.module.css">
 /* ============================================
-   Homepage Layout - Template Style
+   Homepage Layout - Elegant Theme
    ============================================ */
 
 .homepage {
   min-height: 100vh;
-  background: var(--dark-bg, #1a1a1a);
+  background: linear-gradient(135deg, #1a3a3a 0%, #2c5f5f 50%, #1a3a3a 100%);
 }
 
 .loadingContainer {
@@ -4039,16 +4387,16 @@ export default function RootLayout({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--dark-bg, #1a1a1a);
+  background: var(--beige, #e8e5d6);
   gap: 1.5rem;
 }
 
 .loader {
   width: 48px;
   height: 48px;
-  border: 4px solid var(--black, #0a0a0a);
-  border-top-color: var(--yellow, #ffed4e);
-  border-radius: 0;
+  border: 4px solid var(--teal-dark, #1a3a3a);
+  border-top-color: var(--accent-green, #22c55e);
+  border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
@@ -4061,50 +4409,350 @@ export default function RootLayout({
 .loadingText {
   font-size: 1rem;
   font-family: var(--font-body);
-  color: var(--white, #ffffff);
+  color: var(--teal-dark, #1a3a3a);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-/* Hero Section */
+/* Hero Section - Teal Gradient */
 .heroSection {
-  background: var(--black, #0a0a0a);
-  padding: 5rem 2rem 4rem;
+  background: linear-gradient(135deg, #1a3a3a 0%, #2d5555 50%, #1a3a3a 100%);
+  padding: 5rem 3rem 6rem;
   position: relative;
   overflow: hidden;
 }
 
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 .heroContent {
-  max-width: 1400px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
+  padding: 0 5%;
   position: relative;
   z-index: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8rem;
+  align-items: center;
+}
+
+/* Slightly reduce gap on medium-large screens */
+@media (min-width: 1600px) {
+  .heroContent {
+    gap: 12rem;
+  }
+}
+
+@media (min-width: 2000px) {
+  .heroContent {
+    gap: 16rem;
+  }
+}
+
+.heroText {
+  /* Text section on the left */
+}
+
+/* Hero Badge */
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-green, #22c55e);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.badgeText {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: 4.5rem;
+  font-weight: 900;
   font-family: var(--font-heading, 'Inter', sans-serif);
-  color: var(--white, #ffffff);
-  margin-bottom: 1.5rem;
+  color: #fff;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  letter-spacing: -2px;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.gradientText {
+  background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .heroSubtitle {
-  font-size: 1.125rem;
+  font-size: 1.35rem;
   font-family: var(--font-body, 'Inter', sans-serif);
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
   max-width: 700px;
   line-height: 1.6;
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* Hero Stats */
+.heroStats {
+  display: flex;
+  gap: 3rem;
+  animation: fadeInUp 0.8s ease-out 0.6s both;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-green, #22c55e);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Card - Floating on Right */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Container for stacked cards */
+.heroCardsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.heroCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2rem;
+  transition: all 0.4s ease;
+  animation: float 6s ease-in-out infinite;
+}
+
+.heroCardSecond {
+  animation-delay: -3s;
+  /* Offset animation for visual interest */
+}
+
+.heroCard:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Upcoming badge (yellow) */
+.upcomingBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffd93d;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a2e2e;
+}
+
+.upcomingDot {
+  width: 8px;
+  height: 8px;
+  background: #1a2e2e;
+  border-radius: 50%;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
   margin: 0;
 }
 
-/* Container */
+.liveBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ff3b3b;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+.cardMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric {
+  text-align: center;
+}
+
+.metricLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3fffc3;
+}
+
+.positive {
+  color: #00d9a3 !important;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cardFooterItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.footerLabel {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.3rem;
+}
+
+.footerValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #3fffc3;
+}
+
+/* Container - Matches page gradient */
 .container {
-  max-width: 1400px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 5%;
+  background: transparent;
 }
 
 /* Cards Grid */
@@ -4119,16 +4767,17 @@ export default function RootLayout({
   grid-column: 1 / -1;
   text-align: center;
   padding: 3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 58, 58, 0.05);
+  border: 2px solid rgba(26, 58, 58, 0.1);
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--teal-mid, #2d4a4a);
   font-family: var(--font-body);
 }
 
 .noFeaturedSub {
   margin-top: 0.5rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--teal-mid, #2d4a4a);
+  opacity: 0.7;
   font-size: 0.875rem;
 }
 
@@ -4145,15 +4794,16 @@ export default function RootLayout({
   display: none;
 }
 
-/* Section Styling - Brutalist */
+/* Section Styling - Elegant Theme */
 .dashboardSection,
 .filtersSection,
 .heatmapSection,
 .calendarSection,
 .comparisonSection {
-  max-width: 1400px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 3rem 5%;
   position: relative;
 }
 
@@ -4169,8 +4819,8 @@ export default function RootLayout({
   bottom: 0;
   left: 2rem;
   right: 2rem;
-  height: 4px;
-  background: var(--black);
+  height: 2px;
+  background: var(--beige-dark, #d0cbb8);
 }
 
 .filtersSection::after,
@@ -4223,12 +4873,12 @@ export default function RootLayout({
 .sectionTitle {
   font-size: 1.75rem;
   font-family: var(--font-heading);
-  color: var(--black);
+  color: var(--teal-dark, #1a3a3a);
   margin-bottom: 1.5rem;
   display: inline-block;
-  background: var(--yellow);
+  background: var(--beige-dark, #d0cbb8);
   padding: 0.5rem 1.5rem;
-  transform: rotate(-1deg);
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
@@ -4237,19 +4887,79 @@ export default function RootLayout({
 }
 
 /* Responsive Design */
+
+/* Large tablets and small desktops */
+@media (max-width: 1200px) {
+  .heroContent {
+    gap: 8rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  }
+}
+
 @media (max-width: 1024px) {
   .heroBottom {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-@media (max-width: 768px) {
-  .heroSection {
-    padding: 2.5rem 1rem 2rem;
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .heroCardsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .heroCard {
+    min-width: 300px;
+    flex-shrink: 0;
   }
 
   .heroTitle {
-    font-size: 2rem;
+    font-size: 3.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* Side-by-side sections become stacked */
+  .heatmapSection,
+  .calendarSection {
+    float: none;
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 2.5rem 1.25rem 3rem;
+  }
+
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .heroCardsContainer,
+  .heroCard {
+    display: none;
+  }
+
+  .heroTitle {
+    font-size: 2.25rem;
+    letter-spacing: -1px;
   }
 
   .heroSubtitle {
@@ -4257,9 +4967,38 @@ export default function RootLayout({
     margin-bottom: 1.5rem;
   }
 
+  .heroBadge {
+    padding: 0.4rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .badgeText {
+    font-size: 0.8rem;
+  }
+
+  .heroStats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: flex-start;
+  }
+
+  .statItem {
+    min-width: 45%;
+  }
+
+  .statNumber {
+    font-size: 2rem;
+  }
+
+  .statLabel {
+    font-size: 0.875rem;
+  }
+
+  .cardsGrid,
   .featuredGrid {
     grid-template-columns: 1fr;
-    padding: 0 1rem;
+    padding: 0;
     gap: 1.25rem;
   }
 
@@ -4271,6 +5010,10 @@ export default function RootLayout({
   .sectionTitle {
     font-size: 1.375rem;
     padding: 0.375rem 1rem;
+  }
+
+  .container {
+    padding: 2.5rem 1rem;
   }
 
   .dashboardSection,
@@ -4291,6 +5034,62 @@ export default function RootLayout({
   .calendarSection::after {
     left: 1rem;
     right: 1rem;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .heroTitle {
+    font-size: 1.875rem;
+    letter-spacing: -0.5px;
+  }
+
+  .heroSubtitle {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .heroStats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .statItem {
+    min-width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .statNumber {
+    font-size: 1.75rem;
+  }
+
+  .container {
+    padding: 2rem 0.75rem;
+  }
+
+  .cardsGrid,
+  .featuredGrid {
+    gap: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .dashboardSection,
+  .filtersSection,
+  .calculatorSection,
+  .heatmapSection,
+  .calendarSection,
+  .comparisonSection {
+    padding: 1.5rem 0.75rem;
   }
 }
 </file>
@@ -4354,10 +5153,79 @@ export default function Home() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>TRACK MARKET INTELLIGENCE IN REAL-TIME</h1>
-          <p className={styles.heroSubtitle}>
-            Live GMP tracking, subscription data, and comprehensive IPO analysis for informed investment decisions
-          </p>
+          {/* Left side - Text */}
+          <div className={styles.heroText}>
+            <div className={styles.heroBadge}>
+              <div className={styles.pulseDot}></div>
+              <span className={styles.badgeText}>Real-Time Market Intelligence</span>
+            </div>
+
+            <h1 className={styles.heroTitle}>
+              TRACK MARKET<br />
+              <span className={styles.gradientText}>INTELLIGENCE</span><br />
+              IN REAL-TIME
+            </h1>
+
+            <p className={styles.heroSubtitle}>
+              Live GMP tracking, subscription data, and comprehensive IPO analysis for informed investment decisions
+            </p>
+
+            <div className={styles.heroStats}>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>50+</div>
+                <div className={styles.statLabel}>Active IPOs Tracked</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>Real-Time</div>
+                <div className={styles.statLabel}>GMP Updates</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statNumber}>100%</div>
+                <div className={styles.statLabel}>Accurate Data</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Floating Card */}
+          {featuredIPOs.length > 0 && (
+            <div className={styles.heroCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>{featuredIPOs[0].company_name || 'TATA TECHNOLOGIES'}</h3>
+                <div className={styles.liveBadge}>
+                  <span className={styles.liveDot}></span>
+                  LIVE
+                </div>
+              </div>
+              <div className={styles.cardMetrics}>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>GMP</div>
+                  <div className={styles.metricValue}>₹{featuredIPOs[0].current_gmp || 485}</div>
+                </div>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>GAIN</div>
+                  <div className={`${styles.metricValue} ${styles.positive}`}>+{featuredIPOs[0].expected_gain_percent || 97}%</div>
+                </div>
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>SUB</div>
+                  <div className={styles.metricValue}>{featuredIPOs[0].subscription_total || 69.43}x</div>
+                </div>
+              </div>
+              <div className={styles.cardFooter}>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Retail Subscription</span>
+                  <span className={styles.footerValue}>{featuredIPOs[0].subscription_retail || 12.87}x</span>
+                </div>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Issue Price</span>
+                  <span className={styles.footerValue}>₹{featuredIPOs[0].price_band_low || 50}</span>
+                </div>
+                <div className={styles.cardFooterItem}>
+                  <span className={styles.footerLabel}>Time Remaining</span>
+                  <span className={styles.footerValue}>3 Days</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -4387,13 +5255,7 @@ export default function Home() {
         <DashboardTabs />
       </section>
 
-      {/* Filters */}
-      <section className={styles.filtersSection}>
-        <IPOFilters
-          selectedCategory={filteredCategory}
-          onCategoryChange={setFilteredCategory}
-        />
-      </section>
+
 
       {/* Calculator */}
       <section className={styles.calculatorSection}>
@@ -5643,18 +6505,18 @@ export default function DashboardTabs() {
 
     const tabs = [
         { id: 'open' as TabType, label: 'Currently Open', count: data.open.length, icon: '🟢' },
-        { id: 'closing' as TabType, label: 'Closing Soon', count: data.closing.length, icon: '⏰' },
         { id: 'listed' as TabType, label: 'Recently Listed', count: data.listed.length, icon: '📈' },
-        { id: 'upcoming' as TabType, label: 'Upcoming This Week', count: data.upcoming.length, icon: '📅' }
+        { id: 'upcoming' as TabType, label: 'Upcoming This Week', count: data.upcoming.length, icon: '📅' },
+        { id: 'closing' as TabType, label: 'Closed', count: data.closing.length, icon: '🔴' }
     ];
 
     const renderIPOCard = (ipo: any, type: TabType) => {
-        const daysLeft = type === 'open' || type === 'closing' 
+        const daysLeft = type === 'open' || type === 'closing'
             ? Math.ceil((new Date(ipo.close_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
             : null;
 
-        const listingGain = type === 'listed' && ipo.listing_gain_percent 
-            ? ipo.listing_gain_percent 
+        const listingGain = type === 'listed' && ipo.listing_gain_percent
+            ? ipo.listing_gain_percent
             : null;
 
         return (
@@ -5752,81 +6614,106 @@ export default function DashboardTabs() {
 
 <file path="components/homepage/FeaturedIPOCard.module.css">
 /* ============================================
-   Featured IPO Card - Brutalist White Theme
+   Featured IPO Card - Cream/Teal Theme
    ============================================ */
 
 .card {
-    background: var(--white);
-    border: 4px solid var(--black);
+    background: #f5f5eb;
+    border: 4px solid #1a1a1a;
     overflow: visible;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: 6px 6px 0 var(--black);
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
     text-decoration: none;
     position: relative;
-    transform: rotate(-1.5deg);
+    transform: rotate(-1.5deg) translateZ(0);
+
+    /* Advanced Rendering Optimization for Sharp Text */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    will-change: transform;
+    outline: 1px solid transparent;
+    /* Anti-aliasing hack */
+    perspective: 1000px;
 }
 
+.card:nth-child(4n+1) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
 
-.card:nth-child(4n+1) { transform: rotate(-1.5deg); }
-.card:nth-child(4n+2) { transform: rotate(-1.5deg); }
-.card:nth-child(4n+3) { transform: rotate(-1.5deg); }
-.card:nth-child(4n)   { transform: rotate(-1.5deg); }
+.card:nth-child(4n+2) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
+
+.card:nth-child(4n+3) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
+
+.card:nth-child(4n) {
+    transform: rotate(-1.5deg) translateZ(0);
+}
 
 /* Tilt animation on hover */
 .card:hover {
-    box-shadow: 8px 8px 0 var(--black);
+    box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.3);
     transform: rotate(0deg) translateY(-8px) scale(1.02);
-    border-color: var(--black);
+    border-color: #1a1a1a;
 }
 
 .cardHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 1.5rem 1.5rem 1rem;
+    padding: 24px;
     gap: 1rem;
-    border-bottom: 2px solid var(--black);
+    border-bottom: 3px solid #1a1a1a;
+    background: #f5f5eb;
 }
 
 .titleSection {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 8px;
 }
 
 .companyName {
-    font-size: 1.375rem;
-    font-family: var(--font-heading);
-    color: var(--black);
+    font-size: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    color: #1a1a1a;
     line-height: 1.15;
     margin: 0;
-    text-transform: uppercase;
+    letter-spacing: -0.3px;
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.6875rem;
-    font-family: var(--font-body);
-    font-weight: 700;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.5px;
     width: fit-content;
-    border: 2px solid var(--black);
+    border: 2px solid #1a1a1a;
+    background: transparent;
+    color: #1a1a1a;
 }
 
 .smeBadge {
-    background-color: var(--white);
-    color: var(--black);
+    background-color: transparent;
+    color: #1a1a1a;
 }
 
 .mainboardBadge {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: transparent;
+    color: #1a1a1a;
 }
 
 .statusSection {
@@ -5836,27 +6723,28 @@ export default function DashboardTabs() {
 .statusBadge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-    font-family: var(--font-body);
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     white-space: nowrap;
     text-transform: uppercase;
-    border: 2px solid currentColor;
+    letter-spacing: 0.5px;
+    border: 2px solid #1a1a1a;
 }
 
 .openStatus {
-    background-color: var(--red);
-    color: var(--white);
-    border-color: var(--red);
+    background-color: #ff4444;
+    color: white;
+    border-color: #1a1a1a;
 }
 
 .openStatus::before {
     content: '';
     width: 8px;
     height: 8px;
-    background: var(--white);
+    background: currentColor;
     border-radius: 50%;
     animation: pulse-dot 1.5s ease-in-out infinite;
 }
@@ -5876,16 +6764,16 @@ export default function DashboardTabs() {
 }
 
 .upcomingStatus {
-    background-color: var(--yellow);
-    color: var(--black);
-    border-color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
+    border-color: #1a1a1a;
 }
 
 .upcomingStatus::before {
     content: '';
     width: 8px;
     height: 8px;
-    background: var(--black);
+    background: #1a1a1a;
     border-radius: 50%;
 }
 
@@ -5893,17 +6781,18 @@ export default function DashboardTabs() {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0;
-    background: var(--white);
-    border-bottom: 2px solid var(--black);
+    background: #f5f5eb;
+    border-bottom: 3px solid #1a1a1a;
+    padding: 24px;
 }
 
 .metric {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 1.25rem 1rem;
-    border-right: 2px solid var(--black);
+    align-items: flex-start;
+    gap: 8px;
+    padding: 0 12px;
+    border-right: 2px solid #1a1a1a;
 }
 
 .metric:last-child {
@@ -5911,93 +6800,102 @@ export default function DashboardTabs() {
 }
 
 .metricLabel {
-    font-size: 0.6875rem;
-    font-family: var(--font-body);
-    color: var(--color-text-muted);
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #666;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.5px;
     font-weight: 600;
 }
 
 .metricValue {
-    font-size: 1.5rem;
-    font-family: var(--font-mono);
+    font-size: 28px;
+    font-family: 'Courier New', Courier, monospace;
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
+    line-height: 1.2;
 }
 
 .positive {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .negative {
-    color: var(--red);
+    color: #ff4444;
 }
 
 .progressSection {
-    padding: 1rem 1.5rem;
-    background: var(--white);
-    border-bottom: 2px solid var(--black);
+    padding: 20px 24px;
+    background: #f5f5eb;
+    border-bottom: 3px solid #1a1a1a;
 }
 
 .progressLabel {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
-    font-size: 0.8125rem;
-    font-family: var(--font-body);
-    color: var(--color-text-secondary);
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .timer {
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
+    font-size: 12px;
 }
 
 .progressBar {
-    height: 6px;
-    background-color: var(--gray);
-    border: 1px solid var(--black);
+    width: 100%;
+    height: 12px;
+    background-color: #c4b9a4;
+    border: 2px solid #1a1a1a;
     overflow: hidden;
 }
 
 .progressFill {
     height: 100%;
-    transition: width 0.5s ease;
-    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    transition: width 0.6s ease;
+    background: #22c55e;
 }
 
-/* Yellow Footer */
+/* Footer with darker cream background */
 .footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
+    padding: 20px 24px;
     margin-top: auto;
-    background: var(--yellow);
+    background: #c4b9a4;
 }
 
 .price {
-    font-size: 1rem;
-    font-family: var(--font-body);
-    font-weight: 700;
-    color: var(--black);
+    font-size: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .viewDetails {
-    font-size: 0.9375rem;
-    font-family: var(--font-body);
-    font-weight: 700;
-    color: var(--black);
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
+    padding: 10px 20px;
+    background: #1a1a1a;
+    color: #dfd8c8;
+    text-decoration: none;
+    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid #1a1a1a;
 }
 
 .card:hover .viewDetails {
-    transform: translateX(4px);
+    background: #2c5f5f;
+    border-color: #1a1a1a;
 }
 
 /* Compatibility class names */
@@ -6011,7 +6909,7 @@ export default function DashboardTabs() {
     flex-direction: column;
     gap: 1rem;
     flex: 1;
-    background: var(--white);
+    background: #dfd8c8;
 }
 
 .priceTag {
@@ -6020,15 +6918,15 @@ export default function DashboardTabs() {
 
 .currentPrice {
     font-size: 1.75rem;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', Courier, monospace;
     font-weight: 700;
-    color: var(--black);
+    color: #1a1a1a;
     line-height: 1;
 }
 
 .originalPrice {
     font-size: 0.875rem;
-    color: var(--color-text-muted);
+    color: #666;
     text-decoration: line-through;
     margin-top: 0.25rem;
 }
@@ -6037,14 +6935,14 @@ export default function DashboardTabs() {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
-    border: 2px solid var(--black);
+    border: 2px solid #1a1a1a;
     overflow: hidden;
 }
 
 .cardMetrics .metric {
     border: none;
-    border-right: 2px solid var(--black);
-    background: var(--white);
+    border-right: 2px solid #1a1a1a;
+    background: #dfd8c8;
 }
 
 .cardMetrics .metric:nth-child(2n) {
@@ -6052,23 +6950,23 @@ export default function DashboardTabs() {
 }
 
 .gmpPositive {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .gmpNegative {
-    color: var(--red);
+    color: #ff4444;
 }
 
 .subscriptionHigh {
-    color: #10b981;
+    color: #22c55e;
 }
 
 .subscriptionMedium {
-    color: var(--black);
+    color: #1a1a1a;
 }
 
 .subscriptionLow {
-    color: var(--color-text-muted);
+    color: #666;
 }
 
 .cardFooter {
@@ -6078,11 +6976,11 @@ export default function DashboardTabs() {
 .viewButton {
     width: 100%;
     padding: 1rem;
-    background: var(--yellow);
-    color: var(--black);
+    background: #1a1a1a;
+    color: #dfd8c8;
     border: none;
     font-size: 0.9375rem;
-    font-family: var(--font-body);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -6095,33 +6993,43 @@ export default function DashboardTabs() {
 }
 
 .viewButton:hover {
-    background: var(--black);
-    color: var(--yellow);
+    background: #2c5f5f;
+    color: #dfd8c8;
 }
 
 .statusOpen {
-    background-color: var(--red);
-    color: var(--white);
+    background-color: #ff4444;
+    color: white;
 }
 
 .statusClosing {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
 }
 
 .statusUpcoming {
-    background-color: var(--yellow);
-    color: var(--black);
+    background-color: #ffc107;
+    color: #1a1a1a;
 }
 
+/* Tablets */
 @media (max-width: 768px) {
     .card {
         transform: rotate(0deg);
+        box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
     }
 
     .card:nth-child(2),
-    .card:nth-child(3) {
+    .card:nth-child(3),
+    .card:nth-child(4n+1),
+    .card:nth-child(4n+2),
+    .card:nth-child(4n+3),
+    .card:nth-child(4n) {
         transform: rotate(0deg);
+    }
+
+    .card:hover {
+        transform: translateY(-4px) scale(1.01);
     }
 
     .cardHeader {
@@ -6131,27 +7039,113 @@ export default function DashboardTabs() {
     }
 
     .metricsRow {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        padding: 1.25rem;
     }
 
     .metric {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0.875rem 1.25rem;
-        border-right: none;
-        border-bottom: 2px solid var(--black);
+        padding: 0 8px;
     }
 
-    .metric:last-child {
-        border-bottom: none;
+    .metricValue {
+        font-size: 24px;
     }
 
     .companyName {
         font-size: 1.125rem;
     }
 
+    .footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .viewDetails {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .card {
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.25);
+        border-width: 3px;
+    }
+
+    .cardHeader {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .titleSection {
+        gap: 6px;
+    }
+
+    .companyName {
+        font-size: 1rem;
+        letter-spacing: -0.2px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+
+    .statusBadge {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+
+    .metricsRow {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .metric {
+        padding: 0 6px;
+        gap: 6px;
+    }
+
+    .metricLabel {
+        font-size: 10px;
+    }
+
     .metricValue {
-        font-size: 1.25rem;
+        font-size: 20px;
+    }
+
+    .progressSection {
+        padding: 1rem;
+        border-bottom-width: 2px;
+    }
+
+    .progressLabel {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .timer {
+        font-size: 11px;
+    }
+
+    .progressBar {
+        height: 10px;
+    }
+
+    .footer {
+        padding: 1rem;
+    }
+
+    .price {
+        font-size: 14px;
+    }
+
+    .viewDetails {
+        padding: 10px 16px;
+        font-size: 12px;
     }
 }
 </file>
@@ -7220,16 +8214,15 @@ export default function IPOCalendarWidget() {
 /* IPO Category Chart Section - Template Style */
 
 .chartSection {
-    background: var(--white, #ffffff);
+    background: linear-gradient(145deg, #ebe4d1 0%, #e5dcc5 100%);
     border-radius: 8px;
-    padding: 2.5rem;
-    margin-bottom: 4rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    transform: rotate(-0.5deg);
 }
 
 .chartSection:hover {
-    transform: rotate(0deg);
+    /* Removed rotation change */
 }
 
 .loading {
@@ -7241,19 +8234,19 @@ export default function IPOCalendarWidget() {
 
 /* Header */
 .chartHeader {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .chartTitle {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--black, #0a0a0a);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
     font-family: var(--font-heading, 'Inter', sans-serif);
 }
 
 .chartSubtitle {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: #666;
     margin: 0;
 }
@@ -7261,8 +8254,8 @@ export default function IPOCalendarWidget() {
 /* Dropdown Row */
 .dropdownRow {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .dropdownGroup {
@@ -7282,7 +8275,7 @@ export default function IPOCalendarWidget() {
 .dropdown {
     width: 100%;
     padding: 0.875rem 1rem;
-    background: var(--gray, #f5f5f5);
+    background: rgba(58, 58, 58, 0.09);
     border: 2px solid var(--black, #0a0a0a);
     border-radius: 4px;
     font-size: 0.875rem;
@@ -7298,7 +8291,7 @@ export default function IPOCalendarWidget() {
 }
 
 .dropdown:hover {
-    background: #e8e8e8;
+    background: #f0f0f0;
 }
 
 .dropdown:focus {
@@ -7316,21 +8309,20 @@ export default function IPOCalendarWidget() {
 .chartContainer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 2rem;
     align-items: center;
 }
 
-/* Pie Chart */
-.pieChart {
-    position: relative;
-    width: 280px;
-    height: 280px;
-    margin: 0 auto;
+/* Pie Chart Wrapper */
+.pieChartWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.pieChart svg {
-    width: 100%;
-    height: 100%;
+.pieSvg {
+    display: block;
 }
 
 .pieSlice {
@@ -7339,62 +8331,63 @@ export default function IPOCalendarWidget() {
 }
 
 .pieSlice:hover {
-    opacity: 0.8;
+    opacity: 0.85;
+    filter: brightness(1.05);
 }
 
-.pieCenter {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* Slice Labels */
+.sliceLabel {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    pointer-events: none;
+}
+
+/* Total displayed below the pie chart */
+.totalBelow {
     text-align: center;
-    background: white;
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    margin-top: 0;
+    padding: 0.75rem 1.5rem;
+    background: rgba(26, 58, 58, 0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(26, 58, 58, 0.15);
 }
 
-.pieCenterValue {
+.totalValue {
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--black, #0a0a0a);
-    line-height: 1;
+    color: var(--teal-dark, #1a3a3a);
+    line-height: 1.2;
 }
 
-.pieCenterLabel {
-    font-size: 0.6875rem;
-    color: #666;
-    margin-top: 0.25rem;
+.totalLabel {
+    font-size: 0.65rem;
+    color: #4a6a6a;
+    margin-top: 0.125rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
 }
 
 /* Legend */
 .chartLegend {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.75rem;
 }
 
 .legendItem {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--gray, #f5f5f5);
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(58, 58, 58, 0.09);
     border-radius: 6px;
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
 .legendItem:hover {
-    background: #e8e8e8;
+    background: #f0f0f0;
     transform: translateX(4px);
 }
 
@@ -7434,11 +8427,15 @@ export default function IPOCalendarWidget() {
 @media (max-width: 768px) {
     .chartSection {
         padding: 1.5rem;
-        transform: rotate(0deg);
+        margin-bottom: 3rem;
     }
 
     .chartTitle {
         font-size: 1.25rem;
+    }
+
+    .chartSubtitle {
+        font-size: 0.8125rem;
     }
 
     .dropdownRow {
@@ -7486,6 +8483,58 @@ export default function IPOCalendarWidget() {
         font-size: 1rem;
     }
 }
+
+@media (max-width: 480px) {
+    .chartSection {
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .chartTitle {
+        font-size: 1.125rem;
+    }
+
+    .dropdown {
+        padding: 0.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .pieChart {
+        width: 200px;
+        height: 200px;
+    }
+
+    .pieCenter {
+        width: 70px;
+        height: 70px;
+    }
+
+    .pieCenterValue {
+        font-size: 1rem;
+    }
+
+    .legendItem {
+        padding: 0.625rem;
+        gap: 0.75rem;
+    }
+
+    .legendColor {
+        width: 28px;
+        height: 28px;
+    }
+
+    .legendLabel {
+        font-size: 0.6875rem;
+    }
+
+    .legendValue {
+        font-size: 0.875rem;
+    }
+
+    .legendPercent {
+        font-size: 0.625rem;
+    }
+}
 </file>
 
 <file path="components/homepage/IPOCategoryChart.tsx">
@@ -7521,10 +8570,9 @@ const filterOptions: FilterOption[] = [
     { value: 'subscription', label: 'Subscription Data' },
 ];
 
-// Dynamic color palette supporting 1-12 metrics
-// Colors are designed to be visually distinct and accessible
+// Dynamic color palette
 const CHART_COLORS = [
-    '#FFED4E', // Yellow (Primary)
+    '#FFED4E', // Yellow
     '#FF9500', // Orange
     '#007AFF', // Blue
     '#AF52DE', // Purple
@@ -7532,47 +8580,25 @@ const CHART_COLORS = [
     '#34C759', // Green
     '#FF3B30', // Red
     '#FF6F61', // Coral
-    '#00C7BE', // Cyan
-    '#FFD60A', // Gold
-    '#BF5AF2', // Violet
-    '#64D2FF', // Sky Blue
 ];
 
-// Helper function to get color by index (cycles if more than 12 items)
 function getChartColor(index: number): string {
     return CHART_COLORS[index % CHART_COLORS.length];
 }
 
-// SEBI-defined allocation percentages for Mainboard IPOs
+// SEBI-defined allocation percentages
 const ALLOCATION_PERCENTAGES = {
     retail: 35,
     qib: 50,
     nii: 15,
 };
 
-// Interface for pie segment - designed to be dynamic
 interface PieSegment {
     label: string;
     value: number;
     color: string;
     displayValue: string;
     subscribed?: string;
-}
-
-// Utility function to build chart segments from any array of metrics
-// Supports 1-12 segments dynamically with automatic color assignment
-interface MetricInput {
-    label: string;
-    value: number;
-    displayValue: string;
-    subscribed?: string;
-}
-
-function buildChartSegments(metrics: MetricInput[]): PieSegment[] {
-    return metrics.map((metric, index) => ({
-        ...metric,
-        color: getChartColor(index),
-    }));
 }
 
 export default function IPOCategoryChart() {
@@ -7592,7 +8618,6 @@ export default function IPOCategoryChart() {
                 fetchOpenIPOs(),
             ]);
             const allIPOs = [...featured, ...open];
-            // Remove duplicates based on id
             const uniqueIPOs = allIPOs.filter((ipo, index, self) =>
                 index === self.findIndex((t) => t.id === ipo.id)
             );
@@ -7618,9 +8643,9 @@ export default function IPOCategoryChart() {
         switch (selectedFilter) {
             case 'allocation':
                 return [
-                    { label: 'Retail Investors', value: ALLOCATION_PERCENTAGES.retail, color: getChartColor(0), displayValue: `${ALLOCATION_PERCENTAGES.retail}%`, subscribed: `${retailSub.toFixed(2)}x subscribed` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: ALLOCATION_PERCENTAGES.qib, color: getChartColor(1), displayValue: `${ALLOCATION_PERCENTAGES.qib}%`, subscribed: `${qibSub.toFixed(2)}x subscribed` },
-                    { label: 'NII (Non-Institutional Investors)', value: ALLOCATION_PERCENTAGES.nii, color: getChartColor(2), displayValue: `${ALLOCATION_PERCENTAGES.nii}%`, subscribed: `${niiSub.toFixed(2)}x subscribed` },
+                    { label: 'Retail', value: ALLOCATION_PERCENTAGES.retail, color: getChartColor(0), displayValue: `${ALLOCATION_PERCENTAGES.retail}%`, subscribed: `${retailSub.toFixed(2)}x` },
+                    { label: 'QIB', value: ALLOCATION_PERCENTAGES.qib, color: getChartColor(1), displayValue: `${ALLOCATION_PERCENTAGES.qib}%`, subscribed: `${qibSub.toFixed(2)}x` },
+                    { label: 'NII', value: ALLOCATION_PERCENTAGES.nii, color: getChartColor(2), displayValue: `${ALLOCATION_PERCENTAGES.nii}%`, subscribed: `${niiSub.toFixed(2)}x` },
                 ];
 
             case 'issueSize': {
@@ -7628,17 +8653,17 @@ export default function IPOCategoryChart() {
                 const qibCr = (issueSize * ALLOCATION_PERCENTAGES.qib) / 100;
                 const niiCr = (issueSize * ALLOCATION_PERCENTAGES.nii) / 100;
                 return [
-                    { label: 'Retail Investors', value: retailCr, color: getChartColor(0), displayValue: `₹${retailCr.toFixed(1)} Cr` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: qibCr, color: getChartColor(1), displayValue: `₹${qibCr.toFixed(1)} Cr` },
-                    { label: 'NII (Non-Institutional Investors)', value: niiCr, color: getChartColor(2), displayValue: `₹${niiCr.toFixed(1)} Cr` },
+                    { label: 'Retail', value: retailCr, color: getChartColor(0), displayValue: `₹${retailCr.toFixed(1)}Cr` },
+                    { label: 'QIB', value: qibCr, color: getChartColor(1), displayValue: `₹${qibCr.toFixed(1)}Cr` },
+                    { label: 'NII', value: niiCr, color: getChartColor(2), displayValue: `₹${niiCr.toFixed(1)}Cr` },
                 ];
             }
 
             case 'subscription': {
                 return [
-                    { label: 'Retail Investors', value: retailSub || 0.01, color: getChartColor(0), displayValue: `${retailSub.toFixed(2)}x` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: qibSub || 0.01, color: getChartColor(1), displayValue: `${qibSub.toFixed(2)}x` },
-                    { label: 'NII (Non-Institutional Investors)', value: niiSub || 0.01, color: getChartColor(2), displayValue: `${niiSub.toFixed(2)}x` },
+                    { label: 'Retail', value: retailSub || 0.01, color: getChartColor(0), displayValue: `${retailSub.toFixed(2)}x` },
+                    { label: 'QIB', value: qibSub || 0.01, color: getChartColor(1), displayValue: `${qibSub.toFixed(2)}x` },
+                    { label: 'NII', value: niiSub || 0.01, color: getChartColor(2), displayValue: `${niiSub.toFixed(2)}x` },
                 ];
             }
 
@@ -7650,34 +8675,45 @@ export default function IPOCategoryChart() {
     const chartData = getChartData();
     const total = chartData.reduce((sum, segment) => sum + segment.value, 0) || 1;
 
-    // Generate solid pie chart using path elements
-    const generatePieSlices = () => {
-        let currentAngle = -90; // Start from top
-        const centerX = 140;
-        const centerY = 140;
-        const radius = 120;
+    const centerX = 170;
+    const centerY = 160;
+    const radius = 100;
+    const innerLabelRadius = 55; // For labels inside the slice
+    const labelRadius = 112; // For label line start (outside edge)
+    const outerLabelRadius = 130; // For label line bend point
 
-        return chartData.map((segment, index) => {
+    // Threshold: slices with more than 25% get labels inside
+    const INSIDE_LABEL_THRESHOLD = 0.25;
+
+    // Generate filled pie slices and labels with smart placement
+    const generatePieChart = () => {
+        let currentAngle = -90;
+        const slices: JSX.Element[] = [];
+        const labels: JSX.Element[] = [];
+
+        chartData.forEach((segment, index) => {
             const percentage = segment.value / total;
             const sliceAngle = percentage * 360;
             const startAngle = currentAngle;
             const endAngle = currentAngle + sliceAngle;
+            const midAngle = startAngle + sliceAngle / 2;
 
             currentAngle = endAngle;
 
             // Convert angles to radians
             const startRad = (startAngle * Math.PI) / 180;
             const endRad = (endAngle * Math.PI) / 180;
+            const midRad = (midAngle * Math.PI) / 180;
 
-            // Calculate arc points
+            // Calculate arc points for slice
             const x1 = centerX + radius * Math.cos(startRad);
             const y1 = centerY + radius * Math.sin(startRad);
             const x2 = centerX + radius * Math.cos(endRad);
             const y2 = centerY + radius * Math.sin(endRad);
 
-            // Large arc flag
             const largeArc = sliceAngle > 180 ? 1 : 0;
 
+            // Filled pie slice path
             const pathData = `
                 M ${centerX} ${centerY}
                 L ${x1} ${y1}
@@ -7685,17 +8721,94 @@ export default function IPOCategoryChart() {
                 Z
             `;
 
-            return (
+            slices.push(
                 <path
-                    key={index}
+                    key={`slice-${index}`}
                     d={pathData}
                     fill={segment.color}
-                    stroke="#ffffff"
+                    stroke="#1a3a3a"
                     strokeWidth="2"
                     className={styles.pieSlice}
                 />
             );
+
+            // Smart label placement based on slice size
+            if (percentage >= INSIDE_LABEL_THRESHOLD) {
+                // Large slice: place label INSIDE with name on top, value below
+                const labelX = centerX + innerLabelRadius * Math.cos(midRad);
+                const labelY = centerY + innerLabelRadius * Math.sin(midRad);
+
+                labels.push(
+                    <text
+                        key={`label-${index}`}
+                        x={labelX}
+                        y={labelY}
+                        textAnchor="middle"
+                        className={styles.sliceLabel}
+                        fill="#1a3a3a"
+                    >
+                        <tspan x={labelX} dy="-0.5em" fontSize="13" fontWeight="600">
+                            {segment.label}
+                        </tspan>
+                        <tspan x={labelX} dy="1.2em" fontSize="15" fontWeight="700">
+                            {segment.displayValue}
+                        </tspan>
+                    </text>
+                );
+            } else {
+                // Small slice: place label OUTSIDE with connecting lines
+                const edgeX = centerX + labelRadius * Math.cos(midRad);
+                const edgeY = centerY + labelRadius * Math.sin(midRad);
+                const outerX = centerX + outerLabelRadius * Math.cos(midRad);
+                const outerY = centerY + outerLabelRadius * Math.sin(midRad);
+
+                // Horizontal extension for the label
+                const isRightSide = midAngle > -90 && midAngle < 90;
+                const horizontalExtend = isRightSide ? 30 : -30;
+                const textAnchor = isRightSide ? 'start' : 'end';
+                const textX = outerX + horizontalExtend + (isRightSide ? 5 : -5);
+
+                labels.push(
+                    <g key={`label-${index}`}>
+                        {/* First line: from edge to outer point */}
+                        <line
+                            x1={edgeX}
+                            y1={edgeY}
+                            x2={outerX}
+                            y2={outerY}
+                            stroke="#1a3a3a"
+                            strokeWidth="1.5"
+                        />
+                        {/* Second line: horizontal extension */}
+                        <line
+                            x1={outerX}
+                            y1={outerY}
+                            x2={outerX + horizontalExtend}
+                            y2={outerY}
+                            stroke="#1a3a3a"
+                            strokeWidth="1.5"
+                        />
+                        {/* Label text - stacked */}
+                        <text
+                            x={textX}
+                            y={outerY}
+                            textAnchor={textAnchor}
+                            className={styles.sliceLabel}
+                            fill="#1a3a3a"
+                        >
+                            <tspan x={textX} dy="-0.4em" fontSize="11" fontWeight="600">
+                                {segment.label}
+                            </tspan>
+                            <tspan x={textX} dy="1.1em" fontSize="13" fontWeight="700">
+                                {segment.displayValue}
+                            </tspan>
+                        </text>
+                    </g>
+                );
+            }
         });
+
+        return { slices, labels };
     };
 
     const getCenterValue = (): string => {
@@ -7731,6 +8844,8 @@ export default function IPOCategoryChart() {
             </div>
         );
     }
+
+    const { slices, labels } = generatePieChart();
 
     return (
         <div className={styles.chartSection}>
@@ -7776,16 +8891,16 @@ export default function IPOCategoryChart() {
             </div>
 
             <div className={styles.chartContainer}>
-                {/* Pie Chart */}
-                <div className={styles.pieChart}>
-                    <svg width="280" height="280" viewBox="0 0 280 280">
-                        <g style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
-                            {generatePieSlices()}
-                        </g>
+                {/* Pie Chart with labels */}
+                <div className={styles.pieChartWrapper}>
+                    <svg width="340" height="340" viewBox="0 0 340 320" className={styles.pieSvg}>
+                        {slices}
+                        {labels}
                     </svg>
-                    <div className={styles.pieCenter}>
-                        <div className={styles.pieCenterValue}>{getCenterValue()}</div>
-                        <div className={styles.pieCenterLabel}>{getCenterLabel()}</div>
+                    {/* Total displayed below the pie chart */}
+                    <div className={styles.totalBelow}>
+                        <div className={styles.totalValue}>{getCenterValue()}</div>
+                        <div className={styles.totalLabel}>{getCenterLabel()}</div>
                     </div>
                 </div>
 
@@ -7802,7 +8917,7 @@ export default function IPOCategoryChart() {
                                 <div className={styles.legendValue}>
                                     {segment.displayValue}
                                     {segment.subscribed && (
-                                        <span className={styles.legendPercent}>{segment.subscribed}</span>
+                                        <span className={styles.legendPercent}> ({segment.subscribed} subscribed)</span>
                                     )}
                                 </div>
                             </div>
@@ -10185,16 +11300,12 @@ export function Navbar() {
 
 <file path="components/Navigation.module.css">
 /* ============================================
-   Brutalist Editorial Navigation
+   Elegant Navigation - Beige Theme
    ============================================ */
 
-/* Top Promo Bar */
+/* Top Promo Bar - Hidden in elegant theme */
 .topBar {
-  background: var(--black);
-  padding: 0.75rem 0;
-  position: relative;
-  overflow: hidden;
-  border-bottom: 3px solid var(--yellow);
+  display: none;
 }
 
 .topBar::before {
@@ -10269,9 +11380,10 @@ export function Navbar() {
   }
 }
 
-/* Main Navbar - Clean Yellow Background */
+/* Main Navbar - Teal Theme */
 .navbar {
-  background-color: var(--yellow);
+  background: linear-gradient(135deg, #1a3a3a 0%, #2c5f5f 50%, #1a3a3a 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -10279,13 +11391,14 @@ export function Navbar() {
 }
 
 .navbar.scrolled {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .navMain {
-  max-width: 1400px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 0.875rem 2rem;
+  padding: 0.875rem 5%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -10313,13 +11426,13 @@ export function Navbar() {
   font-size: 1.125rem;
   font-family: var(--font-heading, 'Inter', sans-serif);
   font-weight: 800;
-  color: var(--black);
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 .logoAccent {
-  color: var(--black);
+  color: #3fffc3;
 }
 
 /* Navigation Links - Right aligned, smaller fonts */
@@ -10340,18 +11453,17 @@ export function Navbar() {
   font-size: 0.8125rem;
   font-family: var(--font-body, 'Inter', sans-serif);
   font-weight: 600;
-  color: var(--black);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   position: relative;
-  transition: opacity 0.2s ease;
+  transition: color 0.3s ease;
   border: none;
   background: transparent;
 }
 
 .navLink:hover {
-  opacity: 0.7;
+  color: #3fffc3;
   background: transparent;
-  color: var(--black);
 }
 
 .navIcon {
@@ -10530,18 +11642,32 @@ export function Navbar() {
    Responsive Design
    ============================================ */
 
+/* Large tablets */
 @media (max-width: 1024px) {
+  .navMain {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .navLinks {
+    gap: 1rem;
+  }
+
   .navLink {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
   }
 
   .navIcon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .logoText {
+    font-size: 1rem;
   }
 }
 
+/* Tablets - switch to mobile menu */
 @media (max-width: 900px) {
   .navLinks {
     display: none;
@@ -10549,13 +11675,64 @@ export function Navbar() {
 
   .mobileMenuButton {
     display: flex;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  .mobileMenuButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #3fffc3;
+    transform: none;
   }
 
   .mobileMenu {
     display: block;
+    background: linear-gradient(135deg, #1a3a3a 0%, #2c5f5f 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobileMenu.open {
+    padding: 1rem;
+  }
+
+  .mobileNavLinks {
+    gap: 0.5rem;
+  }
+
+  .mobileNavLink {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+  }
+
+  .mobileNavLink:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #3fffc3;
+    transform: none;
+  }
+
+  .mobileActiveLink {
+    background: rgba(63, 255, 195, 0.15);
+    color: #3fffc3;
+    border-color: rgba(63, 255, 195, 0.3);
+  }
+
+  .mobileNavIcon {
+    color: currentColor;
+  }
+
+  .mobileBadge {
+    background: #ff3b3b;
+    color: #fff;
   }
 }
 
+/* Mobile phones */
 @media (max-width: 480px) {
   .topBar {
     padding: 0.5rem 0;
@@ -10572,30 +11749,39 @@ export function Navbar() {
   }
 
   .navMain {
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.75rem;
   }
 
-  .logoIcon {
+  .logo {
+    gap: 0;
+  }
+
+  .logoText {
+    font-size: 0.9375rem;
+  }
+
+  .mobileMenuButton {
     width: 40px;
     height: 40px;
   }
 
-  .logoIcon svg {
+  .mobileMenuButton svg {
     width: 20px;
     height: 20px;
   }
 
-  .logoText {
-    font-size: 1.25rem;
-  }
-
-  .mobileMenuButton {
-    width: 44px;
-    height: 44px;
+  .mobileMenu.open {
+    padding: 0.75rem;
   }
 
   .mobileNavLink {
     padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .mobileNavIcon {
+    width: 20px;
+    height: 20px;
   }
 }
 </file>

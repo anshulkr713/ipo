@@ -8,22 +8,23 @@
 }
 
 :root {
-  /* Brutalist Color Palette */
-  /* --yellow: #FFED4E; */
-  /* --black: #000000; */
-  /* --dark-bg: #1a1a1a; */
-  /* --red: #FF3B30;
-  --blue: #007AFF;
-  --white: #FFFFFF;
-  --gray: #F5F5F5; */
-  
-  --yellow: #E5F0D1;
+  /* Elegant Theme Color Palette */
+  --beige: #e8e5d6;
+  --beige-dark: #d0cbb8;
+  --teal-dark: #1a3a3a;
+  --teal-mid: #2d4a4a;
+  --teal-light: #2d5555;
+  --accent-green: #22c55e;
+  --accent-blue: #3b82f6;
+
+  /* Core Colors (mapped to elegant theme) */
+  --yellow: #e8e5d6;
   --red: #FF3B30;
   --blue: #007AFF;
-  --black: #143D3D;
+  --black: #1a3a3a;
   --white: #FFFFFF;
-  --gray: #F5F5F5;
-  --dark-bg: #E5F0D1;
+  --gray: #e8e5d6;
+  --dark-bg: #e8e5d6;
 
   /* Semantic Colors */
   --color-primary: var(--yellow);
@@ -40,7 +41,7 @@
   --color-bg-primary: var(--white);
   --color-bg-secondary: var(--gray);
   --color-bg-tertiary: #EBEBEB;
-  --color-bg-card: var(--white);
+  --color-bg-card: #f5f5eb;
 
   /* Border Colors */
   --color-border: var(--black);

@@ -302,3 +302,27 @@ function getRecommendation(profitPercentage: number, allotmentProb: number, subs
     }
     return { text: 'Neutral', color: '#9ca3af', icon: '➖' };
 }
+
+// ============================================
+// REAL-TIME SUBSCRIPTIONS
+// ============================================
+
+export function subscribeToIPOUpdates(callback: (payload: any) => void) {
+    const subscription = supabase
+        .channel('ipos-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: '*',
+                schema: 'public',
+                table: 'ipos'
+            },
+            (payload) => {
+                console.log('IPO table changed:', payload);
+                callback(payload);
+            }
+        )
+        .subscribe();
+
+    return subscription;
+}

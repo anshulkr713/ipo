@@ -1,14 +1,10 @@
 /* ============================================
-   Brutalist Editorial Navigation
+   Elegant Navigation - Beige Theme
    ============================================ */
 
-/* Top Promo Bar */
+/* Top Promo Bar - Hidden in elegant theme */
 .topBar {
-  background: var(--black);
-  padding: 0.75rem 0;
-  position: relative;
-  overflow: hidden;
-  border-bottom: 3px solid var(--yellow);
+  display: none;
 }
 
 .topBar::before {
@@ -83,9 +79,10 @@
   }
 }
 
-/* Main Navbar - Clean Yellow Background */
+/* Main Navbar - Teal Theme */
 .navbar {
-  background-color: var(--yellow);
+  background: linear-gradient(135deg, #1a3a3a 0%, #2c5f5f 50%, #1a3a3a 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -93,13 +90,14 @@
 }
 
 .navbar.scrolled {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .navMain {
-  max-width: 1400px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 0.875rem 2rem;
+  padding: 0.875rem 5%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -127,13 +125,13 @@
   font-size: 1.125rem;
   font-family: var(--font-heading, 'Inter', sans-serif);
   font-weight: 800;
-  color: var(--black);
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 .logoAccent {
-  color: var(--black);
+  color: #3fffc3;
 }
 
 /* Navigation Links - Right aligned, smaller fonts */
@@ -154,18 +152,17 @@
   font-size: 0.8125rem;
   font-family: var(--font-body, 'Inter', sans-serif);
   font-weight: 600;
-  color: var(--black);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   position: relative;
-  transition: opacity 0.2s ease;
+  transition: color 0.3s ease;
   border: none;
   background: transparent;
 }
 
 .navLink:hover {
-  opacity: 0.7;
+  color: #3fffc3;
   background: transparent;
-  color: var(--black);
 }
 
 .navIcon {
@@ -344,18 +341,32 @@
    Responsive Design
    ============================================ */
 
+/* Large tablets */
 @media (max-width: 1024px) {
+  .navMain {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .navLinks {
+    gap: 1rem;
+  }
+
   .navLink {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
   }
 
   .navIcon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .logoText {
+    font-size: 1rem;
   }
 }
 
+/* Tablets - switch to mobile menu */
 @media (max-width: 900px) {
   .navLinks {
     display: none;
@@ -363,13 +374,64 @@
 
   .mobileMenuButton {
     display: flex;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  .mobileMenuButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #3fffc3;
+    transform: none;
   }
 
   .mobileMenu {
     display: block;
+    background: linear-gradient(135deg, #1a3a3a 0%, #2c5f5f 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobileMenu.open {
+    padding: 1rem;
+  }
+
+  .mobileNavLinks {
+    gap: 0.5rem;
+  }
+
+  .mobileNavLink {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+  }
+
+  .mobileNavLink:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #3fffc3;
+    transform: none;
+  }
+
+  .mobileActiveLink {
+    background: rgba(63, 255, 195, 0.15);
+    color: #3fffc3;
+    border-color: rgba(63, 255, 195, 0.3);
+  }
+
+  .mobileNavIcon {
+    color: currentColor;
+  }
+
+  .mobileBadge {
+    background: #ff3b3b;
+    color: #fff;
   }
 }
 
+/* Mobile phones */
 @media (max-width: 480px) {
   .topBar {
     padding: 0.5rem 0;
@@ -386,29 +448,38 @@
   }
 
   .navMain {
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.75rem;
   }
 
-  .logoIcon {
+  .logo {
+    gap: 0;
+  }
+
+  .logoText {
+    font-size: 0.9375rem;
+  }
+
+  .mobileMenuButton {
     width: 40px;
     height: 40px;
   }
 
-  .logoIcon svg {
+  .mobileMenuButton svg {
     width: 20px;
     height: 20px;
   }
 
-  .logoText {
-    font-size: 1.25rem;
-  }
-
-  .mobileMenuButton {
-    width: 44px;
-    height: 44px;
+  .mobileMenu.open {
+    padding: 0.75rem;
   }
 
   .mobileNavLink {
     padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .mobileNavIcon {
+    width: 20px;
+    height: 20px;
   }
 }

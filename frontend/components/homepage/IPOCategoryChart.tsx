@@ -30,10 +30,9 @@ const filterOptions: FilterOption[] = [
     { value: 'subscription', label: 'Subscription Data' },
 ];
 
-// Dynamic color palette supporting 1-12 metrics
-// Colors are designed to be visually distinct and accessible
+// Dynamic color palette
 const CHART_COLORS = [
-    '#FFED4E', // Yellow (Primary)
+    '#FFED4E', // Yellow
     '#FF9500', // Orange
     '#007AFF', // Blue
     '#AF52DE', // Purple
@@ -41,47 +40,25 @@ const CHART_COLORS = [
     '#34C759', // Green
     '#FF3B30', // Red
     '#FF6F61', // Coral
-    '#00C7BE', // Cyan
-    '#FFD60A', // Gold
-    '#BF5AF2', // Violet
-    '#64D2FF', // Sky Blue
 ];
 
-// Helper function to get color by index (cycles if more than 12 items)
 function getChartColor(index: number): string {
     return CHART_COLORS[index % CHART_COLORS.length];
 }
 
-// SEBI-defined allocation percentages for Mainboard IPOs
+// SEBI-defined allocation percentages
 const ALLOCATION_PERCENTAGES = {
     retail: 35,
     qib: 50,
     nii: 15,
 };
 
-// Interface for pie segment - designed to be dynamic
 interface PieSegment {
     label: string;
     value: number;
     color: string;
     displayValue: string;
     subscribed?: string;
-}
-
-// Utility function to build chart segments from any array of metrics
-// Supports 1-12 segments dynamically with automatic color assignment
-interface MetricInput {
-    label: string;
-    value: number;
-    displayValue: string;
-    subscribed?: string;
-}
-
-function buildChartSegments(metrics: MetricInput[]): PieSegment[] {
-    return metrics.map((metric, index) => ({
-        ...metric,
-        color: getChartColor(index),
-    }));
 }
 
 export default function IPOCategoryChart() {
@@ -101,7 +78,6 @@ export default function IPOCategoryChart() {
                 fetchOpenIPOs(),
             ]);
             const allIPOs = [...featured, ...open];
-            // Remove duplicates based on id
             const uniqueIPOs = allIPOs.filter((ipo, index, self) =>
                 index === self.findIndex((t) => t.id === ipo.id)
             );
@@ -127,9 +103,9 @@ export default function IPOCategoryChart() {
         switch (selectedFilter) {
             case 'allocation':
                 return [
-                    { label: 'Retail Investors', value: ALLOCATION_PERCENTAGES.retail, color: getChartColor(0), displayValue: `${ALLOCATION_PERCENTAGES.retail}%`, subscribed: `${retailSub.toFixed(2)}x subscribed` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: ALLOCATION_PERCENTAGES.qib, color: getChartColor(1), displayValue: `${ALLOCATION_PERCENTAGES.qib}%`, subscribed: `${qibSub.toFixed(2)}x subscribed` },
-                    { label: 'NII (Non-Institutional Investors)', value: ALLOCATION_PERCENTAGES.nii, color: getChartColor(2), displayValue: `${ALLOCATION_PERCENTAGES.nii}%`, subscribed: `${niiSub.toFixed(2)}x subscribed` },
+                    { label: 'Retail', value: ALLOCATION_PERCENTAGES.retail, color: getChartColor(0), displayValue: `${ALLOCATION_PERCENTAGES.retail}%`, subscribed: `${retailSub.toFixed(2)}x` },
+                    { label: 'QIB', value: ALLOCATION_PERCENTAGES.qib, color: getChartColor(1), displayValue: `${ALLOCATION_PERCENTAGES.qib}%`, subscribed: `${qibSub.toFixed(2)}x` },
+                    { label: 'NII', value: ALLOCATION_PERCENTAGES.nii, color: getChartColor(2), displayValue: `${ALLOCATION_PERCENTAGES.nii}%`, subscribed: `${niiSub.toFixed(2)}x` },
                 ];
 
             case 'issueSize': {
@@ -137,17 +113,17 @@ export default function IPOCategoryChart() {
                 const qibCr = (issueSize * ALLOCATION_PERCENTAGES.qib) / 100;
                 const niiCr = (issueSize * ALLOCATION_PERCENTAGES.nii) / 100;
                 return [
-                    { label: 'Retail Investors', value: retailCr, color: getChartColor(0), displayValue: `₹${retailCr.toFixed(1)} Cr` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: qibCr, color: getChartColor(1), displayValue: `₹${qibCr.toFixed(1)} Cr` },
-                    { label: 'NII (Non-Institutional Investors)', value: niiCr, color: getChartColor(2), displayValue: `₹${niiCr.toFixed(1)} Cr` },
+                    { label: 'Retail', value: retailCr, color: getChartColor(0), displayValue: `₹${retailCr.toFixed(1)}Cr` },
+                    { label: 'QIB', value: qibCr, color: getChartColor(1), displayValue: `₹${qibCr.toFixed(1)}Cr` },
+                    { label: 'NII', value: niiCr, color: getChartColor(2), displayValue: `₹${niiCr.toFixed(1)}Cr` },
                 ];
             }
 
             case 'subscription': {
                 return [
-                    { label: 'Retail Investors', value: retailSub || 0.01, color: getChartColor(0), displayValue: `${retailSub.toFixed(2)}x` },
-                    { label: 'QIB (Qualified Institutional Buyers)', value: qibSub || 0.01, color: getChartColor(1), displayValue: `${qibSub.toFixed(2)}x` },
-                    { label: 'NII (Non-Institutional Investors)', value: niiSub || 0.01, color: getChartColor(2), displayValue: `${niiSub.toFixed(2)}x` },
+                    { label: 'Retail', value: retailSub || 0.01, color: getChartColor(0), displayValue: `${retailSub.toFixed(2)}x` },
+                    { label: 'QIB', value: qibSub || 0.01, color: getChartColor(1), displayValue: `${qibSub.toFixed(2)}x` },
+                    { label: 'NII', value: niiSub || 0.01, color: getChartColor(2), displayValue: `${niiSub.toFixed(2)}x` },
                 ];
             }
 
@@ -159,34 +135,45 @@ export default function IPOCategoryChart() {
     const chartData = getChartData();
     const total = chartData.reduce((sum, segment) => sum + segment.value, 0) || 1;
 
-    // Generate solid pie chart using path elements
-    const generatePieSlices = () => {
-        let currentAngle = -90; // Start from top
-        const centerX = 140;
-        const centerY = 140;
-        const radius = 120;
+    const centerX = 170;
+    const centerY = 160;
+    const radius = 100;
+    const innerLabelRadius = 55; // For labels inside the slice
+    const labelRadius = 112; // For label line start (outside edge)
+    const outerLabelRadius = 130; // For label line bend point
 
-        return chartData.map((segment, index) => {
+    // Threshold: slices with more than 25% get labels inside
+    const INSIDE_LABEL_THRESHOLD = 0.25;
+
+    // Generate filled pie slices and labels with smart placement
+    const generatePieChart = () => {
+        let currentAngle = -90;
+        const slices: JSX.Element[] = [];
+        const labels: JSX.Element[] = [];
+
+        chartData.forEach((segment, index) => {
             const percentage = segment.value / total;
             const sliceAngle = percentage * 360;
             const startAngle = currentAngle;
             const endAngle = currentAngle + sliceAngle;
+            const midAngle = startAngle + sliceAngle / 2;
 
             currentAngle = endAngle;
 
             // Convert angles to radians
             const startRad = (startAngle * Math.PI) / 180;
             const endRad = (endAngle * Math.PI) / 180;
+            const midRad = (midAngle * Math.PI) / 180;
 
-            // Calculate arc points
+            // Calculate arc points for slice
             const x1 = centerX + radius * Math.cos(startRad);
             const y1 = centerY + radius * Math.sin(startRad);
             const x2 = centerX + radius * Math.cos(endRad);
             const y2 = centerY + radius * Math.sin(endRad);
 
-            // Large arc flag
             const largeArc = sliceAngle > 180 ? 1 : 0;
 
+            // Filled pie slice path
             const pathData = `
                 M ${centerX} ${centerY}
                 L ${x1} ${y1}
@@ -194,17 +181,94 @@ export default function IPOCategoryChart() {
                 Z
             `;
 
-            return (
+            slices.push(
                 <path
-                    key={index}
+                    key={`slice-${index}`}
                     d={pathData}
                     fill={segment.color}
-                    stroke="#ffffff"
+                    stroke="#1a3a3a"
                     strokeWidth="2"
                     className={styles.pieSlice}
                 />
             );
+
+            // Smart label placement based on slice size
+            if (percentage >= INSIDE_LABEL_THRESHOLD) {
+                // Large slice: place label INSIDE with name on top, value below
+                const labelX = centerX + innerLabelRadius * Math.cos(midRad);
+                const labelY = centerY + innerLabelRadius * Math.sin(midRad);
+
+                labels.push(
+                    <text
+                        key={`label-${index}`}
+                        x={labelX}
+                        y={labelY}
+                        textAnchor="middle"
+                        className={styles.sliceLabel}
+                        fill="#1a3a3a"
+                    >
+                        <tspan x={labelX} dy="-0.5em" fontSize="13" fontWeight="600">
+                            {segment.label}
+                        </tspan>
+                        <tspan x={labelX} dy="1.2em" fontSize="15" fontWeight="700">
+                            {segment.displayValue}
+                        </tspan>
+                    </text>
+                );
+            } else {
+                // Small slice: place label OUTSIDE with connecting lines
+                const edgeX = centerX + labelRadius * Math.cos(midRad);
+                const edgeY = centerY + labelRadius * Math.sin(midRad);
+                const outerX = centerX + outerLabelRadius * Math.cos(midRad);
+                const outerY = centerY + outerLabelRadius * Math.sin(midRad);
+
+                // Horizontal extension for the label
+                const isRightSide = midAngle > -90 && midAngle < 90;
+                const horizontalExtend = isRightSide ? 30 : -30;
+                const textAnchor = isRightSide ? 'start' : 'end';
+                const textX = outerX + horizontalExtend + (isRightSide ? 5 : -5);
+
+                labels.push(
+                    <g key={`label-${index}`}>
+                        {/* First line: from edge to outer point */}
+                        <line
+                            x1={edgeX}
+                            y1={edgeY}
+                            x2={outerX}
+                            y2={outerY}
+                            stroke="#1a3a3a"
+                            strokeWidth="1.5"
+                        />
+                        {/* Second line: horizontal extension */}
+                        <line
+                            x1={outerX}
+                            y1={outerY}
+                            x2={outerX + horizontalExtend}
+                            y2={outerY}
+                            stroke="#1a3a3a"
+                            strokeWidth="1.5"
+                        />
+                        {/* Label text - stacked */}
+                        <text
+                            x={textX}
+                            y={outerY}
+                            textAnchor={textAnchor}
+                            className={styles.sliceLabel}
+                            fill="#1a3a3a"
+                        >
+                            <tspan x={textX} dy="-0.4em" fontSize="11" fontWeight="600">
+                                {segment.label}
+                            </tspan>
+                            <tspan x={textX} dy="1.1em" fontSize="13" fontWeight="700">
+                                {segment.displayValue}
+                            </tspan>
+                        </text>
+                    </g>
+                );
+            }
         });
+
+        return { slices, labels };
     };
 
     const getCenterValue = (): string => {
@@ -240,6 +304,8 @@ export default function IPOCategoryChart() {
             </div>
         );
     }
+
+    const { slices, labels } = generatePieChart();
 
     return (
         <div className={styles.chartSection}>
@@ -285,16 +351,16 @@ export default function IPOCategoryChart() {
             </div>
 
             <div className={styles.chartContainer}>
-                {/* Pie Chart */}
-                <div className={styles.pieChart}>
-                    <svg width="280" height="280" viewBox="0 0 280 280">
-                        <g style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
-                            {generatePieSlices()}
-                        </g>
+                {/* Pie Chart with labels */}
+                <div className={styles.pieChartWrapper}>
+                    <svg width="340" height="340" viewBox="0 0 340 320" className={styles.pieSvg}>
+                        {slices}
+                        {labels}
                     </svg>
-                    <div className={styles.pieCenter}>
-                        <div className={styles.pieCenterValue}>{getCenterValue()}</div>
-                        <div className={styles.pieCenterLabel}>{getCenterLabel()}</div>
+                    {/* Total displayed below the pie chart */}
+                    <div className={styles.totalBelow}>
+                        <div className={styles.totalValue}>{getCenterValue()}</div>
+                        <div className={styles.totalLabel}>{getCenterLabel()}</div>
                     </div>
                 </div>
 
@@ -311,7 +377,7 @@ export default function IPOCategoryChart() {
                                 <div className={styles.legendValue}>
                                     {segment.displayValue}
                                     {segment.subscribed && (
-                                        <span className={styles.legendPercent}>{segment.subscribed}</span>
+                                        <span className={styles.legendPercent}> ({segment.subscribed} subscribed)</span>
                                     )}
                                 </div>
                             </div>
