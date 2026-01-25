@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 
+export const revalidate = 3600; // Revalidate every 1 hour
+
 // Mock IPO data for metadata generation - in production, fetch from API
 const getIPOData = async (slug: string) => {
     const companyName = slug

@@ -1,0 +1,435 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { fetchIPOBySlug, fetchAllIPOSlugs, getLatestGmp, getLatestSubscription } from '../../lib/api';
+
+export async function getStaticPaths() {
+  const slugs = await fetchAllIPOSlugs();
+  return slugs.map((item: { slug: string }) => ({
+    params: { slug: item.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const ipo = await fetchIPOBySlug(slug);
+
+if (!ipo) {
+  return Astro.redirect('/404');
+}
+
+const formatCurrency = (amount: number | null | undefined) => amount ? `₹${amount.toLocaleString('en-IN')}` : '₹0';
+const formatDate = (date: string | Date | null | undefined) => {
+  if (!date) return 'TBA';
+  return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+// Extract data from nested objects
+const latestGmp = getLatestGmp(ipo.ipo_gmp);
+const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+
+const companyName = ipo.company_name || ipo.ipo_name || 'IPO';
+const gmp = latestGmp?.gmp_amount || 0;
+const gmpPercentage = latestGmp?.gmp_percentage || 0;
+const minPrice = ipo.min_price || 0;
+const maxPrice = ipo.max_price || 0;
+const lotSize = ipo.lot_size || 0;
+const status = ipo.status || 'upcoming';
+const subscriptionRetail = latestSub?.subscription_retail || 0;
+const subscriptionNII = latestSub?.subscription_nii || 0;
+const subscriptionQIB = latestSub?.subscription_qib || 0;
+const subscriptionTotal = latestSub?.subscription_total || 0;
+---
+
+<Layout 
+  title={`${companyName} IPO - GMP ₹${gmp}, Review, Allotment Status`}
+  description={`${companyName} IPO GMP Today is ₹${gmp}. Check subscription status, price band ₹${minPrice}-${maxPrice}, listing date, and broker recommendation.`}
+  keywords={[`${companyName} IPO`, `${companyName} IPO GMP`, `${companyName} IPO allotment status`, `${companyName} IPO review`]}
+>
+  <main class="ipo-detail-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/upcoming-ipos">IPOs</a>
+        <span>/</span>
+        <span class="current">{companyName} IPO</span>
+      </nav>
+
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-header">
+          <div class="hero-left">
+            <div class="company-logo">{companyName.charAt(0).toUpperCase()}</div>
+            <div>
+              <h1 class="hero-title">{companyName} IPO</h1>
+              <span class={`status-badge ${status === 'open' ? 'status-open' : status === 'closed' ? 'status-closed' : 'status-upcoming'}`}>
+                ● {status.toUpperCase()}
+              </span>
+              <p class="last-updated">
+                Updated: <time datetime={ipo.updated_at}>{formatDate(ipo.updated_at)}</time>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Grey Market Premium</div>
+            <div class="metric-value">{formatCurrency(gmp)}</div>
+            <div class={`metric-change ${gmpPercentage >= 0 ? 'positive' : 'negative'}`}>
+              {gmpPercentage ? `${gmpPercentage >= 0 ? '+' : ''}${gmpPercentage}%` : 'N/A'}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Price Band</div>
+            <div class="metric-value">{formatCurrency(minPrice)} - {formatCurrency(maxPrice)}</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Lot Size</div>
+            <div class="metric-value">{lotSize} Shares</div>
+          </div>
+          {subscriptionTotal > 0 && (
+            <div class="metric-card">
+              <div class="metric-label">Total Subscription</div>
+              <div class="metric-value">{subscriptionTotal}x</div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <!-- Subscription Details -->
+      {subscriptionTotal > 0 && (
+        <section class="section">
+          <h2 class="section-title">📊 Subscription Status</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">QIB</div>
+              <div class="metric-value">{subscriptionQIB}x</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">NII</div>
+              <div class="metric-value">{subscriptionNII}x</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Retail</div>
+              <div class="metric-value">{subscriptionRetail}x</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total</div>
+              <div class="metric-value">{subscriptionTotal}x</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <!-- Key Dates -->
+      <section class="section">
+        <h2 class="section-title">📅 Key Dates</h2>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <tbody>
+              <tr>
+                <td><strong>Open Date</strong></td>
+                <td>{formatDate(ipo.open_date)}</td>
+              </tr>
+              <tr>
+                <td><strong>Close Date</strong></td>
+                <td>{formatDate(ipo.close_date)}</td>
+              </tr>
+              <tr>
+                <td><strong>Allotment Date</strong></td>
+                <td>{formatDate(ipo.allotment_date)}</td>
+              </tr>
+              {ipo.refund_date && (
+                <tr>
+                  <td><strong>Refund Date</strong></td>
+                  <td>{formatDate(ipo.refund_date)}</td>
+                </tr>
+              )}
+              {ipo.demat_credit_date && (
+                <tr>
+                  <td><strong>Demat Credit</strong></td>
+                  <td>{formatDate(ipo.demat_credit_date)}</td>
+                </tr>
+              )}
+              <tr>
+                <td><strong>Listing Date</strong></td>
+                <td>{formatDate(ipo.listing_date)}</td>
+              </tr>
+              {ipo.registrar && (
+                <tr>
+                  <td><strong>Registrar</strong></td>
+                  <td>{ipo.registrar}</td>
+                </tr>
+              )}
+              {ipo.category && (
+                <tr>
+                  <td><strong>Category</strong></td>
+                  <td>{ipo.category}</td>
+                </tr>
+              )}
+              {ipo.issue_size_cr && (
+                <tr>
+                  <td><strong>Issue Size</strong></td>
+                  <td>₹{ipo.issue_size_cr} Cr</td>
+                </tr>
+              )}
+              {ipo.issue_type && (
+                <tr>
+                  <td><strong>Issue Type</strong></td>
+                  <td>{ipo.issue_type}</td>
+                </tr>
+              )}
+              {ipo.industry_sector && (
+                <tr>
+                  <td><strong>Industry</strong></td>
+                  <td>{ipo.industry_sector}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- About Company -->
+      {ipo.company_description && (
+        <section class="section">
+          <h2 class="section-title">🏢 About {companyName}</h2>
+          <p class="description">{ipo.company_description}</p>
+        </section>
+      )}
+
+      <!-- Lead Managers -->
+      {ipo.lead_managers && ipo.lead_managers.length > 0 && (
+        <section class="section">
+          <h2 class="section-title">🏦 Lead Managers</h2>
+          <ul class="lead-managers-list">
+            {ipo.lead_managers.map((manager: string) => (
+              <li>{manager}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .ipo-detail-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f5f0 0%, #e8e5d6 100%);
+    padding: 2rem 0 4rem;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+    color: #64748b;
+  }
+
+  .breadcrumb a {
+    color: #1a3a3a;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: #22c55e;
+  }
+
+  .breadcrumb .current {
+    color: #64748b;
+  }
+
+  .hero {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .hero-header {
+    margin-bottom: 2rem;
+  }
+
+  .hero-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .company-logo {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #1a3a3a, #2d5555);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .hero-title {
+    color: #1a3a3a;
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+    text-transform: none;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+
+  .status-open {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .status-closed {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .status-upcoming {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .last-updated {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .metric-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .metric-label {
+    color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    color: #1a3a3a;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .metric-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+
+  .metric-change.positive {
+    color: #22c55e;
+  }
+
+  .metric-change.negative {
+    color: #ef4444;
+  }
+
+  .section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .section-title {
+    color: #1a3a3a;
+    font-size: 1.25rem;
+    margin: 0 0 1.5rem;
+    text-transform: none;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table td {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .data-table td:first-child {
+    color: #64748b;
+    width: 40%;
+  }
+
+  .data-table td:last-child {
+    color: #1a3a3a;
+  }
+
+  .description {
+    line-height: 1.8;
+    color: #475569;
+  }
+
+  .lead-managers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .lead-managers-list li {
+    background: #f1f5f9;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: #1a3a3a;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    .hero-left {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero-title {
+      font-size: 1.5rem;
+    }
+
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

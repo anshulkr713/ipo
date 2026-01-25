@@ -15,6 +15,9 @@ import {
   fetchOpenIPOs,
 } from '@/lib/api';
 
+// Note: Metadata is handled in layout.tsx for client components
+// ISR revalidation is set in the layout
+
 export default function Home() {
   const [featuredIPOs, setFeaturedIPOs] = useState<any[]>([]);
   const [openIPOs, setOpenIPOs] = useState<any[]>([]);

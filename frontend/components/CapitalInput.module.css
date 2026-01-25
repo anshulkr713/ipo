@@ -1,0 +1,475 @@
+/* CapitalInput.module.css - Matching Original Design System */
+/* Colors: #E8E0CC (cream), #D8D1BF (beige), #22c55e (green), #1a1a1a (black), #ffd700 (yellow) */
+
+.container {
+    background: #ffffff;
+    border: 4px solid #1a1a1a;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 6px 6px 0 #1a1a1a;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: var(--font-heading, 'Archivo Black', sans-serif);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.icon {
+    font-size: 1.75rem;
+}
+
+/* Section Styling */
+.section {
+    margin-bottom: 2.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.labelIcon {
+    margin-right: 0.5rem;
+}
+
+/* Preset Buttons - EXACT MATCH */
+.presetButtons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.presetButton {
+    padding: 0.625rem 1.25rem;
+    background: #D8D1BF;
+    color: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.presetButton:hover {
+    background: #ffd700;
+    transform: rotate(-1deg);
+}
+
+.presetButton.active {
+    background: #22c55e;
+    color: #ffffff;
+}
+
+/* Input Field - EXACT MATCH */
+.input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1.25rem;
+    background: #E8E0CC;
+    border: 3px solid #1a1a1a;
+    color: #1a1a1a;
+    outline: none;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.input:focus {
+    background: #ffd700;
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.helpText {
+    font-size: 0.875rem;
+    color: #666666;
+    margin-top: 0.5rem;
+}
+
+/* Account Buttons - EXACT MATCH */
+.accountButtons {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.75rem;
+}
+
+.accountButton {
+    padding: 1.25rem 0.5rem;
+    background: #D8D1BF;
+    color: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.accountButton:hover {
+    background: #ffd700;
+    transform: rotate(-2deg);
+}
+
+.accountButton.active {
+    background: #22c55e;
+    color: #ffffff;
+    transform: scale(1.05);
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.customButton {
+    font-size: 1.25rem;
+}
+
+/* Custom Input */
+.customInputWrapper {
+    margin-top: 1rem;
+    background: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    padding: 1rem;
+}
+
+.customInput {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1.25rem;
+    background: #E8E0CC;
+    border: 3px solid #1a1a1a;
+    color: #1a1a1a;
+    outline: none;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.customInput:focus {
+    background: #ffd700;
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+/* Summary Box - EXACT MATCH */
+.summaryBox {
+    display: flex;
+    background: #D8D1BF;
+    border: 3px solid #1a1a1a;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summaryItem {
+    display: inline-block;
+    text-align: center;
+    width: 50%;
+    padding: 0.5rem;
+    border-right: 2px solid #1a1a1a;
+}
+
+.summaryItem:last-child {
+    border-right: none;
+}
+
+.summaryLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: #4a4a4a;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.summaryValue {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* IPO Pool Section */
+.poolHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.togglePoolButton {
+    padding: 0.625rem 1.25rem;
+    background: #D8D1BF;
+    color: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.togglePoolButton:hover {
+    background: #ffd700;
+    transform: rotate(-1deg);
+}
+
+/* IPO Pool Grid */
+.ipoPool {
+    background: #D8D1BF;
+    border: 3px solid #1a1a1a;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.emptyPool {
+    padding: 3rem;
+    text-align: center;
+    color: #666666;
+    font-weight: 600;
+}
+
+.ipoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* IPO Card - EXACT MATCH STYLE */
+.ipoCard {
+    background: #ffffff;
+    border: 3px solid #1a1a1a;
+    padding: 1.25rem;
+    transition: all 0.15s ease;
+}
+
+.ipoCard:hover:not(.disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.ipoCard.disabled {
+    opacity: 0.5;
+    background: #E8E0CC;
+}
+
+.ipoCard.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.ipoCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.checkboxWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #22c55e;
+}
+
+.checkboxLabel {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+}
+
+.statusBadge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: #22c55e;
+    color: #ffffff;
+    border: 2px solid #1a1a1a;
+    text-transform: uppercase;
+}
+
+.ipoName {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    font-family: var(--font-heading, 'Archivo Black', sans-serif);
+    text-transform: uppercase;
+}
+
+.ipoClosing {
+    font-size: 0.875rem;
+    color: #666666;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+/* Clickable area for shareholder toggle */
+.ipoClickArea {
+    padding: 0.5rem;
+    margin: -0.5rem;
+    margin-bottom: 0;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.ipoClickArea:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+/* Shareholder Section */
+.shareholderSection {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 3px solid #1a1a1a;
+}
+
+.shareholderToggle {
+    margin-bottom: 0.75rem;
+}
+
+.toggleButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #D8D1BF;
+    color: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+}
+
+.toggleButton:hover {
+    background: #ffd700;
+}
+
+.toggleButton.toggleActive {
+    background: #22c55e;
+    color: #ffffff;
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.toggleIcon {
+    font-size: 1.25rem;
+}
+
+.toggleText {
+    flex: 1;
+    text-align: left;
+}
+
+.shareholderNote {
+    margin: 0;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    color: #22c55e;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Pool Summary */
+.poolSummary {
+    background: #ffffff;
+    border: 3px solid #1a1a1a;
+    padding: 1rem;
+    text-align: center;
+}
+
+.poolSummary p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.poolSummary strong {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+/* Generate Button - EXACT MATCH */
+.generateButton {
+    width: 100%;
+    padding: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    background: #ffd700;
+    color: #1a1a1a;
+    border: 4px solid #1a1a1a;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.generateButton:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #1a1a1a;
+    background: #22c55e;
+    color: #ffffff;
+}
+
+.generateButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    .accountButtons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .summaryItem {
+        display: block;
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #1a1a1a;
+    }
+
+    .summaryItem:last-child {
+        border-bottom: none;
+    }
+
+    .ipoGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .accountButtons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

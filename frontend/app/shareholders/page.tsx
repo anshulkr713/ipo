@@ -35,15 +35,17 @@ export default function Shareholders() {
 
   if (loading) {
     return (
-      <div className={styles.sectionHeader}>
-        <h1 className={styles.sectionTitle}>IPO Shareholder Analysis</h1>
-        <p className={styles.sectionSubtitle}>Loading...</p>
+      <div className={styles.pageContainer}>
+        <div className={styles.sectionHeader}>
+          <h1 className={styles.sectionTitle}>IPO Shareholder Analysis</h1>
+          <p className={styles.sectionSubtitle}>Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
+    <div className={styles.pageContainer}>
       <div className={styles.sectionHeader}>
         <h1 className={styles.sectionTitle}>IPO Shareholder Analysis</h1>
         <p className={styles.sectionSubtitle}>
@@ -67,27 +69,27 @@ export default function Shareholders() {
             {shareholderData.map((row) => (
               <tr key={row.id}>
                 <td className={styles.companyName}>{row.ipo_name}</td>
-                <td>{row.parent_company || '-'}</td>
+                <td>{row.parent_company || 'TBA'}</td>
                 <td>
                   {row.category ? (
                     <span className={styles.categoryBadge}>{row.category}</span>
-                  ) : '-'}
+                  ) : 'TBA'}
                 </td>
                 <td>
                   {row.drhp_status ? (
                     <span className={`${styles.badge} ${row.drhp_status === 'filed' ? styles.badgeFiled : styles.badgePending}`}>
                       {row.drhp_status}
                     </span>
-                  ) : '-'}
+                  ) : 'TBA'}
                 </td>
                 <td>
                   {row.rhp_status ? (
                     <span className={`${styles.badge} ${row.rhp_status === 'filed' ? styles.badgeFiled : styles.badgePending}`}>
                       {row.rhp_status}
                     </span>
-                  ) : '-'}
+                  ) : 'TBA'}
                 </td>
-                <td className={styles.issueSize}>{row.issue_size_cr ? `₹${row.issue_size_cr} Cr` : '-'}</td>
+                <td className={styles.issueSize}>{row.issue_size_cr ? `₹${row.issue_size_cr} Cr` : 'TBA'}</td>
               </tr>
             ))}
           </tbody>
@@ -99,6 +101,6 @@ export default function Shareholders() {
           <p>No shareholder data available at the moment.</p>
         </div>
       )}
-    </>
+    </div>
   );
 }

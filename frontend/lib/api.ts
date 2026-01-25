@@ -1,14 +1,74 @@
 // frontend/lib/api.ts
-import { supabase } from './supabase';
+import { supabase, type IPO, type IPOWithDetails, type IPOAllotment, type IPOGmp, type IPOSubscription } from './supabase';
 
 // ============================================
-// EXISTING FUNCTIONS (Keep these as they are)
+// Helper Functions to Extract Latest Data
 // ============================================
 
+/**
+ * Get the latest GMP from an array of GMP records
+ */
+export function getLatestGmp(gmpRecords?: IPOGmp[]): IPOGmp | null {
+    if (!gmpRecords || gmpRecords.length === 0) return null;
+    return gmpRecords.find(g => g.is_latest) || gmpRecords[0];
+}
+
+/**
+ * Get the latest subscription from an array of subscription records
+ */
+export function getLatestSubscription(subRecords?: IPOSubscription[]): IPOSubscription | null {
+    if (!subRecords || subRecords.length === 0) return null;
+    return subRecords.find(s => s.is_latest) || subRecords[0];
+}
+
+// ============================================
+// Core IPO Fetching Functions
+// ============================================
+
+/**
+ * Fetch a single IPO by slug with all related data
+ */
+export async function fetchIPOBySlug(slug: string): Promise<IPOWithDetails | null> {
+    const { data, error } = await supabase
+        .from('ipos')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*),
+            ipo_timeline(*),
+            ipo_allotment(*),
+            ipo_financials(*),
+            ipo_reviews(*),
+            ipo_documents(*),
+            ipo_shareholding(*),
+            ipo_reservations(*),
+            ipo_comparables(*),
+            ipo_anchor_investors(*),
+            ipo_objectives(*),
+            ipo_technical_analysis(*),
+            ipo_faqs(*)
+        `)
+        .eq('slug', slug)
+        .single();
+
+    if (error) {
+        console.error('Error fetching IPO by slug:', error);
+        return null;
+    }
+    return data;
+}
+
+/**
+ * Fetch upcoming IPOs with latest GMP and subscription data
+ */
 export async function fetchUpcomingIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .eq('status', 'upcoming')
         .order('open_date', { ascending: true });
 
@@ -19,12 +79,19 @@ export async function fetchUpcomingIPOs() {
     return data || [];
 }
 
+/**
+ * Fetch GMP data for all active IPOs
+ */
 export async function fetchGMPData() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .in('status', ['open', 'upcoming', 'closed'])
-        .order('listing_date', { ascending: true });
+        .order('open_date', { ascending: false });
 
     if (error) {
         console.error('Error fetching GMP data:', error);
@@ -33,11 +100,18 @@ export async function fetchGMPData() {
     return data || [];
 }
 
+/**
+ * Fetch allotment data from ipo_allotment table
+ */
 export async function fetchAllotmentLinks() {
     const { data, error } = await supabase
-        .from('ipo_allotment_links')
-        .select('*')
+        .from('ipo_allotment')
+        .select(`
+            *,
+            ipos(ipo_name, company_name, slug, category, status, allotment_date, registrar)
+        `)
         .eq('is_active', true)
+        .not('registrar_link', 'is', null)
         .order('id', { ascending: false });
 
     if (error) {
@@ -47,13 +121,16 @@ export async function fetchAllotmentLinks() {
     return data || [];
 }
 
+/**
+ * Fetch shareholder data from ipo_shareholding table
+ */
 export async function fetchShareholderData() {
-    // Query from ipos table since shareholder_intel table doesn't exist
-    // This returns parent company and regulatory filing data
     const { data, error } = await supabase
-        .from('ipos')
-        .select('id, ipo_name, parent_company, category, drhp_status, rhp_status, issue_size_cr')
-        .in('status', ['upcoming', 'open', 'closed', 'listed'])
+        .from('ipo_shareholding')
+        .select(`
+            *,
+            ipos(ipo_name, company_name, slug, category, status, parent_company, drhp_status, rhp_status, issue_size_cr)
+        `)
         .order('id', { ascending: false });
 
     if (error) {
@@ -63,14 +140,17 @@ export async function fetchShareholderData() {
     return data || [];
 }
 
-// ============================================
-// NEW FUNCTIONS FOR HOMEPAGE REDESIGN
-// ============================================
-
+/**
+ * Fetch combined IPO data for dashboard
+ */
 export async function fetchCombinedIPOData() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .in('status', ['upcoming', 'open', 'closed'])
         .order('open_date', { ascending: true });
 
@@ -81,10 +161,17 @@ export async function fetchCombinedIPOData() {
     return data || [];
 }
 
+/**
+ * Fetch featured IPOs with GMP and subscription data
+ */
 export async function fetchFeaturedIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .eq('is_featured', true)
         .in('status', ['open', 'upcoming'])
         .order('trending_score', { ascending: false })
@@ -97,25 +184,39 @@ export async function fetchFeaturedIPOs() {
     return data || [];
 }
 
+/**
+ * Fetch market sentiment (if table exists)
+ */
 export async function fetchMarketSentiment() {
-    const { data, error } = await supabase
-        .from('market_sentiment')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(1)
-        .single();
+    try {
+        const { data, error } = await supabase
+            .from('market_sentiment')
+            .select('*')
+            .order('date', { ascending: false })
+            .limit(1)
+            .single();
 
-    if (error) {
-        console.error('Error fetching market sentiment:', error);
+        if (error) {
+            console.error('Error fetching market sentiment:', error);
+            return null;
+        }
+        return data;
+    } catch {
         return null;
     }
-    return data;
 }
 
+/**
+ * Fetch currently open IPOs
+ */
 export async function fetchOpenIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .eq('status', 'open')
         .order('close_date', { ascending: true });
 
@@ -126,31 +227,40 @@ export async function fetchOpenIPOs() {
     return data || [];
 }
 
+/**
+ * Fetch closed IPOs (closing soon / recently closed)
+ */
 export async function fetchClosingSoonIPOs() {
-    const today = new Date().toISOString().split('T')[0];
-    const twoDaysLater = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
-        .eq('status', 'open')
-        .lte('close_date', twoDaysLater)
-        .gte('close_date', today)
-        .order('close_date', { ascending: true });
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
+        .eq('status', 'closed')
+        .order('close_date', { ascending: false });
 
     if (error) {
-        console.error('Error fetching closing soon IPOs:', error);
+        console.error('Error fetching closed IPOs:', error);
         return [];
     }
     return data || [];
 }
 
+/**
+ * Fetch recently listed IPOs
+ */
 export async function fetchRecentlyListedIPOs() {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .eq('status', 'listed')
         .gte('listing_date', thirtyDaysAgo)
         .order('listing_date', { ascending: false })
@@ -163,13 +273,20 @@ export async function fetchRecentlyListedIPOs() {
     return data || [];
 }
 
+/**
+ * Fetch IPOs opening this week
+ */
 export async function fetchUpcomingThisWeek() {
     const today = new Date().toISOString().split('T')[0];
     const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     const { data, error } = await supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .eq('status', 'upcoming')
         .gte('open_date', today)
         .lte('open_date', nextWeek)
@@ -182,36 +299,45 @@ export async function fetchUpcomingThisWeek() {
     return data || [];
 }
 
+/**
+ * Fetch calendar events from timeline
+ */
 export async function fetchCalendarEvents(year: number, month: number) {
     const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
     const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-    const { data, error } = await supabase
-        .from('ipo_calendar_events')
-        .select(`
-            *,
-            ipos (
-                ipo_name,
-                company_name,
-                category,
-                slug
-            )
-        `)
-        .gte('event_date', startDate)
-        .lte('event_date', endDate)
-        .order('event_date', { ascending: true });
+    try {
+        const { data, error } = await supabase
+            .from('ipo_timeline')
+            .select(`
+                *,
+                ipos(ipo_name, company_name, category, slug)
+            `)
+            .gte('event_date', startDate)
+            .lte('event_date', endDate)
+            .order('event_date', { ascending: true });
 
-    if (error) {
-        console.error('Error fetching calendar events:', error);
+        if (error) {
+            console.error('Error fetching calendar events:', error);
+            return [];
+        }
+        return data || [];
+    } catch {
         return [];
     }
-    return data || [];
 }
 
+/**
+ * Fetch IPOs for comparison
+ */
 export async function fetchAllIPOsForComparison(category: string = 'all') {
     let query = supabase
         .from('ipos')
-        .select('*')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
         .in('status', ['open', 'upcoming', 'closed']);
 
     if (category !== 'all') {
@@ -227,7 +353,48 @@ export async function fetchAllIPOsForComparison(category: string = 'all') {
     return data || [];
 }
 
-// Calculate allotment probability
+/**
+ * Fetch all IPOs
+ */
+export async function fetchAllIPOs() {
+    const { data, error } = await supabase
+        .from('ipos')
+        .select(`
+            *,
+            ipo_gmp(*),
+            ipo_subscriptions(*)
+        `)
+        .order('open_date', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching all IPOs:', error);
+        return [];
+    }
+    return data || [];
+}
+
+/**
+ * Fetch all IPO slugs for static path generation
+ */
+export async function fetchAllIPOSlugs() {
+    const { data, error } = await supabase
+        .from('ipos')
+        .select('slug');
+
+    if (error) {
+        console.error('Error fetching IPO slugs:', error);
+        return [];
+    }
+    return data || [];
+}
+
+// ============================================
+// Calculation Functions
+// ============================================
+
+/**
+ * Calculate allotment probability
+ */
 export function calculateAllotmentProbability(
     category: 'retail' | 'sNII' | 'bNII',
     subscription: number,
@@ -252,7 +419,9 @@ export function calculateAllotmentProbability(
     return Math.max(5, baseProb * 0.8);
 }
 
-// Calculate expected returns
+/**
+ * Calculate expected returns
+ */
 export function calculateExpectedReturns(
     investment: number,
     gmp: number,

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -79,13 +80,13 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
+  const navItems: { href: string; label: string; icon: React.FC; highlight?: boolean; badge?: string }[] = [
     { href: '/', label: 'Home', icon: HomeIcon },
-    { href: '/upcoming-ipos', label: 'Upcoming IPOs', icon: CalendarIcon },
+    { href: '/upcoming-ipos', label: 'Current & Upcoming IPOs', icon: CalendarIcon },
     { href: '/shareholders', label: 'Shareholders Category', icon: UsersIcon },
     { href: '/gmp', label: 'GMP', icon: TrendingIcon },
     { href: '/allotment', label: 'Check Allotment', icon: CheckCircleIcon },
-    { href: '/portfolio-optimizer', label: 'Portfolio Optimizer', icon: SparkleIcon },
+    // { href: '/portfolio-optimizer', label: '💼 Portfolio Optimizer', icon: SparkleIcon, highlight: true },
   ];
 
   const isActive = (href: string) => {

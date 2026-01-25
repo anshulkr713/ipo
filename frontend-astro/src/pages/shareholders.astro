@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ShareholdersClient from '../components/ShareholdersClient';
+---
+
+<Layout 
+  title="IPO Shareholder Analysis - Parent Companies & Regulatory Filings"
+  description="Track parent companies, shareholder categories, and regulatory filings for all upcoming IPOs. View DRHP and RHP status for informed investment decisions."
+  keywords={['IPO shareholders', 'parent company', 'DRHP status', 'RHP status', 'IPO filings']}
+>
+  <div class="shareholders-page">
+    <ShareholdersClient client:load />
+  </div>
+</Layout>
+
+<style>
+  .shareholders-page {
+    background: #e8e5d6;
+    min-height: 100vh;
+    padding-top: 80px;
+  }
+</style>

@@ -1,0 +1,78 @@
+---
+import Navigation from '../components/Navigation';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  keywords?: string[];
+  ogImage?: string;
+  canonicalUrl?: string;
+}
+
+const {
+  title,
+  description = 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis.',
+  keywords = ['IPO', 'Grey Market Premium', 'GMP', 'IPO subscription', 'IPO allotment', 'upcoming IPO', 'IPO tracker'],
+  ogImage = '/og-image.png',
+  canonicalUrl,
+} = Astro.props;
+
+const siteUrl = 'https://ipotracker.in';
+const fullTitle = title.includes('IPO Tracker') ? title : `${title} | IPO Tracker`;
+const fullCanonical = canonicalUrl || Astro.url.href;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a3a3a" />
+    
+    <!-- Primary Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="title" content={fullTitle} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(', ')} />
+    <meta name="author" content="IPO Tracker" />
+    
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1" />
+    
+    <!-- Canonical -->
+    <link rel="canonical" href={fullCanonical} />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullCanonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:site_name" content="IPO Tracker" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={fullCanonical} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Fonts (preconnect) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <Navigation client:load currentPath={Astro.url.pathname} />
+    <main class="main-content">
+      <slot />
+    </main>
+  </body>
+</html>

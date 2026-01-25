@@ -6,20 +6,39 @@ import styles from './IPOCalendarWidget.module.css';
 import { fetchCalendarEvents } from '@/lib/api';
 
 export default function IPOCalendarWidget() {
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [events, setEvents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+
+    // Initialize date on client-side only to avoid hydration mismatch
+    useEffect(() => {
+        setCurrentDate(new Date());
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
-        loadEvents();
+        if (currentDate) {
+            loadEvents();
+        }
     }, [currentDate]);
 
     async function loadEvents() {
+        if (!currentDate) return;
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth() + 1;
         const data = await fetchCalendarEvents(year, month);
         setEvents(data);
         setLoading(false);
+    }
+
+    // Don't render until we're mounted on client
+    if (!mounted || !currentDate) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.loading}>Loading calendar...</div>
+            </div>
+        );
     }
 
     const getDaysInMonth = () => {
@@ -52,7 +71,7 @@ export default function IPOCalendarWidget() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button 
+                <button
                     className={styles.navButton}
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
                 >
@@ -61,7 +80,7 @@ export default function IPOCalendarWidget() {
                 <h3 className={styles.monthYear}>
                     {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h3>
-                <button 
+                <button
                     className={styles.navButton}
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
                 >
@@ -84,7 +103,7 @@ export default function IPOCalendarWidget() {
                         const dayEvents = getEventsForDay(day);
                         const hasEvents = dayEvents.length > 0;
                         const today = new Date();
-                        const isToday = 
+                        const isToday =
                             day === today.getDate() &&
                             currentDate.getMonth() === today.getMonth() &&
                             currentDate.getFullYear() === today.getFullYear();
@@ -114,8 +133,8 @@ export default function IPOCalendarWidget() {
                     <h4 className={styles.eventsTitle}>Upcoming Events</h4>
                     <div className={styles.eventsList}>
                         {events.slice(0, 5).map((event, i) => (
-                            <Link 
-                                key={i} 
+                            <Link
+                                key={i}
                                 href={`/ipo/${event.ipos?.slug || '#'}`}
                                 className={styles.eventItem}
                             >

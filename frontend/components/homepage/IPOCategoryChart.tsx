@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './IPOCategoryChart.module.css';
-import { fetchFeaturedIPOs, fetchOpenIPOs } from '@/lib/api';
+import { fetchCombinedIPOData } from '@/lib/api';
 
 interface IPOData {
     id: number;
@@ -73,17 +73,11 @@ export default function IPOCategoryChart() {
 
     async function loadIPOs() {
         try {
-            const [featured, open] = await Promise.all([
-                fetchFeaturedIPOs(),
-                fetchOpenIPOs(),
-            ]);
-            const allIPOs = [...featured, ...open];
-            const uniqueIPOs = allIPOs.filter((ipo, index, self) =>
-                index === self.findIndex((t) => t.id === ipo.id)
-            );
-            setIpos(uniqueIPOs);
-            if (uniqueIPOs.length > 0) {
-                setSelectedIPO(uniqueIPOs[0]);
+            // Fetch all IPOs (upcoming, open, closed) for the dropdown
+            const allIPOs = await fetchCombinedIPOData();
+            setIpos(allIPOs);
+            if (allIPOs.length > 0) {
+                setSelectedIPO(allIPOs[0]);
             }
         } catch (error) {
             console.error('Error loading IPOs:', error);
@@ -148,8 +142,8 @@ export default function IPOCategoryChart() {
     // Generate filled pie slices and labels with smart placement
     const generatePieChart = () => {
         let currentAngle = -90;
-        const slices: JSX.Element[] = [];
-        const labels: JSX.Element[] = [];
+        const slices: React.JSX.Element[] = [];
+        const labels: React.JSX.Element[] = [];
 
         chartData.forEach((segment, index) => {
             const percentage = segment.value / total;

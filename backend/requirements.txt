@@ -6,3 +6,5 @@ python-dotenv
 anthropic
 PyPDF2
 apscheduler
+playwright
+lxml

@@ -20,9 +20,64 @@ const jetbrains = JetBrains_Mono({
   variable: '--font-jetbrains',
 });
 
-export const metadata = {
-  title: 'IPO Tracker - Market Intelligence',
-  description: 'Comprehensive IPO data, Grey Market Premium tracking, and shareholder analysis',
+import type { Metadata, Viewport } from 'next';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0a0a0f',
+};
+
+export const metadata: Metadata = {
+  title: {
+    default: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
+    template: '%s | IPO Tracker',
+  },
+  description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis. Your comprehensive IPO investment companion for informed decisions.',
+  keywords: ['IPO', 'Grey Market Premium', 'GMP', 'IPO subscription', 'IPO allotment', 'upcoming IPO', 'IPO tracker', 'stock market', 'NSE IPO', 'BSE IPO'],
+  authors: [{ name: 'IPO Tracker' }],
+  creator: 'IPO Tracker',
+  publisher: 'IPO Tracker',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'IPO Tracker',
+    title: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
+    description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'IPO Tracker - Your IPO Investment Companion',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
+    description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis.',
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.json',
+  alternates: {
+    canonical: 'https://ipotracker.in',
+  },
 };
 
 export default function RootLayout({

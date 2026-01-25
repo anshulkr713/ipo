@@ -1,0 +1,34 @@
+---
+import { fetchAllIPOSlugs } from '../lib/api';
+
+const slugs = await fetchAllIPOSlugs();
+const siteUrl = 'https://ipotracker.in';
+
+const staticPages = [
+  '',
+  '/gmp',
+  '/upcoming-ipos',
+  '/allotment',
+];
+
+const lastMod = new Date().toISOString().split('T')[0];
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {staticPages.map(page => (
+    <url>
+      <loc>{siteUrl}{page}</loc>
+      <lastmod>{lastMod}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>{page === '' ? '1.0' : '0.8'}</priority>
+    </url>
+  ))}
+  {slugs.map((item: { slug: string }) => (
+    <url>
+      <loc>{siteUrl}/ipo/{item.slug}</loc>
+      <lastmod>{lastMod}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.7</priority>
+    </url>
+  ))}
+</urlset>

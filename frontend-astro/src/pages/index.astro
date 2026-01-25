@@ -1,0 +1,150 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchFeaturedIPOs, fetchOpenIPOs, getLatestGmp, getLatestSubscription } from '../lib/api';
+import FeaturedIPOCard from '../components/homepage/FeaturedIPOCard';
+import IPOCategoryChart from '../components/homepage/IPOCategoryChart';
+import DashboardTabs from '../components/homepage/DashboardTabs';
+import SubscriptionHeatmap from '../components/homepage/SubscriptionHeatmap';
+import IPOCalendarWidget from '../components/homepage/IPOCalendarWidget';
+import ComparisonTable from '../components/homepage/ComparisonTable';
+
+// Fetch data at build time
+const featuredIPOs = await fetchFeaturedIPOs();
+const openIPOs = await fetchOpenIPOs();
+
+// Extract latest GMP and subscription for hero card
+const heroIPO = featuredIPOs[0];
+const heroGmp = heroIPO ? getLatestGmp(heroIPO.ipo_gmp) : null;
+const heroSub = heroIPO ? getLatestSubscription(heroIPO.ipo_subscriptions) : null;
+
+// Import CSS module
+import styles from '../styles/page.module.css';
+---
+
+<Layout title="IPO Tracker - Live GMP, Subscription & Allotment Status">
+  <main class={styles.homepage}>
+    <!-- Hero Section -->
+    <section class={styles.heroSection}>
+      <div class={styles.heroContent}>
+        <!-- Left side - Text -->
+        <div class={styles.heroText}>
+          <div class={styles.heroBadge}>
+            <div class={styles.pulseDot}></div>
+            <span class={styles.badgeText}>Real-Time Market Intelligence</span>
+          </div>
+
+          <h1 class={styles.heroTitle}>
+            TRACK MARKET<br />
+            <span class={styles.gradientText}>INTELLIGENCE</span><br />
+            IN REAL-TIME
+          </h1>
+
+          <p class={styles.heroSubtitle}>
+            Live GMP tracking, subscription, allotment and comprehensive IPO analysis for informed investment decisions
+          </p>
+
+          <div class={styles.heroStats}>
+            <div class={styles.statItem}>
+              <div class={styles.statNumber}>200+</div>
+              <div class={styles.statLabel}>Active IPOs Tracked</div>
+            </div>
+            <div class={styles.statItem}>
+              <div class={styles.statNumber}>Real-Time</div>
+              <div class={styles.statLabel}>GMP Updates</div>
+            </div>
+            <div class={styles.statItem}>
+              <div class={styles.statNumber}>100%</div>
+              <div class={styles.statLabel}>Accurate Data</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side - Floating Card -->
+        {heroIPO && (
+          <div class={styles.heroCard}>
+            <div class={styles.cardHeader}>
+              <h3 class={styles.cardTitle}>{heroIPO.company_name || heroIPO.ipo_name || 'Featured IPO'}</h3>
+              <div class={styles.liveBadge}>
+                <span class={styles.liveDot}></span>
+                LIVE
+              </div>
+            </div>
+            <div class={styles.cardMetrics}>
+              <div class={styles.metric}>
+                <div class={styles.metricLabel}>GMP</div>
+                <div class={styles.metricValue}>₹{heroGmp?.gmp_amount || 0}</div>
+              </div>
+              <div class={styles.metric}>
+                <div class={styles.metricLabel}>GAIN</div>
+                <div class={`${styles.metricValue} ${styles.positive}`}>+{heroGmp?.gmp_percentage || 0}%</div>
+              </div>
+              <div class={styles.metric}>
+                <div class={styles.metricLabel}>SUB</div>
+                <div class={styles.metricValue}>{heroSub?.subscription_total || 0}x</div>
+              </div>
+            </div>
+            <div class={styles.cardFooter}>
+              <div class={styles.cardFooterItem}>
+                <span class={styles.footerLabel}>Retail Subscription</span>
+                <span class={styles.footerValue}>{heroSub?.subscription_retail || 0}x</span>
+              </div>
+              <div class={styles.cardFooterItem}>
+                <span class={styles.footerLabel}>Issue Price</span>
+                <span class={styles.footerValue}>₹{heroGmp?.issue_price || heroIPO.max_price || heroIPO.min_price || 0}</span>
+              </div>
+              <div class={styles.cardFooterItem}>
+                <span class={styles.footerLabel}>Time Remaining</span>
+                <span class={styles.footerValue}>3 Days</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Cards Section -->
+    <div class={styles.container}>
+      <!-- Featured IPO Cards -->
+      <div class={styles.cardsGrid}>
+        {featuredIPOs.length > 0 ? (
+          featuredIPOs.map((ipo: any) => (
+            <FeaturedIPOCard client:visible ipo={ipo} />
+          ))
+        ) : (
+          <div class={styles.noFeatured}>
+            <p>🔍 No featured IPOs available at the moment</p>
+            <p class={styles.noFeaturedSub}>Check back soon for hot IPO opportunities!</p>
+          </div>
+        )}
+      </div>
+
+      <!-- IPO Category Chart Section -->
+      <IPOCategoryChart client:visible />
+    </div>
+
+    <!-- Dashboard Section -->
+    <section class={styles.dashboardSection}>
+      <h2 class={styles.sectionTitle}>📊 Live Dashboard</h2>
+      <DashboardTabs client:visible />
+    </section>
+
+    <!-- Heatmap and Calendar Side by Side -->
+    <div class={styles.sideBySection}>
+      <section class={styles.heatmapSection}>
+        <h2 class={styles.sectionTitle}>🔥 Heatmap</h2>
+        <SubscriptionHeatmap client:visible />
+      </section>
+
+      <section class={styles.calendarSection}>
+        <h2 class={styles.sectionTitle}>📅 IPO Calendar</h2>
+        <IPOCalendarWidget client:visible />
+      </section>
+    </div>
+
+    <!-- Comparison Table -->
+    <section class={styles.comparisonSection}>
+      <h2 class={styles.sectionTitle}>📋 IPO Comparison Table</h2>
+      <ComparisonTable client:visible category="all" />
+    </section>
+  </main>
+</Layout>

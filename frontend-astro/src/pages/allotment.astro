@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AllotmentClient from '../components/AllotmentClient';
+---
+
+<Layout 
+  title="Check IPO Allotment Status - All Registrar Links"
+  description="Check your IPO allotment status online. Quick links to all registrar websites including Link Intime, KFin Tech, Bigshare Services, and more."
+  keywords={['IPO allotment status', 'check IPO allotment', 'IPO allotment result', 'Link Intime', 'KFin Tech']}
+>
+  <div class="allotment-page">
+    <AllotmentClient client:load />
+  </div>
+</Layout>
+
+<style>
+  .allotment-page {
+    background: #e8e5d6;
+    min-height: 100vh;
+    padding-top: 80px;
+  }
+</style>

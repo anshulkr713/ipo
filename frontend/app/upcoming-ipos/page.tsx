@@ -1,58 +1,24 @@
-'use client';
+import type { Metadata } from 'next';
+import UpcomingIPOsClient from './UpcomingIPOsClient';
 
-import { useEffect, useState } from 'react';
-import IPOCard from '@/components/IPOCard';
-import styles from './page.module.css';
-import { fetchCombinedIPOData } from '@/lib/api';
+export const metadata: Metadata = {
+    title: 'Upcoming IPOs 2026 - Complete List with Dates, Price & GMP',
+    description: 'Complete list of upcoming IPOs in India with open dates, close dates, price bands, lot sizes, and Grey Market Premium (GMP). Stay updated with the latest IPO launches.',
+    keywords: ['upcoming IPO', 'IPO 2026', 'new IPO', 'IPO open date', 'IPO price band', 'IPO list', 'NSE IPO', 'BSE IPO', 'mainboard IPO', 'SME IPO'],
+    openGraph: {
+        title: 'Upcoming IPOs 2026 - Complete List with Dates, Price & GMP',
+        description: 'Complete list of upcoming IPOs in India with open dates, close dates, price bands, lot sizes, and Grey Market Premium.',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Upcoming IPOs 2026 - Complete List with Dates, Price & GMP',
+        description: 'Complete list of upcoming IPOs in India with open dates, close dates, price bands, and GMP.',
+    },
+};
 
-export default function UpcomingIPOs() {
-    const [upcomingIPOs, setUpcomingIPOs] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+export const revalidate = 3600; // Revalidate every 1 hour
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const data = await fetchCombinedIPOData();
-                setUpcomingIPOs(data);
-            } catch (error) {
-                console.error('Failed to load upcoming IPOs:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadData();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className={styles.sectionHeader}>
-                <h1 className={styles.sectionTitle}>Upcoming IPOs</h1>
-                <p className={styles.sectionSubtitle}>Loading IPO data...</p>
-            </div>
-        );
-    }
-
-    return (
-        <>
-            <div className={styles.sectionHeader}>
-                <h1 className={styles.sectionTitle}>Upcoming IPOs</h1>
-                <p className={styles.sectionSubtitle}>
-                    Live tracking of all scheduled IPO launches with detailed information
-                </p>
-            </div>
-
-            <div className={styles.ipoGrid}>
-                {upcomingIPOs.map((ipo) => (
-                    <IPOCard key={ipo.id} ipo={ipo} />
-                ))}
-            </div>
-
-            {upcomingIPOs.length === 0 && (
-                <div className={styles.emptyState}>
-                    <p>No upcoming IPOs at the moment. Check back soon!</p>
-                </div>
-            )}
-        </>
-    );
+export default function UpcomingIPOsPage() {
+    return <UpcomingIPOsClient />;
 }

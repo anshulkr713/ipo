@@ -1,0 +1,337 @@
+/* app/ipo/page.module.css - IPO Listing Page */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    background: #E8E0CC;
+}
+
+/* Hero */
+.hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    font-family: var(--font-heading, 'Archivo Black', sans-serif);
+    text-transform: uppercase;
+}
+
+.subtitle {
+    font-size: 1.125rem;
+    color: #666666;
+    font-weight: 600;
+}
+
+/* Search and Filters */
+.filterSection {
+    background: #ffffff;
+    border: 4px solid #1a1a1a;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 6px 6px 0 #1a1a1a;
+}
+
+.searchBox {
+    margin-bottom: 1.5rem;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1.125rem;
+    background: #E8E0CC;
+    border: 3px solid #1a1a1a;
+    color: #1a1a1a;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.15s ease;
+}
+
+.searchInput:focus {
+    background: #ffd700;
+    box-shadow: 4px 4px 0 #1a1a1a;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+}
+
+.filterSelect {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    background: #D8D1BF;
+    border: 3px solid #1a1a1a;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.filterSelect:hover {
+    background: #ffd700;
+}
+
+/* Stats Bar */
+.statsBar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.statItem {
+    background: #ffffff;
+    border: 3px solid #1a1a1a;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.statLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: #666666;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.statValue {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* IPO Grid */
+.ipoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.ipoCard {
+    background: #ffffff;
+    border: 4px solid #1a1a1a;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+    box-shadow: 4px 4px 0 #1a1a1a;
+    display: flex;
+    flex-direction: column;
+}
+
+.ipoCard:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #1a1a1a;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.ipoName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.25rem 0;
+    font-family: var(--font-heading, 'Archivo Black', sans-serif);
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.category {
+    font-size: 0.875rem;
+    color: #666666;
+    font-weight: 600;
+    margin: 0;
+}
+
+.statusBadge {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    border: 2px solid #1a1a1a;
+    white-space: nowrap;
+}
+
+.cardMetrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric {
+    background: #D8D1BF;
+    border: 2px solid #1a1a1a;
+    padding: 0.75rem;
+}
+
+.metricLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: #666666;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.metricValue {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.metricChange {
+    font-size: 0.875rem;
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.cardDates {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #E8E0CC;
+    border: 2px solid #1a1a1a;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dateItem {
+    text-align: center;
+}
+
+.dateLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: #666666;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.dateValue {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.dateArrow {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.cardFooter {
+    margin-bottom: 1rem;
+}
+
+.recommendation {
+    display: block;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    color: #22c55e;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.cardCTA {
+    margin-top: auto;
+    padding: 0.875rem;
+    background: #ffd700;
+    border: 3px solid #1a1a1a;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+}
+
+.ipoCard:hover .cardCTA {
+    background: #22c55e;
+    color: #ffffff;
+}
+
+/* Loading and Empty States */
+.loading {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 1rem;
+    border: 4px solid #D8D1BF;
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyState {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border: 4px solid #1a1a1a;
+    box-shadow: 6px 6px 0 #1a1a1a;
+}
+
+.emptyState p {
+    font-size: 1.125rem;
+    color: #666666;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .statsBar {
+        grid-template-columns: 1fr;
+    }
+
+    .ipoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .cardMetrics {
+        grid-template-columns: 1fr;
+    }
+}
