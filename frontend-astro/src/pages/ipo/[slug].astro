@@ -2,6 +2,33 @@
 import Layout from '../../layouts/Layout.astro';
 import { fetchIPOBySlug, fetchAllIPOSlugs, getLatestGmp, getLatestSubscription } from '../../lib/api';
 
+// Import all enhanced components
+import {
+    EnhancedHeroSection,
+    GMPTrendChart,
+    SubscriptionDashboard,
+    FinancialPerformanceSuite,
+    ValuationAnalysis,
+    ShareholdingVisualization,
+    RiskAssessmentMatrix,
+    AIListingPredictor,
+    AllotmentProbabilityCalculator,
+    PeerComparisonEnhanced,
+    AnchorInvestorsIntelligence,
+    DocumentLibrary,
+    InteractiveFAQ,
+    HowToApplyGuide,
+    KeyDatesCalendar,
+    RelatedIPOs,
+    SocialProofElements,
+    NewsletterSignup,
+    IPOReturnCalculator
+} from '../../components/ipo-detail/IPODetailEnhancedComponents';
+
+import IPOReservationsTable from '../../components/ipo-detail/IPOReservationsTable';
+import StickyFooter from '../../components/ipo-detail/StickyFooter';
+import { IPOCommentsSection } from '../../components/ipo-detail/IPOComments';
+
 export async function getStaticPaths() {
   const slugs = await fetchAllIPOSlugs();
   return slugs.map((item: { slug: string }) => ({
@@ -16,16 +43,16 @@ if (!ipo) {
   return Astro.redirect('/404');
 }
 
-const formatCurrency = (amount: number | null | undefined) => amount ? `₹${amount.toLocaleString('en-IN')}` : '₹0';
+// Utility functions
+const formatCurrency = (amount: number | null | undefined) => amount ? `₹${amount.toLocaleString('en-IN')}` : '-';
 const formatDate = (date: string | Date | null | undefined) => {
   if (!date) return 'TBA';
   return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-// Extract data from nested objects
+// Extract all data
 const latestGmp = getLatestGmp(ipo.ipo_gmp);
 const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
-
 const companyName = ipo.company_name || ipo.ipo_name || 'IPO';
 const gmp = latestGmp?.gmp_amount || 0;
 const gmpPercentage = latestGmp?.gmp_percentage || 0;
@@ -33,372 +60,730 @@ const minPrice = ipo.min_price || 0;
 const maxPrice = ipo.max_price || 0;
 const lotSize = ipo.lot_size || 0;
 const status = ipo.status || 'upcoming';
-const subscriptionRetail = latestSub?.subscription_retail || 0;
-const subscriptionNII = latestSub?.subscription_nii || 0;
-const subscriptionQIB = latestSub?.subscription_qib || 0;
-const subscriptionTotal = latestSub?.subscription_total || 0;
+const minInvestment = maxPrice * lotSize;
+const issueSize = ipo.issue_size_cr || 0;
+const estimatedListingPrice = maxPrice + gmp;
+
+// Get all related data
+const financials = ipo.ipo_financials || [];
+const shareholding = ipo.ipo_shareholding || [];
+const objectives = ipo.ipo_objectives || [];
+const faqs = ipo.ipo_faqs || [];
+const documents = ipo.ipo_documents || [];
+const anchorInvestors = ipo.ipo_anchor_investors || [];
+const comparables = ipo.ipo_comparables || [];
+const reviews = ipo.ipo_reviews || [];
+const gmpHistory = ipo.ipo_gmp || [];
+const reservations = ipo.ipo_reservations || [];
+const technicalAnalysis = ipo.ipo_technical_analysis?.[0] || {};
+
+// SEO-optimized title and description
+const pageTitle = `${companyName} IPO - GMP ₹${gmp}, Price Band ₹${minPrice}-${maxPrice}, Subscription, Dates, Review ${new Date().getFullYear()}`;
+const pageDescription = `Complete ${companyName} IPO details: Live GMP ₹${gmp} (${gmpPercentage.toFixed(1)}%), Subscription status, Issue opens ${formatDate(ipo.open_date)}, Financials, Allotment date, Listing date, Expert reviews & analysis.`;
+
+// Schema.org structured data for rich snippets
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "FinancialProduct",
+  "name": `${companyName} IPO`,
+  "description": pageDescription,
+  "provider": {
+    "@type": "Organization",
+    "name": companyName,
+    "url": ipo.company_website
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": maxPrice,
+    "priceCurrency": "INR",
+    "validFrom": ipo.open_date,
+    "validThrough": ipo.close_date
+  }
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://yoursite.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "IPO List",
+      "item": "https://yoursite.com/upcoming-ipos"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": `${companyName} IPO`,
+      "item": `https://yoursite.com/ipo/${slug}`
+    }
+  ]
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
 ---
 
 <Layout 
-  title={`${companyName} IPO - GMP ₹${gmp}, Review, Allotment Status`}
-  description={`${companyName} IPO GMP Today is ₹${gmp}. Check subscription status, price band ₹${minPrice}-${maxPrice}, listing date, and broker recommendation.`}
-  keywords={[`${companyName} IPO`, `${companyName} IPO GMP`, `${companyName} IPO allotment status`, `${companyName} IPO review`]}
+  title={pageTitle}
+  description={pageDescription}
+  keywords={[
+    `${companyName} IPO`, 
+    `${companyName} IPO GMP`, 
+    `${companyName} IPO subscription`, 
+    `${companyName} IPO allotment`,
+    `${companyName} IPO listing date`,
+    `${companyName} IPO price`,
+    `${companyName} IPO review`,
+    `${companyName} shares`,
+    `${companyName} IPO analysis`,
+    `${companyName} IPO details`
+  ]}
 >
-  <main class="ipo-detail-page">
-    <div class="container">
-      <!-- Breadcrumb -->
-      <nav class="breadcrumb">
-        <a href="/">Home</a>
-        <span>/</span>
-        <a href="/upcoming-ipos">IPOs</a>
-        <span>/</span>
-        <span class="current">{companyName} IPO</span>
-      </nav>
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="hero-header">
-          <div class="hero-left">
-            <div class="company-logo">{companyName.charAt(0).toUpperCase()}</div>
-            <div>
-              <h1 class="hero-title">{companyName} IPO</h1>
-              <span class={`status-badge ${status === 'open' ? 'status-open' : status === 'closed' ? 'status-closed' : 'status-upcoming'}`}>
-                ● {status.toUpperCase()}
-              </span>
-              <p class="last-updated">
-                Updated: <time datetime={ipo.updated_at}>{formatDate(ipo.updated_at)}</time>
-              </p>
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content={pageTitle} slot="head" />
+  <meta property="og:description" content={pageDescription} slot="head" />
+  <meta property="og:type" content="website" slot="head" />
+  <meta property="og:url" content={`https://yoursite.com/ipo/${slug}`} slot="head" />
+  <meta property="og:image" content={`https://yoursite.com/api/og-image/${slug}`} slot="head" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" slot="head" />
+  <meta name="twitter:title" content={pageTitle} slot="head" />
+  <meta name="twitter:description" content={pageDescription} slot="head" />
+  <meta name="twitter:image" content={`https://yoursite.com/api/og-image/${slug}`} slot="head" />
+
+  <main class="ipo-detail-enhanced">
+    <div class="container">
+      
+      <!-- Phase 2: Enhanced Hero Section -->
+      <EnhancedHeroSection 
+        client:load
+        companyName={companyName}
+        status={status}
+        category={ipo.category}
+        issueType={ipo.issue_type}
+        issueSize={issueSize}
+        freshIssue={ipo.fresh_issue_size_cr}
+        ofs={ipo.ofs_size_cr}
+        gmp={gmp}
+        gmpPercentage={gmpPercentage}
+        estimatedListing={estimatedListingPrice}
+        kostakRate={latestGmp?.kostak_rate}
+        subjectRate={latestGmp?.subject_rate}
+        subscriptionData={latestSub}
+        openDate={ipo.open_date}
+        closeDate={ipo.close_date}
+        industry={ipo.industry}
+        headquarters={ipo.headquarters}
+        established={ipo.year_established}
+      />
+
+      <!-- Quick Stats Dashboard (4-card layout) -->
+      <section class="quick-stats-section fade-in">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+              <span class="stat-label">Issue Size</span>
+              <span class="stat-value">₹{issueSize} Cr</span>
+              <div class="stat-breakdown">
+                {ipo.fresh_issue_size_cr && <span class="stat-mini">Fresh: ₹{ipo.fresh_issue_size_cr} Cr</span>}
+                {ipo.ofs_size_cr && <span class="stat-mini">OFS: ₹{ipo.ofs_size_cr} Cr</span>}
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+              <span class="stat-label">Price Band</span>
+              <span class="stat-value">₹{minPrice} - ₹{maxPrice}</span>
+              <span class="stat-mini">GMP: +₹{gmp} ({gmpPercentage.toFixed(1)}%)</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+              <span class="stat-label">Lot Size</span>
+              <span class="stat-value">{lotSize} Shares</span>
+              <span class="stat-mini">Min Investment: ₹{minInvestment.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+              <span class="stat-label">Valuation</span>
+              <span class="stat-value">{technicalAnalysis.pe_ratio ? `${technicalAnalysis.pe_ratio}x P/E` : 'N/A'}</span>
+              <span class="stat-mini">Market Cap: ₹{technicalAnalysis.post_ipo_market_cap_cr || 'N/A'} Cr</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">Grey Market Premium</div>
-            <div class="metric-value">{formatCurrency(gmp)}</div>
-            <div class={`metric-change ${gmpPercentage >= 0 ? 'positive' : 'negative'}`}>
-              {gmpPercentage ? `${gmpPercentage >= 0 ? '+' : ''}${gmpPercentage}%` : 'N/A'}
+      <!-- Phase 3.1: GMP Trend Visualization -->
+      <GMPTrendChart 
+        client:visible
+        gmpHistory={gmpHistory}
+        issuePrice={maxPrice}
+        companyName={companyName}
+      />
+
+      <!-- Phase 3.1: Real-time Subscription Dashboard -->
+      <SubscriptionDashboard 
+        client:visible
+        subscriptionData={latestSub}
+        subscriptionHistory={ipo.ipo_subscriptions}
+        status={status}
+        ipoId={ipo.id}
+        companyName={companyName}
+      />
+
+      <!-- Phase 5.6: Key Dates Calendar -->
+      <KeyDatesCalendar 
+        client:visible
+        dates={{
+          open: ipo.open_date,
+          close: ipo.close_date,
+          allotment: ipo.allotment_date,
+          listing: ipo.listing_date,
+          cutoff: ipo.cutoff_time
+        }}
+        companyName={companyName}
+      />
+
+      <!-- IPO Details Table (existing, enhanced styling) -->
+      <section class="section details-section">
+        <h2 class="section-title">📋 IPO Details at a Glance</h2>
+        <div class="details-grid">
+          <div class="detail-row">
+            <span class="detail-label">Company Name</span>
+            <span class="detail-value">{companyName}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Issue Type</span>
+            <span class="detail-value">{ipo.issue_type || 'Book Built'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Category</span>
+            <span class="detail-value">{ipo.category || 'Mainboard'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Issue Size</span>
+            <span class="detail-value">₹{issueSize} Crores</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Price Band</span>
+            <span class="detail-value">₹{minPrice} to ₹{maxPrice}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Lot Size</span>
+            <span class="detail-value">{lotSize} Shares</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Minimum Investment</span>
+            <span class="detail-value">₹{minInvestment.toLocaleString('en-IN')}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Face Value</span>
+            <span class="detail-value">₹{ipo.face_value || 10}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 4.3 & 4.4: Calculators Section -->
+      <section class="section calculators-section">
+        <h2 class="section-title">🧮 IPO Calculators</h2>
+        <div class="calculators-grid">
+          <IPOReturnCalculator 
+            client:visible
+            issuePrice={maxPrice}
+            gmp={gmp}
+            lotSize={lotSize}
+            companyName={companyName}
+          />
+          <AIListingPredictor 
+             client:visible
+             gmpPercent={gmpPercentage}
+             subscriptionTotal={latestSub?.subscription_total || 0}
+             category={ipo.category}
+          />
+          <AllotmentProbabilityCalculator 
+            client:visible
+            subscriptionData={latestSub}
+            lotSize={lotSize}
+            minInvestment={minInvestment}
+          />
+        </div>
+      </section>
+
+      <!-- Phase 3.2: Financial Performance Suite -->
+      <FinancialPerformanceSuite 
+        client:visible
+        financials={financials}
+        comparables={comparables}
+        companyName={companyName}
+      />
+
+      <!-- Phase 3.3: Valuation & Pricing Analysis -->
+      <ValuationAnalysis 
+        client:visible
+        financials={financials}
+        comparables={comparables}
+        technicalAnalysis={technicalAnalysis}
+        issuePrice={maxPrice}
+        companyName={companyName}
+      />
+
+      <!-- Phase 3.4: Shareholding Visualization -->
+      <ShareholdingVisualization 
+        client:visible
+        shareholding={shareholding}
+        companyName={companyName}
+      />
+
+      <!-- Company Overview Section -->
+      <section class="section company-overview-section">
+        <h2 class="section-title">🏢 About {companyName}</h2>
+        <div class="company-content">
+          {ipo.about_company && (
+            <div class="company-description">
+              <p>{ipo.about_company}</p>
             </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Price Band</div>
-            <div class="metric-value">{formatCurrency(minPrice)} - {formatCurrency(maxPrice)}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Lot Size</div>
-            <div class="metric-value">{lotSize} Shares</div>
-          </div>
-          {subscriptionTotal > 0 && (
-            <div class="metric-card">
-              <div class="metric-label">Total Subscription</div>
-              <div class="metric-value">{subscriptionTotal}x</div>
+          )}
+          {ipo.company_website && (
+            <div class="company-link">
+              <a href={ipo.company_website} target="_blank" rel="noopener">
+                🌐 Visit {companyName} Website →
+              </a>
             </div>
           )}
         </div>
       </section>
 
-      <!-- Subscription Details -->
-      {subscriptionTotal > 0 && (
-        <section class="section">
-          <h2 class="section-title">📊 Subscription Status</h2>
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <div class="metric-label">QIB</div>
-              <div class="metric-value">{subscriptionQIB}x</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">NII</div>
-              <div class="metric-value">{subscriptionNII}x</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Retail</div>
-              <div class="metric-value">{subscriptionRetail}x</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Total</div>
-              <div class="metric-value">{subscriptionTotal}x</div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      <!-- Key Dates -->
-      <section class="section">
-        <h2 class="section-title">📅 Key Dates</h2>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <tbody>
-              <tr>
-                <td><strong>Open Date</strong></td>
-                <td>{formatDate(ipo.open_date)}</td>
-              </tr>
-              <tr>
-                <td><strong>Close Date</strong></td>
-                <td>{formatDate(ipo.close_date)}</td>
-              </tr>
-              <tr>
-                <td><strong>Allotment Date</strong></td>
-                <td>{formatDate(ipo.allotment_date)}</td>
-              </tr>
-              {ipo.refund_date && (
-                <tr>
-                  <td><strong>Refund Date</strong></td>
-                  <td>{formatDate(ipo.refund_date)}</td>
-                </tr>
-              )}
-              {ipo.demat_credit_date && (
-                <tr>
-                  <td><strong>Demat Credit</strong></td>
-                  <td>{formatDate(ipo.demat_credit_date)}</td>
-                </tr>
-              )}
-              <tr>
-                <td><strong>Listing Date</strong></td>
-                <td>{formatDate(ipo.listing_date)}</td>
-              </tr>
-              {ipo.registrar && (
-                <tr>
-                  <td><strong>Registrar</strong></td>
-                  <td>{ipo.registrar}</td>
-                </tr>
-              )}
-              {ipo.category && (
-                <tr>
-                  <td><strong>Category</strong></td>
-                  <td>{ipo.category}</td>
-                </tr>
-              )}
-              {ipo.issue_size_cr && (
-                <tr>
-                  <td><strong>Issue Size</strong></td>
-                  <td>₹{ipo.issue_size_cr} Cr</td>
-                </tr>
-              )}
-              {ipo.issue_type && (
-                <tr>
-                  <td><strong>Issue Type</strong></td>
-                  <td>{ipo.issue_type}</td>
-                </tr>
-              )}
-              {ipo.industry_sector && (
-                <tr>
-                  <td><strong>Industry</strong></td>
-                  <td>{ipo.industry_sector}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- About Company -->
-      {ipo.company_description && (
-        <section class="section">
-          <h2 class="section-title">🏢 About {companyName}</h2>
-          <p class="description">{ipo.company_description}</p>
-        </section>
-      )}
-
-      <!-- Lead Managers -->
-      {ipo.lead_managers && ipo.lead_managers.length > 0 && (
-        <section class="section">
-          <h2 class="section-title">🏦 Lead Managers</h2>
-          <ul class="lead-managers-list">
-            {ipo.lead_managers.map((manager: string) => (
-              <li>{manager}</li>
+      <!-- Objects of Issue Section -->
+      {objectives.length > 0 && (
+        <section class="section objectives-section">
+          <h2 class="section-title">💼 Objects of the Issue</h2>
+          <ul class="objectives-list">
+            {objectives.map((obj: any, idx: number) => (
+              <li key={idx}>
+                <span class="obj-num">{idx + 1}</span>
+                <span class="obj-text">{obj.objective_category}</span>
+                {obj.amount_allocated_cr && (
+                  <span class="obj-amt">₹{obj.amount_allocated_cr} Cr</span>
+                )}
+              </li>
             ))}
           </ul>
         </section>
       )}
+
+      <!-- IPO Reservations & Quota -->
+      <IPOReservationsTable 
+        client:visible
+        reservations={reservations}
+      />
+
+      <!-- Phase 5.1: Enhanced Peer Comparison -->
+      <PeerComparisonEnhanced 
+        client:visible
+        comparables={comparables}
+        currentIPO={{
+          name: companyName,
+          pe: technicalAnalysis.pe_ratio,
+          pb: technicalAnalysis.pb_ratio,
+          revenue: financials[0]?.revenue,
+          marketCap: technicalAnalysis.post_ipo_market_cap_cr
+        }}
+      />
+
+      <!-- Phase 5.2: Anchor Investors Intelligence -->
+      <AnchorInvestorsIntelligence 
+        client:visible
+        anchorInvestors={anchorInvestors}
+        companyName={companyName}
+      />
+
+      <!-- Phase 4.2: Risk Assessment Matrix -->
+      <RiskAssessmentMatrix 
+        client:visible
+        risks={ipo.ipo_risks || []}
+        companyName={companyName}
+      />
+
+      <!-- Phase 5.5: How to Apply Guide -->
+      <HowToApplyGuide 
+        client:visible
+        companyName={companyName}
+        lotSize={lotSize}
+        minInvestment={minInvestment}
+      />
+
+      <!-- Phase 5.3: Enhanced Document Library -->
+      <DocumentLibrary 
+        client:visible
+        documents={documents}
+        companyName={companyName}
+      />
+
+      <!-- Phase 5.4: Interactive FAQ Section -->
+      <InteractiveFAQ 
+        client:visible
+        faqs={faqs}
+        companyName={companyName}
+      />
+
+      <!-- Phase 5.7: Related IPOs -->
+      <RelatedIPOs 
+        client:visible
+        currentIPO={ipo}
+        category={ipo.category}
+        industry={ipo.industry}
+      />
+
+      <!-- Phase 6.1: User Comments & Discussion -->
+      <IPOCommentsSection 
+        client:visible
+        ipoId={ipo.id}
+        ipoName={companyName}
+      />
+
+      <!-- Contact Information -->
+      {(ipo.registrar_name || ipo.lead_managers?.length > 0) && (
+        <section class="section contacts-section">
+          <h2 class="section-title">📞 Contact Information</h2>
+          <div class="contacts-grid">
+            {ipo.registrar_name && (
+              <div class="contact-card">
+                <h4>Registrar</h4>
+                <p class="contact-name">{ipo.registrar_name}</p>
+                {ipo.registrar_website && (
+                  <a href={ipo.registrar_website} target="_blank" class="contact-link">
+                    Visit Website →
+                  </a>
+                )}
+              </div>
+            )}
+            {ipo.lead_managers?.length > 0 && (
+              <div class="contact-card">
+                <h4>Lead Manager{ipo.lead_managers.length > 1 ? 's' : ''}</h4>
+                <ul class="lead-managers-list">
+                  {ipo.lead_managers.map((manager: string, idx: number) => (
+                    <li key={idx}>{manager}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      <!-- Phase 6.3: Newsletter Signup -->
+      <NewsletterSignup 
+        client:visible
+        companyName={companyName}
+        ipoId={ipo.id}
+      />
+
+      <!-- Sticky Footer -->
+      <StickyFooter
+        client:load
+        companyName={companyName}
+        status={status}
+        minInvestment={minInvestment}
+      />
+
     </div>
   </main>
 </Layout>
 
 <style>
-  .ipo-detail-page {
+  /* Base Layout */
+  .ipo-detail-enhanced {
+    background: linear-gradient(180deg, #d4cfc0 0%, #e0dbd0 100%);
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f5f0 0%, #e8e5d6 100%);
-    padding: 2rem 0 4rem;
+    padding-bottom: 4rem;
   }
 
   .container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 1.5rem 1rem;
   }
 
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    margin-bottom: 2rem;
-    color: #64748b;
+  /* Quick Stats Grid */
+  .quick-stats-section {
+    margin: 1.5rem 0;
   }
 
-  .breadcrumb a {
-    color: #1a3a3a;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    color: #22c55e;
-  }
-
-  .breadcrumb .current {
-    color: #64748b;
-  }
-
-  .hero {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  }
-
-  .hero-header {
-    margin-bottom: 2rem;
-  }
-
-  .hero-left {
-    display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .company-logo {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, #1a3a3a, #2d5555);
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-  }
-
-  .hero-title {
-    color: #1a3a3a;
-    font-size: 2rem;
-    margin: 0 0 0.5rem;
-    text-transform: none;
-  }
-
-  .status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-right: 0.5rem;
-  }
-
-  .status-open {
-    background: #dcfce7;
-    color: #15803d;
-  }
-
-  .status-closed {
-    background: #fee2e2;
-    color: #dc2626;
-  }
-
-  .status-upcoming {
-    background: #fef3c7;
-    color: #92400e;
-  }
-
-  .last-updated {
-    color: #64748b;
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-  }
-
-  .metrics-grid {
+  .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
   }
 
-  .metric-card {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 1.25rem;
-    text-align: center;
+  .stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 2px solid #1a3a3a;
+    padding: 1rem;
+    display: flex;
+    gap: 0.875rem;
+    align-items: flex-start;
+    box-shadow: 4px 4px 0 #1a3a3a;
+    transition: all 0.2s;
   }
 
-  .metric-label {
-    color: #64748b;
-    font-size: 0.75rem;
+  .stat-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #1a3a3a;
+  }
+
+  .stat-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .stat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-  }
-
-  .metric-value {
-    color: #1a3a3a;
-    font-size: 1.5rem;
+    color: #64748b;
     font-weight: 700;
+    font-family: var(--font-body);
   }
 
-  .metric-change {
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-top: 0.25rem;
+  .stat-value {
+    font-size: 1.125rem;
+    font-weight: 900;
+    color: #1a3a3a;
+    font-family: var(--font-heading);
+    line-height: 1.1;
   }
 
-  .metric-change.positive {
-    color: #22c55e;
+  .stat-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
   }
 
-  .metric-change.negative {
-    color: #ef4444;
+  .stat-mini {
+    font-size: 0.625rem;
+    color: #475569;
+    font-weight: 500;
   }
 
+  /* Section Styles */
   .section {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    border: 3px solid #1a3a3a;
+    padding: 1.5rem;
+    margin: 1.25rem 0;
+    box-shadow: 5px 5px 0 #1a3a3a;
   }
 
   .section-title {
-    color: #1a3a3a;
     font-size: 1.25rem;
-    margin: 0 0 1.5rem;
-    text-transform: none;
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .data-table td {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  .data-table td:first-child {
-    color: #64748b;
-    width: 40%;
-  }
-
-  .data-table td:last-child {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
     color: #1a3a3a;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #1a3a3a;
   }
 
-  .description {
+  /* Details Grid */
+  .details-grid {
+    display: grid;
+    gap: 0;
+  }
+
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid #e2e8f0;
+    transition: background 0.2s;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-row:hover {
+    background: #f5f5f5;
+  }
+
+  .detail-label {
+    font-weight: 700;
+    color: #1a3a3a;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    font-size: 0.8125rem;
+    letter-spacing: 0.05em;
+  }
+
+  .detail-value {
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-align: right;
+  }
+
+  /* Calculators Grid */
+  .calculators-section {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  }
+
+  .calculators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  /* Company Overview */
+  .company-description p {
     line-height: 1.8;
     color: #475569;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .company-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: #1a3a3a;
+    color: #e8e5d6;
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    border: 3px solid #1a3a3a;
+    box-shadow: 4px 4px 0 rgba(26, 58, 58, 0.3);
+    transition: all 0.2s;
+  }
+
+  .company-link a:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 rgba(26, 58, 58, 0.3);
+    background: #2d4a4a;
+  }
+
+  /* Objectives List */
+  .objectives-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .objectives-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .objectives-list li:hover {
+    border-color: #1a3a3a;
+    transform: translateX(4px);
+  }
+
+  .obj-num {
+    background: #1a3a3a;
+    color: #e8e5d6;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    font-family: var(--font-heading);
+  }
+
+  .obj-text {
+    flex: 1;
+    color: #334155;
+    font-weight: 500;
+  }
+
+  .obj-amt {
+    color: #22c55e;
+    font-weight: 900;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+  }
+
+  /* Contacts Grid */
+  .contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .contact-card {
+    background: #f8fafc;
+    border: 3px solid #1a3a3a;
+    padding: 2rem;
+  }
+
+  .contact-card h4 {
+    margin: 0 0 1rem;
+    color: #1a3a3a;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 1rem;
+  }
+
+  .contact-name {
+    font-weight: 600;
+    color: #1a3a3a;
+    margin-bottom: 1rem;
+  }
+
+  .contact-link {
+    display: inline-block;
+    color: #22c55e;
+    text-decoration: none;
+    font-weight: 700;
   }
 
   .lead-managers-list {
@@ -411,25 +796,11 @@ const subscriptionTotal = latestSub?.subscription_total || 0;
   }
 
   .lead-managers-list li {
-    background: #f1f5f9;
+    background: #e2e8f0;
+    color: #334155;
     padding: 0.5rem 1rem;
-    border-radius: 8px;
-    color: #1a3a3a;
+    border-radius: 4px;
     font-size: 0.875rem;
-  }
-
-  @media (max-width: 768px) {
-    .hero-left {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .hero-title {
-      font-size: 1.5rem;
-    }
-
-    .metrics-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    font-weight: 500;
   }
 </style>
