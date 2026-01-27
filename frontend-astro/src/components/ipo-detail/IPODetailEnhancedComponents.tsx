@@ -216,7 +216,7 @@ export function GMPTrendChart({ gmpHistory, issuePrice, companyName }: GMPTrendP
 
     const chartData = gmpHistory
         .map(item => ({
-            date: new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+            date: new Date(item.date || item.created_at || item.recorded_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
             gmp: item.gmp_amount,
             percentage: item.gmp_percentage,
             expectedListing: issuePrice + item.gmp_amount,
@@ -893,10 +893,16 @@ export function BrokerRecommendations({ reviews, companyName }: any) {
 // SHAREHOLDING VISUALIZATION
 // ==========================================
 export function ShareholdingVisualization({ shareholding, companyName }: any) {
-    if (!shareholding || shareholding.length === 0) return null;
+    // Mock Data Fallback
+    const demoData = [
+        { holding_type: 'Pre-IPO', promoter_holding_percentage: 95, public_holding_percentage: 5 },
+        { holding_type: 'Post-IPO', promoter_holding_percentage: 70, public_holding_percentage: 30 }
+    ];
+    const dataToUse = (shareholding && shareholding.length > 0) ? shareholding : demoData;
+    const isMock = (!shareholding || shareholding.length === 0);
 
-    const preIPO = shareholding.find((s: any) => s.holding_type === 'Pre-IPO');
-    const postIPO = shareholding.find((s: any) => s.holding_type === 'Post-IPO');
+    const preIPO = dataToUse.find((s: any) => s.holding_type === 'Pre-IPO');
+    const postIPO = dataToUse.find((s: any) => s.holding_type === 'Post-IPO');
     if (!preIPO && !postIPO) return null;
 
     const pieData = (data: any) => [
@@ -1203,6 +1209,92 @@ export function RelatedIPOs({ currentIPO, category, industry }: any) {
 export function SocialProofElements({ ipoId, companyName }: any) {
     return null; // Monitoring/Tracking removed as per user request
 }
+// ==========================================
+// BREADCRUMB NAVIGATION
+// ==========================================
+export function BreadcrumbNav({ companyName }: { companyName: string }) {
+    return (
+        <nav aria-label="Breadcrumb" style={{ marginBottom: '1.5rem', fontSize: '0.875rem', color: '#64748b' }}>
+            <ol style={{ display: 'flex', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
+                <li><a href="/" style={{ color: '#3b82f6', textDecoration: 'none' }}>Home</a></li>
+                <li>/</li>
+                <li><a href="/ipos" style={{ color: '#3b82f6', textDecoration: 'none' }}>IPOs</a></li>
+                <li>/</li>
+                <li style={{ color: '#1a3a3a', fontWeight: 500 }}>{companyName} IPO</li>
+            </ol>
+        </nav>
+    );
+}
+
+
+// ==========================================
+// OBJECTS OF ISSUE ANALYSIS
+// ==========================================
+export function ObjectsOfIssueAnalysis({ objectives }: any) {
+    // Mock Data Fallback
+    const demoObjectives = [
+        { objective_category: 'General Corporate Purposes', amount_allocated_cr: 150 },
+        { objective_category: 'Debt Repayment', amount_allocated_cr: 100 },
+        { objective_category: 'Capital Expenditure', amount_allocated_cr: 80 }
+    ];
+    // Use demo data if empty
+    const dataToUse = (objectives && objectives.length > 0) ? objectives : demoObjectives;
+    const isMock = (!objectives || objectives.length === 0);
+
+    const COLORS_LIST = ['#1a3a3a', '#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+    // Check if we have amounts, otherwise generic equal slices
+    const hasAmounts = dataToUse.some((o: any) => o.amount_allocated_cr > 0);
+
+    const chartData = dataToUse.map((obj: any, index: number) => ({
+        name: obj.objective_category,
+        value: hasAmounts ? (obj.amount_allocated_cr || 0) : 1,
+        color: COLORS_LIST[index % COLORS_LIST.length]
+    }));
+
+    return (
+        <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>🎯 Objects of the Issue {isMock && <span style={{ fontSize: '0.7em', color: '#f59e0b' }}>(Projected Data)</span>}</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ height: 300, width: '100%' }}>
+                    <ResponsiveContainer>
+                        <PieChart>
+                            <Pie
+                                data={chartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={100}
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                {chartData.map((entry: any, index: number) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} stroke="#fff" strokeWidth={2} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value: number) => hasAmounts ? `₹${value} Cr` : ''} />
+                            <Legend layout="vertical" align="right" verticalAlign="middle" />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+
+                <div className={styles.objectivesList}>
+                    {dataToUse.map((obj: any, index: number) => (
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                            <div style={{ width: 12, height: 12, backgroundColor: COLORS_LIST[index % COLORS_LIST.length], borderRadius: '50%' }}></div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 600, color: '#1a3a3a' }}>{obj.objective_category}</div>
+                            </div>
+                            {obj.amount_allocated_cr && (
+                                <div style={{ fontWeight: 700, fontFamily: 'var(--font-heading)' }}>₹{obj.amount_allocated_cr} Cr</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
 
 // ==========================================
 // NEWSLETTER SIGNUP
@@ -1289,4 +1381,3 @@ export function NewsletterSignup({ companyName, ipoId }: any) {
         </section>
     );
 }
-

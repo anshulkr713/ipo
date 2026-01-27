@@ -22,7 +22,9 @@ import {
     RelatedIPOs,
     SocialProofElements,
     NewsletterSignup,
-    IPOReturnCalculator
+    IPOReturnCalculator,
+    BreadcrumbNav,
+    ObjectsOfIssueAnalysis
 } from '../../components/ipo-detail/IPODetailEnhancedComponents';
 
 import IPOReservationsTable from '../../components/ipo-detail/IPOReservationsTable';
@@ -177,6 +179,8 @@ const faqSchema = {
   <main class="ipo-detail-enhanced">
     <div class="container">
       
+      <BreadcrumbNav companyName={companyName} client:load />
+
       <!-- Phase 2: Enhanced Hero Section -->
       <EnhancedHeroSection 
         client:load
@@ -384,23 +388,11 @@ const faqSchema = {
         </div>
       </section>
 
-      <!-- Objects of Issue Section -->
-      {objectives.length > 0 && (
-        <section class="section objectives-section">
-          <h2 class="section-title">💼 Objects of the Issue</h2>
-          <ul class="objectives-list">
-            {objectives.map((obj: any, idx: number) => (
-              <li key={idx}>
-                <span class="obj-num">{idx + 1}</span>
-                <span class="obj-text">{obj.objective_category}</span>
-                {obj.amount_allocated_cr && (
-                  <span class="obj-amt">₹{obj.amount_allocated_cr} Cr</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <!-- Phase 3.5: Objects of Issue Analysis (Pie Chart) -->
+      <ObjectsOfIssueAnalysis 
+        client:visible
+        objectives={objectives}
+      />
 
       <!-- IPO Reservations & Quota -->
       <IPOReservationsTable 
