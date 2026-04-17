@@ -502,7 +502,7 @@ const faqSchema = {
               <div class="contact-card">
                 <h4>Lead Manager{ipo.lead_managers.length > 1 ? 's' : ''}</h4>
                 <ul class="lead-managers-list">
-                  {ipo.lead_managers.map((manager: string, idx: number) => (
+                  {ipo.lead_managers?.map((manager: string, idx: number) => (
                     <li key={idx}>{manager}</li>
                   ))}
                 </ul>

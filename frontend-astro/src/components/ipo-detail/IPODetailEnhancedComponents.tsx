@@ -336,7 +336,7 @@ export function SubscriptionDashboard({
             </div>
 
             <div className={styles.gaugeGrid}>
-                {categories.map((category) => (
+                {categories?.map((category) => (
                     <div key={category.name} className={styles.gaugeCard}>
                         <h3 className={styles.gaugeTitle}>{category.name}</h3>
                         <div className={styles.gaugeValue}>{category.value.toFixed(2)}x</div>
@@ -372,7 +372,7 @@ export function SubscriptionDashboard({
             <div className={styles.heatMap}>
                 <h3 className={styles.chartTitle}>Subscription Heat Map</h3>
                 <div className={styles.heatMapGrid}>
-                    {categories.map((category) => (
+                    {categories?.map((category) => (
                         <div key={category.name} className={styles.heatCell} style={{
                             backgroundColor: category.value >= 5 ? '#22c55e' : category.value >= 2 ? '#f59e0b' : category.value >= 1 ? '#3b82f6' : '#e2e8f0'
                         }}>
@@ -805,7 +805,7 @@ export function EnhancedTimeline({ openDate, closeDate, allotmentDate, listingDa
 
                 {/* Steps */}
                 <div className={styles.stepsContainer}>
-                    {steps.map((step, index) => (
+                    {steps?.map((step, index) => (
                         <div key={index} className={`${styles.stepItem} ${styles[step.status]}`}>
                             <div className={styles.stepDot}></div>
                             <div className={styles.stepContent}>
@@ -842,7 +842,7 @@ export function RiskAssessmentMatrix({ risks, companyName }: any) {
                 ))}
             </div>
             <div className={styles.riskGrid}>
-                {risks.map((risk: any, index: number) => (
+                {risks?.map((risk: any, index: number) => (
                     <div key={index} className={styles.riskCard} style={{ borderLeftColor: getRiskColor(risk.risk_level) }}>
                         <div className={styles.riskHeader} onClick={() => setExpandedRisk(expandedRisk === index ? null : index)}>
                             <div className={styles.riskTitle}>
@@ -892,7 +892,7 @@ export function BrokerRecommendations({ reviews, companyName }: any) {
                 </div>
             </div>
             <div className={styles.reviewsGrid}>
-                {reviews.slice(0, 6).map((review: any, index: number) => (
+                {reviews?.slice(0, 6)?.map((review: any, index: number) => (
                     <div key={index} className={styles.reviewCard}>
                         <div className={styles.reviewHeader}>
                             <span className={styles.reviewerName}>{review.reviewer_name}</span>
@@ -1020,7 +1020,7 @@ export function PeerComparisonEnhanced({ comparables = [], currentIPO }: any) {
                             <td>{currentIPO.pe?.toFixed(2) || 'N/A'}</td>
                             <td>{currentIPO.pb?.toFixed(2) || 'N/A'}</td>
                         </tr>
-                        {comparables.map((peer: any, index: number) => (
+                        {comparables?.map((peer: any, index: number) => (
                             <tr key={index}>
                                 <td>{peer.comparable_name}</td>
                                 <td>{peer.market_cap_cr?.toFixed(0) || 'N/A'}</td>
@@ -1054,7 +1054,7 @@ export function AnchorInvestorsIntelligence({ anchorInvestors = [], companyName 
                 <table className={styles.investorTable}>
                     <thead><tr><th>Investor Name</th><th>Type</th><th>Amount (₹Cr)</th></tr></thead>
                     <tbody>
-                        {anchorInvestors.slice(0, 10).map((inv: any, index: number) => (
+                        {anchorInvestors?.slice(0, 10)?.map((inv: any, index: number) => (
                             <tr key={index}><td>{inv.investor_name}</td><td>{inv.investor_type || 'N/A'}</td><td>₹{inv.amount_invested_cr?.toFixed(2) || 'N/A'}</td></tr>
                         ))}
                     </tbody>
@@ -1074,7 +1074,7 @@ export function DocumentLibrary({ documents, companyName }: any) {
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>📚 Document Library</h2>
             <div className={styles.documentsGrid}>
-                {documents.map((doc: any, index: number) => (
+                {documents?.map((doc: any, index: number) => (
                     <a key={index} href={doc.document_url} target="_blank" rel="noopener noreferrer" className={styles.documentCard}>
                         <div className={styles.docIcon}>📄</div>
                         <div className={styles.docContent}><span className={styles.docTitle}>{doc.document_type}</span></div>
@@ -1097,7 +1097,7 @@ export function InteractiveFAQ({ faqs, companyName }: any) {
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>❓ Frequently Asked Questions</h2>
             <div className={styles.faqList}>
-                {faqs.map((faq: any, index: number) => (
+                {faqs?.map((faq: any, index: number) => (
                     <div key={index} className={styles.faqItem}>
                         <button className={`${styles.faqQuestion} ${expandedIndex === index ? styles.active : ''}`} onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}>
                             <span>{faq.question}</span>
@@ -1127,7 +1127,7 @@ export function HowToApplyGuide({ companyName, lotSize, minInvestment }: any) {
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>📲 How to Apply</h2>
             <div className={styles.stepsContainer}>
-                {steps.map((step) => (
+                {steps?.map((step) => (
                     <div key={step.step} className={styles.stepCard}>
                         <div className={styles.stepNumber}>{step.step}</div>
                         <div className={styles.stepIcon}>{step.icon}</div>
@@ -1156,7 +1156,7 @@ export function KeyDatesCalendar({ dates, companyName }: any) {
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>📅 Key Dates</h2>
             <div className={styles.datesGrid}>
-                {keyDates.map((item, index) => (
+                {keyDates?.map((item, index) => (
                     <div key={index} className={styles.dateCard} style={{ borderLeftColor: item.color }}>
                         <span className={styles.dateIcon}>{item.icon}</span>
                         <div className={styles.dateContent}><span className={styles.dateLabel}>{item.label}</span><span className={styles.dateValue}>{formatDate(item.date)}</span></div>
@@ -1203,7 +1203,7 @@ export function RelatedIPOs({ currentIPO, category, industry }: any) {
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>🔗 Related IPOs</h2>
             <div className={styles.relatedGrid}>
-                {relatedIPOs.map((ipo: any) => {
+                {relatedIPOs?.map((ipo: any) => {
                     const latestGmp = ipo.ipo_gmp?.find((g: any) => g.is_latest) || ipo.ipo_gmp?.[0];
                     return (
                         <a key={ipo.id} href={`/ipo/${ipo.slug}`} className={styles.relatedCard}>
@@ -1300,7 +1300,7 @@ export function ObjectsOfIssueAnalysis({ objectives }: any) {
                                 paddingAngle={5}
                                 dataKey="value"
                             >
-                                {chartData.map((entry: any, index: number) => (
+                                {chartData?.map((entry: any, index: number) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} stroke="#fff" strokeWidth={2} />
                                 ))}
                             </Pie>
@@ -1311,7 +1311,7 @@ export function ObjectsOfIssueAnalysis({ objectives }: any) {
                 </div>
 
                 <div className={styles.objectivesList}>
-                    {dataToUse.map((obj: any, index: number) => (
+                    {dataToUse?.map((obj: any, index: number) => (
                         <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', borderTop: '1px solid #e2e8f0' }}>
                             <div style={{ width: 12, height: 12, backgroundColor: COLORS_LIST[index % COLORS_LIST.length], borderRadius: '50%' }}></div>
                             <div style={{ flex: 1 }}>
