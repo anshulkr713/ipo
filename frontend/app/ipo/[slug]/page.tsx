@@ -6,6 +6,8 @@ import { ProfitCalculator, DiscussionSection, StickyFooter } from './IPOClientCo
 import styles from './page.module.css';
 import { supabase } from '@/lib/supabase';
 
+export const runtime = 'edge';
+
 // 1. Fetch Data on Server using Supabase
 async function getIPOData(slug: string) {
     const { data: ipo, error } = await supabase
