@@ -215,12 +215,12 @@ export function GMPTrendChart({ gmpHistory, issuePrice, companyName }: GMPTrendP
     if (typeof window === 'undefined') return null;
     if (!gmpHistory || gmpHistory.length === 0) return null;
 
-    const chartData = gmpHistory
+    const chartData = (Array.isArray(gmpHistory) ? gmpHistory : [])
         .map(item => ({
             date: new Date(item.date || item.created_at || item.recorded_at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
-            gmp: item.gmp_amount,
-            percentage: item.gmp_percentage,
-            expectedListing: issuePrice + item.gmp_amount,
+            gmp: item.gmp_amount || 0,
+            percentage: item.gmp_percentage || 0,
+            expectedListing: (issuePrice || 0) + (item.gmp_amount || 0),
         }))
         .reverse()
         .slice(-14);
@@ -272,10 +272,17 @@ interface SubscriptionDashboardProps {
     companyName: string;
 }
 
-export function SubscriptionDashboard({ subscriptionData, subscriptionHistory, status, ipoId }: SubscriptionDashboardProps) {
-    if (typeof window === 'undefined') return null;
+export function SubscriptionDashboard({
+    subscriptionData = {} as SubscriptionData,
+    subscriptionHistory = [],
+    status = '',
+    ipoId = 0,
+    companyName = ''
+}: SubscriptionDashboardProps) {
     const [liveData, setLiveData] = useState(subscriptionData);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+    if (typeof window === 'undefined') return null;
 
     useEffect(() => {
         if (status !== 'open') return;
@@ -301,7 +308,7 @@ export function SubscriptionDashboard({ subscriptionData, subscriptionHistory, s
         { name: 'Retail', value: liveData?.subscription_retail || 0, color: COLORS.warning },
     ];
 
-    const historyData = (subscriptionHistory || []).map((item, index) => ({
+    const historyData = (Array.isArray(subscriptionHistory) ? subscriptionHistory : []).map((item, index) => ({
         day: `Day ${item.subscription_day || index + 1}`,
         QIB: item.subscription_qib || 0,
         sNII: item.subscription_shni || 0,
@@ -394,11 +401,11 @@ interface FinancialPerformanceProps {
     companyName: string;
 }
 
-export function FinancialPerformanceSuite({ financials, comparables, companyName }: FinancialPerformanceProps) {
-    if (typeof window === 'undefined') return null;
+export function FinancialPerformanceSuite({ financials = [], comparables = [], companyName = '' }: FinancialPerformanceProps) {
     const [activeTab, setActiveTab] = useState<'revenue' | 'profitability' | 'margins' | 'ratios'>('revenue');
 
-    if (!financials || financials.length === 0) return null;
+    if (typeof window === 'undefined') return null;
+    if (!Array.isArray(financials) || financials.length === 0) return null;
 
     const sortedFinancials = [...financials].sort((a, b) => a.financial_year.localeCompare(b.financial_year));
     const latestFinancial = sortedFinancials[sortedFinancials.length - 1];
@@ -974,9 +981,9 @@ export function ValuationAnalysis({ financials, comparables, technicalAnalysis, 
 // ==========================================
 // PEER COMPARISON
 // ==========================================
-export function PeerComparisonEnhanced({ comparables, currentIPO }: any) {
+export function PeerComparisonEnhanced({ comparables = [], currentIPO }: any) {
     if (typeof window === 'undefined') return null;
-    if (!comparables || comparables.length === 0) return null;
+    if (!Array.isArray(comparables) || comparables.length === 0) return null;
 
     return (
         <section className={styles.section}>
@@ -1016,8 +1023,8 @@ export function PeerComparisonEnhanced({ comparables, currentIPO }: any) {
 // ==========================================
 // ANCHOR INVESTORS
 // ==========================================
-export function AnchorInvestorsIntelligence({ anchorInvestors, companyName }: any) {
-    if (!anchorInvestors || anchorInvestors.length === 0) return null;
+export function AnchorInvestorsIntelligence({ anchorInvestors = [], companyName = '' }: any) {
+    if (!Array.isArray(anchorInvestors) || anchorInvestors.length === 0) return null;
 
     const totalInvestment = anchorInvestors.reduce((sum: number, inv: any) => sum + (inv.amount_invested_cr || 0), 0);
 
@@ -1245,8 +1252,8 @@ export function ObjectsOfIssueAnalysis({ objectives }: any) {
         { objective_category: 'Capital Expenditure', amount_allocated_cr: 80 }
     ];
     // Use demo data if empty
-    const dataToUse = (objectives && objectives.length > 0) ? objectives : demoObjectives;
-    const isMock = (!objectives || objectives.length === 0);
+    const dataToUse = (Array.isArray(objectives) && objectives.length > 0) ? objectives : demoObjectives;
+    const isMock = (!Array.isArray(objectives) || objectives.length === 0);
 
     const COLORS_LIST = ['#1a3a3a', '#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
