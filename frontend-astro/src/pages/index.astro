@@ -14,8 +14,8 @@ const openIPOs = await fetchOpenIPOs();
 
 // Extract latest GMP and subscription for hero card
 const heroIPO = featuredIPOs[0];
-const heroGmp = heroIPO ? getLatestGmp(heroIPO.ipo_gmp) : null;
-const heroSub = heroIPO ? getLatestSubscription(heroIPO.ipo_subscriptions) : null;
+const heroGmp = heroIPO ? getLatestGmp(heroIPO) : null;
+const heroSub = heroIPO ? getLatestSubscription(heroIPO) : null;
 
 // Import CSS module
 import styles from '../styles/page.module.css';

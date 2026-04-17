@@ -1,4 +1,4 @@
-import { supabase, type IPO, type IPOWithDetails, type IPOAllotment, type IPOGmp, type IPOSubscription } from './supabase';
+import { supabase, type IPO } from './supabase';
 
 // ============================================
 // Core IPO Fetching Functions
@@ -7,26 +7,10 @@ import { supabase, type IPO, type IPOWithDetails, type IPOAllotment, type IPOGmp
 /**
  * Fetch a single IPO by slug with all related data
  */
-export async function fetchIPOBySlug(slug: string): Promise<IPOWithDetails | null> {
+export async function fetchIPOBySlug(slug: string): Promise<IPO | null> {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*),
-            ipo_timeline(*),
-            ipo_allotment(*),
-            ipo_financials(*),
-            ipo_reviews(*),
-            ipo_documents(*),
-            ipo_shareholding(*),
-            ipo_reservations(*),
-            ipo_comparables(*),
-            ipo_anchor_investors(*),
-            ipo_objectives(*),
-            ipo_technical_analysis(*),
-            ipo_faqs(*)
-        `)
+        .select(`*, ipo_comments(*)`)
         .eq('slug', slug)
         .single();
 
@@ -43,11 +27,7 @@ export async function fetchIPOBySlug(slug: string): Promise<IPOWithDetails | nul
 export async function fetchUpcomingIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .eq('status', 'upcoming')
         .order('open_date', { ascending: true });
 
@@ -64,11 +44,7 @@ export async function fetchUpcomingIPOs() {
 export async function fetchGMPData() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .in('status', ['open', 'upcoming', 'closed'])
         .order('open_date', { ascending: false });
 
@@ -80,24 +56,26 @@ export async function fetchGMPData() {
 }
 
 /**
- * Fetch allotment data from ipo_allotment table
+ * Fetch allotment data
  */
 export async function fetchAllotmentLinks() {
     const { data, error } = await supabase
-        .from('ipo_allotment')
-        .select(`
-            *,
-            ipos(ipo_name, company_name, slug, category, status)
-        `)
-        .eq('is_active', true)
-        .not('registrar_link', 'is', null)
+        .from('ipos')
+        .select(`*`)
+        .eq('allotment_link_active', true)
+        .not('allotment_link', 'is', null)
         .order('id', { ascending: false });
 
     if (error) {
         console.error('Error fetching allotment links:', error);
         return [];
     }
-    return data || [];
+    // Map to structure old code expects
+    return data.map(ipo => ({
+        registrar_link: ipo.allotment_link,
+        is_active: ipo.allotment_link_active,
+        ipos: ipo
+    }));
 }
 
 /**
@@ -106,11 +84,7 @@ export async function fetchAllotmentLinks() {
 export async function fetchCombinedIPOData() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .in('status', ['upcoming', 'open', 'closed'])
         .order('open_date', { ascending: true });
 
@@ -127,11 +101,7 @@ export async function fetchCombinedIPOData() {
 export async function fetchFeaturedIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .eq('is_featured', true)
         .in('status', ['open', 'upcoming'])
         .order('trending_score', { ascending: false })
@@ -150,11 +120,7 @@ export async function fetchFeaturedIPOs() {
 export async function fetchOpenIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .eq('status', 'open')
         .order('close_date', { ascending: true });
 
@@ -171,11 +137,7 @@ export async function fetchOpenIPOs() {
 export async function fetchClosedIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .eq('status', 'closed')
         .order('close_date', { ascending: false });
 
@@ -192,11 +154,7 @@ export async function fetchClosedIPOs() {
 export async function fetchAllIPOs() {
     const { data, error } = await supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .order('open_date', { ascending: false });
 
     if (error) {
@@ -222,7 +180,7 @@ export async function fetchAllIPOSlugs() {
 }
 
 /**
- * Fetch calendar events from timeline
+ * Fetch calendar events
  */
 export async function fetchCalendarEvents(year: number, month: number) {
     const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
@@ -230,20 +188,44 @@ export async function fetchCalendarEvents(year: number, month: number) {
 
     try {
         const { data, error } = await supabase
-            .from('ipo_timeline')
-            .select(`
-                *,
-                ipos(ipo_name, company_name, category, slug)
-            `)
-            .gte('event_date', startDate)
-            .lte('event_date', endDate)
-            .order('event_date', { ascending: true });
+            .from('ipos')
+            .select('*')
+            .or(`open_date.gte.${startDate},close_date.gte.${startDate},open_date.lte.${endDate},close_date.lte.${endDate}`);
 
         if (error) {
             console.error('Error fetching calendar events:', error);
             return [];
         }
-        return data || [];
+        
+        const events: any[] = [];
+        for (const ipo of data || []) {
+            if (ipo.open_date >= startDate && ipo.open_date <= endDate) {
+                events.push({
+                    event_date: ipo.open_date,
+                    event_title: `Opens: ${ipo.company_name || ipo.ipo_name}`,
+                    event_type: 'IPO Opens',
+                    ipos: { slug: ipo.slug }
+                });
+            }
+            if (ipo.close_date >= startDate && ipo.close_date <= endDate) {
+                events.push({
+                    event_date: ipo.close_date,
+                    event_title: `Closes: ${ipo.company_name || ipo.ipo_name}`,
+                    event_type: 'IPO Closes',
+                    ipos: { slug: ipo.slug }
+                });
+            }
+            if (ipo.listing_date && ipo.listing_date >= startDate && ipo.listing_date <= endDate) {
+                events.push({
+                    event_date: ipo.listing_date,
+                    event_title: `Listing: ${ipo.company_name || ipo.ipo_name}`,
+                    event_type: 'Listing Date',
+                    ipos: { slug: ipo.slug }
+                });
+            }
+        }
+        events.sort((a, b) => a.event_date.localeCompare(b.event_date));
+        return events;
     } catch {
         return [];
     }
@@ -255,11 +237,7 @@ export async function fetchCalendarEvents(year: number, month: number) {
 export async function fetchAllIPOsForComparison(category: string = 'all') {
     let query = supabase
         .from('ipos')
-        .select(`
-            *,
-            ipo_gmp(*),
-            ipo_subscriptions(*)
-        `)
+        .select(`*`)
         .in('status', ['open', 'upcoming', 'closed']);
 
     if (category !== 'all') {
@@ -280,18 +258,27 @@ export async function fetchAllIPOsForComparison(category: string = 'all') {
  */
 export async function fetchShareholdingData() {
     const { data, error } = await supabase
-        .from('ipo_shareholding')
-        .select(`
-            *,
-            ipos(ipo_name, company_name, slug, category, status)
-        `)
+        .from('ipos')
+        .select(`*`)
+        .not('shareholding', 'is', null)
         .order('id', { ascending: false });
 
     if (error) {
         console.error('Error fetching shareholding data:', error);
         return [];
     }
-    return data || [];
+    
+    // Map to old structure
+    const results: any[] = [];
+    for (const ipo of data || []) {
+        for (const sh of ipo.shareholding || []) {
+            results.push({
+                ...sh,
+                ipos: ipo
+            });
+        }
+    }
+    return results;
 }
 
 // ============================================
@@ -299,19 +286,30 @@ export async function fetchShareholdingData() {
 // ============================================
 
 /**
- * Get the latest GMP from an array of GMP records
+ * Shim for legacy components
+ * Takes an IPO object
  */
-export function getLatestGmp(gmpRecords?: IPOGmp[]): IPOGmp | null {
-    if (!gmpRecords || gmpRecords.length === 0) return null;
-    return gmpRecords.find(g => g.is_latest) || gmpRecords[0];
+export function getLatestGmp(ipo?: any): any {
+    if (!ipo) return null;
+    return {
+        gmp_amount: ipo.current_gmp || 0,
+        gmp_percentage: ipo.gmp_percentage || 0,
+        issue_price: ipo.max_price || 0
+    };
 }
 
 /**
- * Get the latest subscription from an array of subscription records
+ * Shim for legacy components
  */
-export function getLatestSubscription(subRecords?: IPOSubscription[]): IPOSubscription | null {
-    if (!subRecords || subRecords.length === 0) return null;
-    return subRecords.find(s => s.is_latest) || subRecords[0];
+export function getLatestSubscription(ipo?: any): any {
+    if (!ipo) return null;
+    return {
+        subscription_total: ipo.subscription_total || 0,
+        subscription_qib: ipo.subscription_qib || 0,
+        subscription_nii: ipo.subscription_nii || 0,
+        subscription_retail: ipo.subscription_retail || 0,
+        subscription_employee: 0
+    };
 }
 
 // ============================================

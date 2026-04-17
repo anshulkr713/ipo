@@ -98,8 +98,8 @@ export default function DashboardTabs() {
 
     const renderIPOCard = (ipo: any, type: TabType) => {
         // Extract data from nested arrays
-        const latestGmp = getLatestGmp(ipo.ipo_gmp);
-        const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+        const latestGmp = getLatestGmp(ipo);
+        const latestSub = getLatestSubscription(ipo);
         const gmpAmount = latestGmp?.gmp_amount || 0;
         const gmpPercentage = latestGmp?.gmp_percentage || 0;
         const subscriptionTotal = latestSub?.subscription_total || 0;

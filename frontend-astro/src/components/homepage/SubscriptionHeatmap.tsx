@@ -114,8 +114,8 @@ export default function SubscriptionHeatmap() {
             const data = await fetchCombinedIPOData();
             // Transform data to extract GMP and subscription from nested arrays
             const transformedData = (data || []).map((ipo: any) => {
-                const latestGmp = getLatestGmp(ipo.ipo_gmp);
-                const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+                const latestGmp = getLatestGmp(ipo);
+                const latestSub = getLatestSubscription(ipo);
 
                 return {
                     ...ipo,

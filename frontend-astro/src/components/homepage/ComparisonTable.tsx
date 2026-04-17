@@ -21,8 +21,8 @@ export default function ComparisonTable({ category }: { category: string }) {
 
     // Transform IPOs to extract nested data for sorting and display
     const transformedIPOs = ipos.map(ipo => {
-        const latestGmp = getLatestGmp(ipo.ipo_gmp);
-        const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+        const latestGmp = getLatestGmp(ipo);
+        const latestSub = getLatestSubscription(ipo);
 
         return {
             ...ipo,

@@ -8,3 +8,6 @@ PyPDF2
 apscheduler
 playwright
 lxml
+fastapi
+textblob
+uvicorn

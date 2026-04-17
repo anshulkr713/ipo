@@ -53,8 +53,8 @@ const formatDate = (date: string | Date | null | undefined) => {
 };
 
 // Extract all data
-const latestGmp = getLatestGmp(ipo.ipo_gmp);
-const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+const latestGmp = getLatestGmp(ipo);
+const latestSub = getLatestSubscription(ipo);
 const companyName = ipo.company_name || ipo.ipo_name || 'IPO';
 const gmp = latestGmp?.gmp_amount || 0;
 const gmpPercentage = latestGmp?.gmp_percentage || 0;

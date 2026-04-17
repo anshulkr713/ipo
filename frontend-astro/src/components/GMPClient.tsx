@@ -95,14 +95,14 @@ export default function GMPClient() {
                 // Transform database fields with nested arrays to UI-expected fields
                 const transformedData = data.map((ipo: any) => {
                     // Extract latest GMP from nested array
-                    const latestGmp = getLatestGmp(ipo.ipo_gmp);
+                    const latestGmp = getLatestGmp(ipo);
                     const gmpAmount = latestGmp?.gmp_amount || 0;
                     const gmpPercentage = latestGmp?.gmp_percentage || 0;
                     const issuePrice = latestGmp?.issue_price || ipo.max_price || 0;
                     const estimatedListing = latestGmp?.estimated_listing_price || (issuePrice + gmpAmount);
 
                     // Extract latest subscription from nested array
-                    const latestSub = getLatestSubscription(ipo.ipo_subscriptions);
+                    const latestSub = getLatestSubscription(ipo);
 
                     return {
                         id: ipo.id,
