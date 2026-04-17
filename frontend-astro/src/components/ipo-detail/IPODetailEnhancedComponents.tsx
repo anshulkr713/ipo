@@ -212,8 +212,10 @@ interface GMPTrendProps {
 }
 
 export function GMPTrendChart({ gmpHistory, issuePrice, companyName }: GMPTrendProps) {
-    if (typeof window === 'undefined') return null;
-    if (!gmpHistory || gmpHistory.length === 0) return null;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted || !gmpHistory || gmpHistory.length === 0) return null;
 
     const chartData = (Array.isArray(gmpHistory) ? gmpHistory : [])
         .map(item => ({
@@ -281,11 +283,14 @@ export function SubscriptionDashboard({
 }: SubscriptionDashboardProps) {
     const [liveData, setLiveData] = useState(subscriptionData);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-
-    if (typeof window === 'undefined') return null;
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        if (status !== 'open') return;
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!mounted || status !== 'open') return;
         const interval = setInterval(async () => {
             try {
                 const response = await fetch(`/api/subscription/${ipoId}`);
@@ -299,7 +304,9 @@ export function SubscriptionDashboard({
             }
         }, 30000);
         return () => clearInterval(interval);
-    }, [status, ipoId]);
+    }, [status, ipoId, mounted]);
+
+    if (!mounted) return null;
 
     const categories = [
         { name: 'QIB', value: liveData?.subscription_qib || 0, color: COLORS.primary },
@@ -403,9 +410,10 @@ interface FinancialPerformanceProps {
 
 export function FinancialPerformanceSuite({ financials = [], comparables = [], companyName = '' }: FinancialPerformanceProps) {
     const [activeTab, setActiveTab] = useState<'revenue' | 'profitability' | 'margins' | 'ratios'>('revenue');
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
 
-    if (typeof window === 'undefined') return null;
-    if (!Array.isArray(financials) || financials.length === 0) return null;
+    if (!mounted || !Array.isArray(financials) || financials.length === 0) return null;
 
     const sortedFinancials = [...financials].sort((a, b) => a.financial_year.localeCompare(b.financial_year));
     const latestFinancial = sortedFinancials[sortedFinancials.length - 1];
@@ -903,7 +911,10 @@ export function BrokerRecommendations({ reviews, companyName }: any) {
 // SHAREHOLDING VISUALIZATION
 // ==========================================
 export function ShareholdingVisualization({ shareholding, companyName }: any) {
-    if (typeof window === 'undefined') return null;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) return null;
     // Mock Data Fallback
     const demoData = [
         { holding_type: 'Pre-IPO', promoter_holding_percentage: 95, public_holding_percentage: 5 },
@@ -947,8 +958,10 @@ export function ShareholdingVisualization({ shareholding, companyName }: any) {
 // VALUATION ANALYSIS
 // ==========================================
 export function ValuationAnalysis({ financials, comparables, technicalAnalysis, issuePrice, companyName }: any) {
-    if (typeof window === 'undefined') return null;
-    if (!financials || financials.length === 0) return null;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted || !financials || financials.length === 0) return null;
 
     const latestFinancial = financials[financials.length - 1];
     const companyPE = technicalAnalysis?.pe_ratio || (latestFinancial.eps ? issuePrice / latestFinancial.eps : null);
@@ -982,8 +995,10 @@ export function ValuationAnalysis({ financials, comparables, technicalAnalysis, 
 // PEER COMPARISON
 // ==========================================
 export function PeerComparisonEnhanced({ comparables = [], currentIPO }: any) {
-    if (typeof window === 'undefined') return null;
-    if (!Array.isArray(comparables) || comparables.length === 0) return null;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted || !Array.isArray(comparables) || comparables.length === 0) return null;
 
     return (
         <section className={styles.section}>
@@ -1244,7 +1259,10 @@ export function BreadcrumbNav({ companyName }: { companyName: string }) {
 // OBJECTS OF ISSUE ANALYSIS
 // ==========================================
 export function ObjectsOfIssueAnalysis({ objectives }: any) {
-    if (typeof window === 'undefined') return null;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) return null;
     // Mock Data Fallback
     const demoObjectives = [
         { objective_category: 'General Corporate Purposes', amount_allocated_cr: 150 },
