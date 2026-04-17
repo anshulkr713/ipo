@@ -212,6 +212,7 @@ interface GMPTrendProps {
 }
 
 export function GMPTrendChart({ gmpHistory, issuePrice, companyName }: GMPTrendProps) {
+    if (typeof window === 'undefined') return null;
     if (!gmpHistory || gmpHistory.length === 0) return null;
 
     const chartData = gmpHistory
@@ -272,6 +273,7 @@ interface SubscriptionDashboardProps {
 }
 
 export function SubscriptionDashboard({ subscriptionData, subscriptionHistory, status, ipoId }: SubscriptionDashboardProps) {
+    if (typeof window === 'undefined') return null;
     const [liveData, setLiveData] = useState(subscriptionData);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -393,6 +395,7 @@ interface FinancialPerformanceProps {
 }
 
 export function FinancialPerformanceSuite({ financials, comparables, companyName }: FinancialPerformanceProps) {
+    if (typeof window === 'undefined') return null;
     const [activeTab, setActiveTab] = useState<'revenue' | 'profitability' | 'margins' | 'ratios'>('revenue');
 
     if (!financials || financials.length === 0) return null;
@@ -893,6 +896,7 @@ export function BrokerRecommendations({ reviews, companyName }: any) {
 // SHAREHOLDING VISUALIZATION
 // ==========================================
 export function ShareholdingVisualization({ shareholding, companyName }: any) {
+    if (typeof window === 'undefined') return null;
     // Mock Data Fallback
     const demoData = [
         { holding_type: 'Pre-IPO', promoter_holding_percentage: 95, public_holding_percentage: 5 },
@@ -936,6 +940,7 @@ export function ShareholdingVisualization({ shareholding, companyName }: any) {
 // VALUATION ANALYSIS
 // ==========================================
 export function ValuationAnalysis({ financials, comparables, technicalAnalysis, issuePrice, companyName }: any) {
+    if (typeof window === 'undefined') return null;
     if (!financials || financials.length === 0) return null;
 
     const latestFinancial = financials[financials.length - 1];
@@ -970,6 +975,7 @@ export function ValuationAnalysis({ financials, comparables, technicalAnalysis, 
 // PEER COMPARISON
 // ==========================================
 export function PeerComparisonEnhanced({ comparables, currentIPO }: any) {
+    if (typeof window === 'undefined') return null;
     if (!comparables || comparables.length === 0) return null;
 
     return (
@@ -1231,6 +1237,7 @@ export function BreadcrumbNav({ companyName }: { companyName: string }) {
 // OBJECTS OF ISSUE ANALYSIS
 // ==========================================
 export function ObjectsOfIssueAnalysis({ objectives }: any) {
+    if (typeof window === 'undefined') return null;
     // Mock Data Fallback
     const demoObjectives = [
         { objective_category: 'General Corporate Purposes', amount_allocated_cr: 150 },
