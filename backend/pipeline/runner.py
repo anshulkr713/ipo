@@ -1,0 +1,73 @@
+"""Orchestrator: runs a list of source names sequentially, waiting
+`inter_source_gap_sec` between them. Returns an aggregate report.
+"""
+
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+
+from .config import Settings
+from .db import Database
+from .http_client import PoliteClient
+from .logger import get_logger
+from .registry import ALL_SOURCES
+from .sources.base import SourceResult
+
+log = get_logger("pipeline.runner")
+
+
+@dataclass
+class RunReport:
+    results: dict[str, SourceResult] = field(default_factory=dict)
+
+    @property
+    def total_errors(self) -> int:
+        return sum(len(r.errors) for r in self.results.values())
+
+    @property
+    def any_failed(self) -> bool:
+        return any(r.status == "failed" for r in self.results.values())
+
+    def summary_lines(self) -> list[str]:
+        lines: list[str] = []
+        for name, res in self.results.items():
+            lines.append(
+                f"[{res.status:>7}] {name:<28} "
+                f"found={res.records_found} updated={res.records_updated} "
+                f"appended={res.records_appended} errors={len(res.errors)}"
+            )
+        return lines
+
+
+def run(sources: list[str], *, settings: Settings) -> RunReport:
+    http = PoliteClient(settings)
+    db = Database(settings)
+    report = RunReport()
+
+    for i, name in enumerate(sources):
+        cls = ALL_SOURCES.get(name)
+        if cls is None:
+            log.error("unknown source", extra={"source": name})
+            continue
+
+        if i > 0:
+            time.sleep(settings.inter_source_gap_sec)
+
+        log.info("starting source", extra={"source": name})
+        source = cls(http=http, db=db)
+        result = source.execute()
+        report.results[name] = result
+        log.info(
+            "finished source",
+            extra={
+                "source": name,
+                "status": result.status,
+                "records_found": result.records_found,
+                "records_updated": result.records_updated,
+                "records_appended": result.records_appended,
+                "errors": len(result.errors),
+            },
+        )
+
+    return report

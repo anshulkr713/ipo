@@ -1,0 +1,18 @@
+{
+  "runtime": "edge",
+  "name": "ipo/[slug]",
+  "deploymentTarget": "v8-worker",
+  "entrypoint": "index.js",
+  "assets": [],
+  "framework": {
+    "slug": "nextjs",
+    "version": "15.4.11"
+  },
+  "environment": {
+    "__NEXT_BUILD_ID": "NImpJyJE77YvVlhiycDu7",
+    "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "OV1zoU/ftjMMPpzBYZROZ7rQKl/EjHPcmmqroYnMMFw=",
+    "__NEXT_PREVIEW_MODE_ID": "8b3c8fe12b6e01280013e7c43b6b6e2b",
+    "__NEXT_PREVIEW_MODE_SIGNING_KEY": "1fb468601774c5f2c23a94184da22568824584460630d591710063a4f2bf1673",
+    "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "4a3aecf8cb29c3bc816f24a14230eab7b46e86aa37c4aa7162762cd6e4718bbd"
+  }
+}

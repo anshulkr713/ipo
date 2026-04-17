@@ -1,13 +1,10 @@
-flask
-requests
-beautifulsoup4
-supabase
-python-dotenv
-anthropic
-PyPDF2
-apscheduler
-playwright
-lxml
-fastapi
-textblob
-uvicorn
+requests>=2.32,<3
+beautifulsoup4>=4.12,<5
+lxml>=5.0,<6
+supabase>=2.5,<3
+python-dotenv>=1.0,<2
+
+# FastAPI surface (main.py — kept separate from pipeline)
+fastapi>=0.110,<1
+uvicorn>=0.30,<1
+textblob>=0.18,<1
