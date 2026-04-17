@@ -299,7 +299,7 @@ export function SubscriptionDashboard({ subscriptionData, subscriptionHistory, s
         { name: 'Retail', value: liveData?.subscription_retail || 0, color: COLORS.warning },
     ];
 
-    const historyData = subscriptionHistory.map((item, index) => ({
+    const historyData = (subscriptionHistory || []).map((item, index) => ({
         day: `Day ${item.subscription_day || index + 1}`,
         QIB: item.subscription_qib || 0,
         sNII: item.subscription_shni || 0,

@@ -31,6 +31,8 @@ backend/
         ├── chittorgarh_allotment.py      # registrar + allotment link
         ├── chittorgarh_drhp.py           # DRHP / RHP filings
         ├── chittorgarh_detail.py         # per-IPO deep scrape
+        ├── chittorgarh_history_backfill.py # historical GMP / subscription backfill
+        ├── _chittorgarh_history.py       # shared trend-table parsers
         ├── ipowatch_gmp.py               # secondary GMP cross-check
         ├── ipocentral_shareholder.py     # reservation breakdown
         ├── nse_current_issues.py         # NSE official API
@@ -69,6 +71,7 @@ backend/
    python -m pipeline run core      # dashboard + NSE + BSE
    python -m pipeline run cold      # DRHP/RHP + allotment + shareholder
    python -m pipeline run detail    # per-IPO deep scrape (throttled)
+   python -m pipeline run backfill  # historical GMP/subscription backfill (manual)
    python -m pipeline run all       # full pass
    ```
 
@@ -126,6 +129,7 @@ triggers in `.github/workflows/scrape.yml`:
 | `core`   | hourly                                | dashboard + NSE + BSE |
 | `cold`   | every 6h                              | DRHP/RHP + allotment + shareholder |
 | `detail` | daily                                 | per-IPO deep scrape |
+| `backfill` | manual only                         | historical GMP / subscription for old IPOs |
 
 `calendar_events` makes no network calls — it just re-derives
 `timeline_events` from the date columns. It's appended to `core`,
@@ -143,6 +147,24 @@ The `ipos` table also gets the *latest* flattened numbers
 (`current_gmp`, `subscription_total`, etc.) for fast frontend reads.
 Views `v_latest_gmp` and `v_latest_subscription` are provided as an
 alternative read path if you want to query the history tables directly.
+
+### Backfilling historical IPOs
+
+For IPOs that existed before the pipeline was running, there is no
+history yet — the trend charts render empty. To fill them in:
+
+```bash
+python -m pipeline run backfill
+```
+
+This walks `ipos` rows that have a cached `detail_url` and zero
+rows in the history tables, re-fetches the Chittorgarh detail page,
+and pulls the "GMP Trend" + day-wise "Subscription Status" tables
+into `gmp_history` / `subscription_history`. Rows are deduped by
+`(slug, date)`, so re-running is safe. Capped at
+`detail_batch_size` IPOs per invocation — run it repeatedly (or
+dispatch the `backfill` workflow from the Actions tab) until
+`fetch_ipos_missing_history` returns zero.
 
 ## Operational log
 

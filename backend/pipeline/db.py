@@ -60,6 +60,29 @@ class Database:
         )
         return resp.data or []
 
+    def fetch_ipos_missing_history(self, limit: int) -> list[dict[str, Any]]:
+        """Candidates for the history backfill: have a detail_url and zero
+        rows in both gmp_history and subscription_history. Ordered oldest
+        first so listed/closed IPOs (the ones that predate the pipeline)
+        get backfilled before we revisit recent ones."""
+        gmp_resp = self.client.table("gmp_history").select("ipo_slug").execute()
+        sub_resp = self.client.table("subscription_history").select("ipo_slug").execute()
+        have_gmp = {r["ipo_slug"] for r in (gmp_resp.data or []) if r.get("ipo_slug")}
+        have_sub = {r["ipo_slug"] for r in (sub_resp.data or []) if r.get("ipo_slug")}
+        already = have_gmp & have_sub
+
+        resp = (
+            self.client.table("ipos")
+            .select("slug, ipo_name, detail_url, open_date, status")
+            .not_.is_("detail_url", "null")
+            .in_("status", ["closed", "listed", "open", "upcoming"])
+            .order("open_date", desc=False)
+            .limit(max(limit * 4, limit + 20))  # over-fetch, filter client-side
+            .execute()
+        )
+        filtered = [r for r in (resp.data or []) if r.get("slug") and r["slug"] not in already]
+        return filtered[:limit]
+
     def fetch_active_slugs(self) -> set[str]:
         resp = (
             self.client.table("ipos")
@@ -92,6 +115,38 @@ class Database:
 
     def append_subscription_history(self, rows: list[dict[str, Any]]) -> int:
         return self._append("subscription_history", rows)
+
+    def append_gmp_history_dedupe(self, rows: list[dict[str, Any]]) -> int:
+        """Insert only rows whose (ipo_slug, scraped_at-date) isn't already
+        present. Used by the detail scraper and history backfill — they
+        re-read the same Chittorgarh trend table each time, so without
+        this every run would duplicate N days of observations."""
+        return self._append_dedupe("gmp_history", rows)
+
+    def append_subscription_history_dedupe(self, rows: list[dict[str, Any]]) -> int:
+        return self._append_dedupe("subscription_history", rows)
+
+    def _append_dedupe(self, table: str, rows: list[dict[str, Any]]) -> int:
+        items = [r for r in rows if r.get("ipo_slug")]
+        if not items:
+            return 0
+        slugs = sorted({r["ipo_slug"] for r in items})
+        resp = (
+            self.client.table(table)
+            .select("ipo_slug, scraped_at")
+            .in_("ipo_slug", slugs)
+            .execute()
+        )
+        existing: set[tuple[str, str]] = set()
+        for r in resp.data or []:
+            at = (r.get("scraped_at") or "")[:10]
+            if at:
+                existing.add((r["ipo_slug"], at))
+        fresh = [
+            r for r in items
+            if (r["ipo_slug"], (r.get("scraped_at") or "")[:10]) not in existing
+        ]
+        return self._append(table, fresh)
 
     def _append(self, table: str, rows: Iterable[dict[str, Any]]) -> int:
         items = [r for r in rows if r.get("ipo_slug")]

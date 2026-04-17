@@ -18,6 +18,7 @@ from .sources.chittorgarh_dashboard import ChittorgarhDashboard
 from .sources.chittorgarh_detail import ChittorgarhDetail
 from .sources.chittorgarh_drhp import ChittorgarhDRHP
 from .sources.chittorgarh_gmp import ChittorgarhGMP
+from .sources.chittorgarh_history_backfill import ChittorgarhHistoryBackfill
 from .sources.chittorgarh_subscription import ChittorgarhSubscription
 from .sources.ipocentral_shareholder import IPOCentralShareholder
 from .sources.ipowatch_gmp import IPOWatchGMP
@@ -33,6 +34,7 @@ ALL_SOURCES: dict[str, Type[Source]] = {
         ChittorgarhAllotment,
         ChittorgarhDRHP,
         ChittorgarhDetail,
+        ChittorgarhHistoryBackfill,
         IPOWatchGMP,
         IPOCentralShareholder,
         NSECurrentIssues,
@@ -69,6 +71,12 @@ GROUPS: dict[str, tuple[str, ...]] = {
     "detail": (
         "chittorgarh_detail",
         "calendar_events",
+    ),
+    # Manual: walk historical IPOs that predate the pipeline and
+    # populate gmp_history / subscription_history from archived pages.
+    # Safe to re-run; history writes are deduped by (slug, date).
+    "backfill": (
+        "chittorgarh_history_backfill",
     ),
     # Full pass — use sparingly (e.g. initial backfill).
     "all": (

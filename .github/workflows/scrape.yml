@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Group or source name (e.g. hot, core, cold, detail, all)"
+        description: "Group or source name (e.g. hot, core, cold, detail, backfill, all)"
         required: true
         default: "hot"
 

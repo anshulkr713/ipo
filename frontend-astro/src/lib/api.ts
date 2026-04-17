@@ -282,6 +282,76 @@ export async function fetchShareholdingData() {
 }
 
 // ============================================
+// ============================================
+// History fetchers (append-only gmp_history / subscription_history)
+// ============================================
+
+/**
+ * Last 30 GMP observations for an IPO, oldest-first. Shape matches
+ * the GMPDataPoint interface expected by GMPTrendChart.
+ */
+export async function fetchGmpHistory(slug: string, limit = 30) {
+    const { data, error } = await supabase
+        .from('gmp_history')
+        .select('gmp_amount, gmp_percentage, kostak_rate, subject_rate, scraped_at')
+        .eq('ipo_slug', slug)
+        .order('scraped_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching gmp_history:', error);
+        return [];
+    }
+    // Chart expects oldest → newest on the x-axis.
+    return (data || [])
+        .slice()
+        .reverse()
+        .map(row => ({
+            date: row.scraped_at,
+            gmp_amount: row.gmp_amount ?? 0,
+            gmp_percentage: row.gmp_percentage ?? 0,
+            kostak_rate: row.kostak_rate ?? undefined,
+            subject_rate: row.subject_rate ?? undefined,
+        }));
+}
+
+/**
+ * Last 30 subscription observations for an IPO, oldest-first.
+ * Maps backend's bnii/snii column names to the shni/bhni field names
+ * the chart component expects.
+ */
+export async function fetchSubscriptionHistory(slug: string, limit = 30) {
+    const { data, error } = await supabase
+        .from('subscription_history')
+        .select(
+            'subscription_retail, subscription_nii, subscription_bnii, ' +
+            'subscription_snii, subscription_qib, subscription_total, ' +
+            'day_number, scraped_at'
+        )
+        .eq('ipo_slug', slug)
+        .order('scraped_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching subscription_history:', error);
+        return [];
+    }
+    return (data || [])
+        .slice()
+        .reverse()
+        .map(row => ({
+            subscription_qib: row.subscription_qib ?? 0,
+            subscription_nii: row.subscription_nii ?? 0,
+            subscription_bhni: row.subscription_bnii ?? 0,
+            subscription_shni: row.subscription_snii ?? 0,
+            subscription_retail: row.subscription_retail ?? 0,
+            subscription_total: row.subscription_total ?? 0,
+            subscription_day: row.day_number ?? undefined,
+            created_at: row.scraped_at,
+        }));
+}
+
+// ============================================
 // Helper Functions to Extract Latest Data
 // ============================================
 

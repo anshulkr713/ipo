@@ -25,6 +25,7 @@ from ..parse import (
     parse_number,
     parse_price_band,
 )
+from ._chittorgarh_history import parse_gmp_trend, parse_subscription_trend
 from .base import Source, SourceResult
 
 _MONEY_RE = re.compile(r"([\d,.]+)\s*(cr|crore|lakh|lac)?", re.IGNORECASE)
@@ -43,6 +44,8 @@ class ChittorgarhDetail(Source):
         self.http.warm_up("https://www.chittorgarh.com/")
         now_iso = datetime.now(timezone.utc).isoformat()
         updates: list[dict[str, Any]] = []
+        gmp_rows: list[dict[str, Any]] = []
+        sub_rows: list[dict[str, Any]] = []
 
         for ipo in candidates:
             url = ipo.get("detail_url")
@@ -55,29 +58,35 @@ class ChittorgarhDetail(Source):
                 continue
 
             try:
-                row = self._parse_detail(ipo["slug"], resp.text)
+                soup = BeautifulSoup(resp.text, "html.parser")
+                row = self._parse_detail(ipo["slug"], soup)
+                gmp_rows.extend(parse_gmp_trend(soup, ipo["slug"], self.name))
+                sub_rows.extend(parse_subscription_trend(soup, ipo["slug"], self.name))
             except Exception as exc:  # noqa: BLE001
                 result.errors.append(f"{ipo['slug']}: {type(exc).__name__}: {exc}")
                 continue
 
-            if not row:
-                continue
-            row["last_scraped_at"] = now_iso
-            row["scrape_source"] = self.name
-            updates.append(row)
+            if row:
+                row["last_scraped_at"] = now_iso
+                row["scrape_source"] = self.name
+                updates.append(row)
 
-        if not updates:
+        if updates:
+            result.records_updated = self.db.upsert_ipos(updates)
+            result.records_found = len(updates)
+
+        if gmp_rows:
+            result.records_appended += self.db.append_gmp_history_dedupe(gmp_rows)
+        if sub_rows:
+            result.records_appended += self.db.append_subscription_history_dedupe(sub_rows)
+
+        if not updates and not gmp_rows and not sub_rows:
             result.status = "partial" if result.errors else "skipped"
-            return result
-
-        result.records_found = len(updates)
-        result.records_updated = self.db.upsert_ipos(updates)
         return result
 
     # -------------------------------------------------------------- #
 
-    def _parse_detail(self, slug: str, html: str) -> Optional[dict[str, Any]]:
-        soup = BeautifulSoup(html, "html.parser")
+    def _parse_detail(self, slug: str, soup: BeautifulSoup) -> Optional[dict[str, Any]]:
         row: dict[str, Any] = {"slug": slug}
 
         about = _extract_about(soup)

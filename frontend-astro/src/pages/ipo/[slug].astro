@@ -1,6 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { fetchIPOBySlug, fetchAllIPOSlugs, getLatestGmp, getLatestSubscription } from '../../lib/api';
+import {
+    fetchIPOBySlug,
+    fetchAllIPOSlugs,
+    fetchGmpHistory,
+    fetchSubscriptionHistory,
+    getLatestGmp,
+    getLatestSubscription,
+} from '../../lib/api';
 
 // Import all enhanced components
 import {
@@ -66,18 +73,28 @@ const minInvestment = maxPrice * lotSize;
 const issueSize = ipo.issue_size_cr || 0;
 const estimatedListingPrice = maxPrice + gmp;
 
-// Get all related data
-const financials = ipo.ipo_financials || [];
-const shareholding = ipo.ipo_shareholding || [];
-const objectives = ipo.ipo_objectives || [];
-const faqs = ipo.ipo_faqs || [];
-const documents = ipo.ipo_documents || [];
-const anchorInvestors = ipo.ipo_anchor_investors || [];
-const comparables = ipo.ipo_comparables || [];
-const reviews = ipo.ipo_reviews || [];
-const gmpHistory = ipo.ipo_gmp || [];
-const reservations = ipo.ipo_reservations || [];
-const technicalAnalysis = ipo.ipo_technical_analysis?.[0] || {};
+// Flat JSONB fields on the `ipos` table. These replaced the former
+// relation tables (ipo_financials, ipo_shareholding, etc.) after the
+// 2a67a19 "Reduced the number of tables" migration.
+const financials = ipo.financials || [];
+const shareholding = ipo.shareholding || [];
+const objectives = ipo.objectives || [];
+const faqs = ipo.faqs || [];
+const documents = ipo.documents || [];
+const anchorInvestors = ipo.anchor_investors || [];
+const comparables = ipo.comparables || [];
+const reviews = ipo.reviews || [];
+const reservations = ipo.reservations || [];
+const risks = ipo.risks || [];
+// technical_analysis_data is a JSONB object, not an array.
+const technicalAnalysis = ipo.technical_analysis_data || {};
+// Time-series data lives in the append-only gmp_history and
+// subscription_history tables written by the backend pipeline.
+// Fetched in parallel to shave a round-trip off the static build.
+const [gmpHistory, subscriptionHistory] = await Promise.all([
+    fetchGmpHistory(slug),
+    fetchSubscriptionHistory(slug),
+]);
 
 // SEO-optimized title and description
 const pageTitle = `${companyName} IPO - GMP ₹${gmp}, Price Band ₹${minPrice}-${maxPrice}, Subscription, Dates, Review ${new Date().getFullYear()}`;
@@ -182,7 +199,7 @@ const faqSchema = {
       <BreadcrumbNav companyName={companyName} client:load />
 
       <!-- Phase 2: Enhanced Hero Section -->
-      <EnhancedHeroSection 
+      <EnhancedHeroSection
         client:load
         companyName={companyName}
         status={status}
@@ -194,14 +211,14 @@ const faqSchema = {
         gmp={gmp}
         gmpPercentage={gmpPercentage}
         estimatedListing={estimatedListingPrice}
-        kostakRate={latestGmp?.kostak_rate}
-        subjectRate={latestGmp?.subject_rate}
+        kostakRate={ipo.kostak_rate}
+        subjectRate={ipo.subject_rate}
         subscriptionData={latestSub}
         openDate={ipo.open_date}
         closeDate={ipo.close_date}
-        industry={ipo.industry}
-        headquarters={ipo.headquarters}
-        established={ipo.year_established}
+        industry={ipo.industry_sector}
+        headquarters={ipo.registered_office}
+        established={ipo.incorporation_date}
       />
 
       <!-- Quick Stats Dashboard (4-card layout) -->
@@ -241,40 +258,41 @@ const faqSchema = {
             <div class="stat-icon">🎯</div>
             <div class="stat-content">
               <span class="stat-label">Valuation</span>
-              <span class="stat-value">{technicalAnalysis.pe_ratio ? `${technicalAnalysis.pe_ratio}x P/E` : 'N/A'}</span>
-              <span class="stat-mini">Market Cap: ₹{technicalAnalysis.post_ipo_market_cap_cr || 'N/A'} Cr</span>
+              <span class="stat-value">{technicalAnalysis?.pe_ratio ? `${technicalAnalysis.pe_ratio}x P/E` : 'N/A'}</span>
+              <span class="stat-mini">Market Cap: ₹{technicalAnalysis?.post_ipo_market_cap_cr || 'N/A'} Cr</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Phase 3.1: GMP Trend Visualization -->
-      <GMPTrendChart 
-        client:visible
+      <!-- Phase 3.1: GMP Trend Visualization. client:only skips SSR so
+           recharts never runs in Node — it consistently trips there on
+           sparse data. -->
+      <GMPTrendChart
+        client:only="react"
         gmpHistory={gmpHistory}
         issuePrice={maxPrice}
         companyName={companyName}
       />
 
-      <!-- Phase 3.1: Real-time Subscription Dashboard -->
-      <SubscriptionDashboard 
-        client:visible
+      <!-- Phase 3.1: Real-time Subscription Dashboard (chart: client-only) -->
+      <SubscriptionDashboard
+        client:only="react"
         subscriptionData={latestSub}
-        subscriptionHistory={ipo.ipo_subscriptions}
+        subscriptionHistory={subscriptionHistory}
         status={status}
         ipoId={ipo.id}
         companyName={companyName}
       />
 
       <!-- Phase 5.6: Key Dates Calendar -->
-      <KeyDatesCalendar 
+      <KeyDatesCalendar
         client:visible
         dates={{
           open: ipo.open_date,
           close: ipo.close_date,
           allotment: ipo.allotment_date,
           listing: ipo.listing_date,
-          cutoff: ipo.cutoff_time
         }}
         companyName={companyName}
       />
@@ -344,17 +362,17 @@ const faqSchema = {
         </div>
       </section>
 
-      <!-- Phase 3.2: Financial Performance Suite -->
-      <FinancialPerformanceSuite 
-        client:visible
+      <!-- Phase 3.2: Financial Performance Suite (charts — client:only) -->
+      <FinancialPerformanceSuite
+        client:only="react"
         financials={financials}
         comparables={comparables}
         companyName={companyName}
       />
 
-      <!-- Phase 3.3: Valuation & Pricing Analysis -->
-      <ValuationAnalysis 
-        client:visible
+      <!-- Phase 3.3: Valuation & Pricing Analysis (charts — client:only) -->
+      <ValuationAnalysis
+        client:only="react"
         financials={financials}
         comparables={comparables}
         technicalAnalysis={technicalAnalysis}
@@ -362,9 +380,9 @@ const faqSchema = {
         companyName={companyName}
       />
 
-      <!-- Phase 3.4: Shareholding Visualization -->
-      <ShareholdingVisualization 
-        client:visible
+      <!-- Phase 3.4: Shareholding Visualization (pie chart — client:only) -->
+      <ShareholdingVisualization
+        client:only="react"
         shareholding={shareholding}
         companyName={companyName}
       />
@@ -388,9 +406,9 @@ const faqSchema = {
         </div>
       </section>
 
-      <!-- Phase 3.5: Objects of Issue Analysis (Pie Chart) -->
-      <ObjectsOfIssueAnalysis 
-        client:visible
+      <!-- Phase 3.5: Objects of Issue Analysis (pie chart — client:only) -->
+      <ObjectsOfIssueAnalysis
+        client:only="react"
         objectives={objectives}
       />
 
@@ -400,16 +418,16 @@ const faqSchema = {
         reservations={reservations}
       />
 
-      <!-- Phase 5.1: Enhanced Peer Comparison -->
-      <PeerComparisonEnhanced 
-        client:visible
+      <!-- Phase 5.1: Enhanced Peer Comparison (charts — client:only) -->
+      <PeerComparisonEnhanced
+        client:only="react"
         comparables={comparables}
         currentIPO={{
           name: companyName,
-          pe: technicalAnalysis.pe_ratio,
-          pb: technicalAnalysis.pb_ratio,
+          pe: technicalAnalysis?.pe_ratio,
+          pb: technicalAnalysis?.pb_ratio,
           revenue: financials[0]?.revenue,
-          marketCap: technicalAnalysis.post_ipo_market_cap_cr
+          marketCap: technicalAnalysis?.post_ipo_market_cap_cr
         }}
       />
 
@@ -421,9 +439,9 @@ const faqSchema = {
       />
 
       <!-- Phase 4.2: Risk Assessment Matrix -->
-      <RiskAssessmentMatrix 
+      <RiskAssessmentMatrix
         client:visible
-        risks={ipo.ipo_risks || []}
+        risks={risks}
         companyName={companyName}
       />
 
@@ -450,11 +468,11 @@ const faqSchema = {
       />
 
       <!-- Phase 5.7: Related IPOs -->
-      <RelatedIPOs 
+      <RelatedIPOs
         client:visible
         currentIPO={ipo}
         category={ipo.category}
-        industry={ipo.industry}
+        industry={ipo.industry_sector}
       />
 
       <!-- Phase 6.1: User Comments & Discussion -->
@@ -465,14 +483,14 @@ const faqSchema = {
       />
 
       <!-- Contact Information -->
-      {(ipo.registrar_name || ipo.lead_managers?.length > 0) && (
+      {(ipo.registrar || (ipo.lead_managers?.length ?? 0) > 0) && (
         <section class="section contacts-section">
           <h2 class="section-title">📞 Contact Information</h2>
           <div class="contacts-grid">
-            {ipo.registrar_name && (
+            {ipo.registrar && (
               <div class="contact-card">
                 <h4>Registrar</h4>
-                <p class="contact-name">{ipo.registrar_name}</p>
+                <p class="contact-name">{ipo.registrar}</p>
                 {ipo.registrar_website && (
                   <a href={ipo.registrar_website} target="_blank" class="contact-link">
                     Visit Website →
@@ -480,7 +498,7 @@ const faqSchema = {
                 )}
               </div>
             )}
-            {ipo.lead_managers?.length > 0 && (
+            {(ipo.lead_managers?.length ?? 0) > 0 && ipo.lead_managers && (
               <div class="contact-card">
                 <h4>Lead Manager{ipo.lead_managers.length > 1 ? 's' : ''}</h4>
                 <ul class="lead-managers-list">
