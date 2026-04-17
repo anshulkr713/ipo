@@ -1,6 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import styles from './IPOComments.module.css';
+
+// Client-side Supabase instance for comments
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Comment {
     id: number;
@@ -37,10 +43,15 @@ export function IPOCommentsSection({ ipoId, ipoName }: Props) {
 
     const fetchComments = async () => {
         try {
-            const response = await fetch(`/api/comments?ipo_id=${ipoId}`);
-            if (response.ok) {
-                const data = await response.json();
-                setComments(data.comments || []);
+            const { data, error } = await supabase
+                .from('ipo_comments')
+                .select('*')
+                .eq('ipo_id', ipoId)
+                .eq('is_approved', true)
+                .order('created_at', { ascending: false });
+
+            if (!error) {
+                setComments(data || []);
             }
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -55,18 +66,20 @@ export function IPOCommentsSection({ ipoId, ipoName }: Props) {
 
         setSubmitting(true);
         try {
-            const response = await fetch('/api/comments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            const { error } = await supabase
+                .from('ipo_comments')
+                .insert({
                     ipo_id: ipoId,
                     user_name: userName,
+                    user_email: '',
                     comment_text: newComment,
-                    should_apply_vote: vote
-                })
-            });
+                    should_apply_vote: vote,
+                    is_approved: false,
+                    upvotes: 0,
+                    downvotes: 0
+                });
 
-            if (response.ok) {
+            if (!error) {
                 setNewComment('');
                 setVote(null);
                 setShowForm(false);
