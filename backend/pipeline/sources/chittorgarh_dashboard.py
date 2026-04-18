@@ -17,6 +17,7 @@ from ..parse import (
     parse_number,
     parse_price_band,
 )
+from ._diagnostics import classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 DASHBOARD_URL = "https://www.chittorgarh.com/ipo/ipo_dashboard.asp"
@@ -43,6 +44,16 @@ class ChittorgarhDashboard(Source):
 
         if not rows:
             result.status = "failed"
+            # If we got here with no rows AND no per-URL errors, every
+            # page returned 200 OK but the parser found no IPO tables.
+            # That usually means we hit a Cloudflare challenge. Log
+            # a snippet of the last response so the next run is
+            # actionable — "failed, 0 errors" is a debugging dead-end.
+            if not result.errors:
+                result.errors.append(
+                    "no IPO tables parsed from any dashboard URL — "
+                    "likely bot-wall / challenge page served on 200"
+                )
             return result
 
         for row in rows.values():
@@ -66,15 +77,29 @@ class ChittorgarhDashboard(Source):
     ) -> None:
         resp = self.http.get(url, referer="https://www.chittorgarh.com/")
         if resp is None or resp.status_code != 200:
-            result.errors.append(f"{url} → {getattr(resp, 'status_code', 'no-response')}")
+            result.errors.append(
+                describe_failure(resp, url=url, expected="dashboard page")
+            )
+            return
+
+        tag = classify_response(resp)
+        if tag != "ok":
+            # 200 but body looks wrong (e.g. Cloudflare challenge). Abort
+            # this URL with a diagnostic rather than handing gibberish
+            # to the parser.
+            result.errors.append(
+                f"{url} → 200 [{tag}]: {snippet(resp)}"
+            )
             return
 
         soup = BeautifulSoup(resp.text, "html.parser")
         tables = soup.find_all("table")
+        matched = 0
         for table in tables:
             header_text = " ".join(th.get_text(" ", strip=True).lower() for th in table.find_all("th"))
             if "ipo" not in header_text:
                 continue
+            matched += 1
             header_cols = [th.get_text(" ", strip=True).lower() for th in table.find_all("th")]
             idx = _column_indexes(header_cols)
 
@@ -138,6 +163,15 @@ class ChittorgarhDashboard(Source):
                     row.get("close_date"),
                     row.get("listing_date"),
                 )
+
+        if matched == 0:
+            # 200 OK, looked like HTML, but no table had "ipo" in its
+            # headers. Surface the first ~240 chars so we can tell
+            # whether the page structure changed vs. the server
+            # returned an error/placeholder body.
+            result.errors.append(
+                f"{url} → 200 [no-ipo-table]: {snippet(resp)}"
+            )
 
 
 def _column_indexes(headers: list[str]) -> dict[str, int]:

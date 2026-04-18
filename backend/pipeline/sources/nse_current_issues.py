@@ -17,6 +17,7 @@ from ..parse import (
     parse_int,
     parse_number,
 )
+from ._diagnostics import classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 NSE_ROOT = "https://www.nseindia.com/"
@@ -25,6 +26,7 @@ NSE_URL = "https://www.nseindia.com/api/ipo-current-issues"
 
 class NSECurrentIssues(Source):
     name = "nse_current_issues"
+    expected_flaky = True  # NSE blocks datacenter IPs — skip, don't fail.
 
     def run(self) -> SourceResult:
         result = SourceResult()
@@ -35,21 +37,33 @@ class NSECurrentIssues(Source):
 
         resp = self.http.get(NSE_URL, referer=NSE_ROOT, accept_json=True)
         if resp is None or resp.status_code != 200:
-            result.errors.append(f"{NSE_URL} → {getattr(resp, 'status_code', 'no-response')}")
-            result.status = "failed"
+            result.errors.append(
+                describe_failure(resp, url=NSE_URL, expected="NSE IPO JSON")
+            )
+            result.status = "skipped"
+            return result
+
+        tag = classify_response(resp)
+        if tag != "ok":
+            result.errors.append(f"{NSE_URL} → 200 [{tag}]: {snippet(resp)}")
+            result.status = "skipped"
             return result
 
         try:
             payload = resp.json()
         except ValueError as exc:
-            result.errors.append(f"json decode failed: {exc}")
-            result.status = "failed"
+            result.errors.append(
+                f"{NSE_URL} → 200 [non-json]: {exc}: {snippet(resp)}"
+            )
+            result.status = "skipped"
             return result
 
         items = payload.get("data") if isinstance(payload, dict) else payload
         if not isinstance(items, list):
-            result.status = "failed"
-            result.errors.append("unexpected payload shape")
+            result.status = "skipped"
+            result.errors.append(
+                f"{NSE_URL} → 200 [bad-shape]: {snippet(resp)}"
+            )
             return result
 
         now_iso = datetime.now(timezone.utc).isoformat()

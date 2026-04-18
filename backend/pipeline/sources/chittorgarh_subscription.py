@@ -8,6 +8,7 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 from ..parse import canonical_slug, clean_text, parse_number
+from ._diagnostics import classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 SUB_URL = "https://www.chittorgarh.com/report/ipo-subscription-status-live-bidding-data-bse-nse/21/"
@@ -22,7 +23,15 @@ class ChittorgarhSubscription(Source):
 
         resp = self.http.get(SUB_URL, referer="https://www.chittorgarh.com/")
         if resp is None or resp.status_code != 200:
-            result.errors.append(f"{SUB_URL} → {getattr(resp, 'status_code', 'no-response')}")
+            result.errors.append(
+                describe_failure(resp, url=SUB_URL, expected="subscription page")
+            )
+            result.status = "failed"
+            return result
+
+        tag = classify_response(resp)
+        if tag != "ok":
+            result.errors.append(f"{SUB_URL} → 200 [{tag}]: {snippet(resp)}")
             result.status = "failed"
             return result
 
@@ -35,7 +44,9 @@ class ChittorgarhSubscription(Source):
                 break
         if target is None:
             result.status = "failed"
-            result.errors.append("subscription table not found")
+            result.errors.append(
+                f"subscription table not found at {SUB_URL}: {snippet(resp)}"
+            )
             return result
 
         header_cols = [th.get_text(" ", strip=True).lower() for th in target.find_all("th")]

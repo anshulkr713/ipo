@@ -13,6 +13,7 @@ from ..parse import (
     parse_int,
     parse_number,
 )
+from ._diagnostics import classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 GMP_URL = "https://www.chittorgarh.com/report/ipo-grey-market-premium-gmp-current-rate/83/"
@@ -27,7 +28,15 @@ class ChittorgarhGMP(Source):
 
         resp = self.http.get(GMP_URL, referer="https://www.chittorgarh.com/")
         if resp is None or resp.status_code != 200:
-            result.errors.append(f"{GMP_URL} → {getattr(resp, 'status_code', 'no-response')}")
+            result.errors.append(
+                describe_failure(resp, url=GMP_URL, expected="GMP page")
+            )
+            result.status = "failed"
+            return result
+
+        tag = classify_response(resp)
+        if tag != "ok":
+            result.errors.append(f"{GMP_URL} → 200 [{tag}]: {snippet(resp)}")
             result.status = "failed"
             return result
 
@@ -40,7 +49,9 @@ class ChittorgarhGMP(Source):
                 break
         if target is None:
             result.status = "failed"
-            result.errors.append("GMP table not found")
+            result.errors.append(
+                f"GMP table not found at {GMP_URL}: {snippet(resp)}"
+            )
             return result
 
         header_cols = [th.get_text(" ", strip=True).lower() for th in target.find_all("th")]

@@ -9,6 +9,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+import json
+import re
+
 from ..parse import (
     canonical_slug,
     detect_category,
@@ -17,7 +20,11 @@ from ..parse import (
     parse_int,
     parse_number,
 )
+from ._diagnostics import classify_response, describe_failure, snippet
 from .base import Source, SourceResult
+
+# BSE occasionally returns JSONP like `myCallback({...})`. Strip it.
+_JSONP_RE = re.compile(r"^\s*[A-Za-z_$][\w$]*\s*\(\s*(.*?)\s*\)\s*;?\s*$", re.DOTALL)
 
 BSE_ROOT = "https://www.bseindia.com/"
 BSE_URL = (
@@ -28,6 +35,7 @@ BSE_URL = (
 
 class BSECurrentIssues(Source):
     name = "bse_current_issues"
+    expected_flaky = True  # BSE blocks GH Actions IPs — don't alarm on it.
 
     def run(self) -> SourceResult:
         result = SourceResult()
@@ -40,15 +48,24 @@ class BSECurrentIssues(Source):
             extra_headers={"Origin": "https://www.bseindia.com"},
         )
         if resp is None or resp.status_code != 200:
-            result.errors.append(f"{BSE_URL} → {getattr(resp, 'status_code', 'no-response')}")
-            result.status = "failed"
+            result.errors.append(
+                describe_failure(resp, url=BSE_URL, expected="BSE IPO JSON")
+            )
+            result.status = "skipped"  # see `expected_flaky` above
             return result
 
-        try:
-            payload = resp.json()
-        except ValueError as exc:
-            result.errors.append(f"json decode failed: {exc}")
-            result.status = "failed"
+        tag = classify_response(resp)
+        if tag != "ok":
+            result.errors.append(f"{BSE_URL} → 200 [{tag}]: {snippet(resp)}")
+            result.status = "skipped"
+            return result
+
+        payload = _decode_bse_json(resp.text)
+        if payload is None:
+            result.errors.append(
+                f"{BSE_URL} → 200 [non-json]: {snippet(resp)}"
+            )
+            result.status = "skipped"
             return result
 
         items: list[dict[str, Any]] = payload if isinstance(payload, list) else payload.get("Table") or []
@@ -100,3 +117,26 @@ class BSECurrentIssues(Source):
         if result.records_updated == 0:
             result.status = "partial"
         return result
+
+
+def _decode_bse_json(text: str):
+    """BSE's endpoint sometimes returns bare JSON, sometimes JSONP, and
+    when the edge blocks us it returns HTML. Return the decoded object,
+    or None if we can't find valid JSON anywhere in the body."""
+    if not text:
+        return None
+    stripped = text.strip()
+    # Bare JSON
+    try:
+        return json.loads(stripped)
+    except ValueError:
+        pass
+    # JSONP callback wrapper
+    m = _JSONP_RE.match(stripped)
+    if m:
+        try:
+            return json.loads(m.group(1))
+        except ValueError:
+            pass
+    # HTML / challenge — give up, caller will log the snippet.
+    return None

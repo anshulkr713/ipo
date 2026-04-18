@@ -35,6 +35,11 @@ class Source(ABC):
     """Abstract base. Each concrete source sets `name` and implements `run`."""
 
     name: str = "base"
+    # Mark sources that routinely block us (NSE / BSE from cloud IP ranges).
+    # When these hit HostBlocked or parse-fail, we record "skipped" instead
+    # of "failed" so scraping_runs.status isn't always red for expected
+    # network behaviour. Genuine crashes still go to "failed".
+    expected_flaky: bool = False
 
     def __init__(self, http: PoliteClient, db: Database):
         self.http = http
@@ -57,7 +62,10 @@ class Source(ABC):
                 "source blocked",
                 extra={"source": self.name, "host": str(exc)},
             )
-            result.status = "failed"
+            # Host block is a network-layer event, not a code bug. For
+            # sources that are *expected* to be blocked from cloud IPs
+            # (NSE/BSE), call it "skipped" so the dashboard stays honest.
+            result.status = "skipped" if self.expected_flaky else "failed"
             result.errors.append(f"host blocked: {exc}")
         except Exception as exc:  # noqa: BLE001
             self.log.error("source crashed", extra={"source": self.name}, exc_info=exc)

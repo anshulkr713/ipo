@@ -38,25 +38,29 @@ class CalendarEvents(Source):
             return result
 
         today = datetime.now(timezone.utc).date().isoformat()
-        updates: list[dict[str, Any]] = []
 
+        # Update in place — do NOT upsert. Calendar events only has
+        # {slug, timeline_events}, so an upsert that missed the slug
+        # conflict target would trip NOT NULL on ipo_name for a brand-new
+        # row. `.update().eq("slug", …)` can only modify existing rows.
+        updated = 0
         for ipo in ipos:
+            slug = ipo.get("slug")
+            if not slug:
+                continue
             events = _build_events(ipo, today)
             if not events:
                 continue
-            updates.append(
-                {
-                    "slug": ipo["slug"],
-                    "timeline_events": events,
-                }
-            )
+            n = self.db.update_ipo_by_slug(slug, {"timeline_events": events})
+            if n > 0:
+                updated += 1
+            result.records_found += 1
 
-        if not updates:
+        if result.records_found == 0:
             result.status = "skipped"
             return result
 
-        result.records_found = len(updates)
-        result.records_updated = self.db.upsert_ipos(updates)
+        result.records_updated = updated
         return result
 
 

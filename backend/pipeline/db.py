@@ -54,6 +54,22 @@ class Database:
         log.info("upserted ipos", extra={"records": sent})
         return sent
 
+    def update_ipo_by_slug(self, slug: str, changes: dict[str, Any]) -> int:
+        """Update an existing IPO row by slug — never creates new rows.
+        Use this when a source only has a partial view and must not
+        accidentally insert half-empty rows (e.g. calendar_events, which
+        only knows timeline_events: bulk upsert with just {slug,
+        timeline_events} takes the INSERT path if the slug conflict
+        doesn't match and then trips NOT NULL on ipo_name)."""
+        if not slug or not changes:
+            return 0
+        cleaned = {k: v for k, v in changes.items() if v is not None}
+        if not cleaned:
+            return 0
+        query = self.client.table("ipos").update(cleaned).eq("slug", slug)
+        resp = self._execute(query)
+        return len(resp.data or [])
+
     def fetch_ipos_missing_detail(self, limit: int) -> list[dict[str, Any]]:
         """Candidates for the detail scraper: have a cached detail_url and
         haven't had their financials populated yet (or were last scraped >7d ago).
