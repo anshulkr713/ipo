@@ -51,10 +51,11 @@ def classify_response(resp: Optional[requests.Response]) -> str:
 
 def snippet(resp: Optional[requests.Response], limit: int = 240) -> str:
     """First `limit` chars of body, collapsed to a single line, safe for
-    `scraping_runs.error_details`."""
+    `scraping_runs.error_details`. Strips NUL bytes because Postgres
+    JSONB rejects \\u0000 and the detail column is JSONB."""
     if resp is None:
         return ""
-    body = (resp.text or "").strip()
+    body = (resp.text or "").replace("\x00", "").strip()
     if not body:
         return ""
     body = " ".join(body.split())

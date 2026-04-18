@@ -14,6 +14,29 @@ from .logger import get_logger
 log = get_logger("pipeline.db")
 
 
+# Postgres JSONB and text columns reject \u0000 (NUL) — SQLSTATE 22P05
+# "unsupported Unicode escape sequence". Scraped HTML occasionally
+# contains NULs (from truncated/binary response bodies, misdecoded
+# gzip, or stray control chars in IPO names), and they're impossible
+# to debug after the fact because the DB-side error doesn't name the
+# offending field. Strip both the raw NUL byte AND the literal textual
+# escape everywhere user-supplied data crosses into Supabase.
+def _strip_nul(value: str) -> str:
+    return value.replace("\x00", "").replace("\\u0000", "")
+
+
+def _sanitize(value: Any) -> Any:
+    if isinstance(value, str):
+        return _strip_nul(value)
+    if isinstance(value, dict):
+        return {k: _sanitize(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_sanitize(v) for v in value]
+    if isinstance(value, tuple):
+        return tuple(_sanitize(v) for v in value)
+    return value
+
+
 class Database:
     def __init__(self, settings: Settings):
         self.settings = settings
@@ -43,7 +66,7 @@ class Database:
         # Strip None values — otherwise we'd overwrite good columns with NULL
         # whenever one source doesn't provide a given field.
         cleaned = [
-            {k: v for k, v in row.items() if v is not None}
+            _sanitize({k: v for k, v in row.items() if v is not None})
             for row in rows
             if row.get("slug")
         ]
@@ -63,7 +86,7 @@ class Database:
         doesn't match and then trips NOT NULL on ipo_name)."""
         if not slug or not changes:
             return 0
-        cleaned = {k: v for k, v in changes.items() if v is not None}
+        cleaned = _sanitize({k: v for k, v in changes.items() if v is not None})
         if not cleaned:
             return 0
         query = self.client.table("ipos").update(cleaned).eq("slug", slug)
@@ -177,7 +200,7 @@ class Database:
         return self._append(table, fresh)
 
     def _append(self, table: str, rows: Iterable[dict[str, Any]]) -> int:
-        items = [r for r in rows if r.get("ipo_slug")]
+        items = [_sanitize(r) for r in rows if r.get("ipo_slug")]
         if not items:
             return 0
         sent = 0
@@ -221,7 +244,7 @@ class Database:
     ) -> None:
         if not row_id:
             return
-        query = self.client.table("scraping_runs").update(
+        payload = _sanitize(
             {
                 "status": status,
                 "records_found": records_found,
@@ -232,8 +255,24 @@ class Database:
                 "duration_ms": duration_ms,
                 "finished_at": datetime.now(timezone.utc).isoformat(),
             }
-        ).eq("id", row_id)
-        self._execute(query)
+        )
+        query = self.client.table("scraping_runs").update(payload).eq("id", row_id)
+        try:
+            self._execute(query)
+        except Exception as exc:  # noqa: BLE001
+            # Last-ditch: if even sanitized error_details tripped something
+            # (e.g. an exotic invalid-UTF-8 byte), fall back to an empty
+            # error_details payload so the run-log row is at least written.
+            # Losing the diagnostic is worse than losing the whole row.
+            log.warning(
+                "finish_run write failed, retrying without error_details: %s",
+                str(exc).replace("\n", " ")[:200],
+            )
+            payload["error_details"] = None
+            query = (
+                self.client.table("scraping_runs").update(payload).eq("id", row_id)
+            )
+            self._execute(query)
 
 
 def _chunks(seq: list[Any], size: int):
