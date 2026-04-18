@@ -20,6 +20,18 @@ class Database:
         self.client: Client = create_client(settings.supabase_url, settings.supabase_key)
         self.run_id: uuid.UUID = uuid.uuid4()
 
+    def _execute(self, query: Any) -> Any:
+        import time
+        for attempt in range(4):
+            try:
+                return query.execute()
+            except Exception as e:
+                if attempt == 3:
+                    raise
+                msg = str(e).replace("\n", " ")
+                log.warning("Database query failed, retrying (%s/3): %s", attempt + 1, msg[:200])
+                time.sleep(2 ** attempt)
+
     # -------------------------------------------------------------- #
     # ipos table
     # -------------------------------------------------------------- #
@@ -37,7 +49,7 @@ class Database:
         ]
         sent = 0
         for chunk in _chunks(cleaned, self.settings.upload_chunk_size):
-            self.client.table("ipos").upsert(chunk, on_conflict="slug").execute()
+            self._execute(self.client.table("ipos").upsert(chunk, on_conflict="slug"))
             sent += len(chunk)
         log.info("upserted ipos", extra={"records": sent})
         return sent
@@ -46,7 +58,7 @@ class Database:
         """Candidates for the detail scraper: have a cached detail_url and
         haven't had their financials populated yet (or were last scraped >7d ago).
         Prioritise recently-opened IPOs."""
-        resp = (
+        query = (
             self.client.table("ipos")
             .select(
                 "slug, ipo_name, company_name, category, status, "
@@ -56,8 +68,8 @@ class Database:
             .in_("status", ["upcoming", "open", "closed", "listed"])
             .order("open_date", desc=True)
             .limit(limit)
-            .execute()
         )
+        resp = self._execute(query)
         return resp.data or []
 
     def fetch_ipos_missing_history(self, limit: int) -> list[dict[str, Any]]:
@@ -65,36 +77,36 @@ class Database:
         rows in both gmp_history and subscription_history. Ordered oldest
         first so listed/closed IPOs (the ones that predate the pipeline)
         get backfilled before we revisit recent ones."""
-        gmp_resp = self.client.table("gmp_history").select("ipo_slug").execute()
-        sub_resp = self.client.table("subscription_history").select("ipo_slug").execute()
+        gmp_resp = self._execute(self.client.table("gmp_history").select("ipo_slug"))
+        sub_resp = self._execute(self.client.table("subscription_history").select("ipo_slug"))
         have_gmp = {r["ipo_slug"] for r in (gmp_resp.data or []) if r.get("ipo_slug")}
         have_sub = {r["ipo_slug"] for r in (sub_resp.data or []) if r.get("ipo_slug")}
         already = have_gmp & have_sub
 
-        resp = (
+        query = (
             self.client.table("ipos")
             .select("slug, ipo_name, detail_url, open_date, status")
             .not_.is_("detail_url", "null")
             .in_("status", ["closed", "listed", "open", "upcoming"])
             .order("open_date", desc=False)
             .limit(max(limit * 4, limit + 20))  # over-fetch, filter client-side
-            .execute()
         )
+        resp = self._execute(query)
         filtered = [r for r in (resp.data or []) if r.get("slug") and r["slug"] not in already]
         return filtered[:limit]
 
     def fetch_active_slugs(self) -> set[str]:
-        resp = (
+        query = (
             self.client.table("ipos")
             .select("slug")
             .in_("status", ["upcoming", "open", "closed"])
-            .execute()
         )
+        resp = self._execute(query)
         return {row["slug"] for row in (resp.data or []) if row.get("slug")}
 
     def fetch_ipos_for_calendar(self) -> list[dict[str, Any]]:
         """Pulls the date fields needed to derive timeline_events JSONB."""
-        resp = (
+        query = (
             self.client.table("ipos")
             .select(
                 "slug, drhp_filed_date, rhp_filed_date, sebi_approval_date, "
@@ -102,8 +114,8 @@ class Database:
                 "demat_credit_date, listing_date"
             )
             .in_("status", ["upcoming", "open", "closed", "listed"])
-            .execute()
         )
+        resp = self._execute(query)
         return resp.data or []
 
     # -------------------------------------------------------------- #
@@ -131,12 +143,12 @@ class Database:
         if not items:
             return 0
         slugs = sorted({r["ipo_slug"] for r in items})
-        resp = (
+        query = (
             self.client.table(table)
             .select("ipo_slug, scraped_at")
             .in_("ipo_slug", slugs)
-            .execute()
         )
+        resp = self._execute(query)
         existing: set[tuple[str, str]] = set()
         for r in resp.data or []:
             at = (r.get("scraped_at") or "")[:10]
@@ -154,7 +166,7 @@ class Database:
             return 0
         sent = 0
         for chunk in _chunks(items, self.settings.upload_chunk_size):
-            self.client.table(table).insert(chunk).execute()
+            self._execute(self.client.table(table).insert(chunk))
             sent += len(chunk)
         log.info("appended history", extra={"records": sent, "source": table})
         return sent
@@ -164,7 +176,7 @@ class Database:
     # -------------------------------------------------------------- #
 
     def start_run(self, source: str) -> int:
-        resp = (
+        query = (
             self.client.table("scraping_runs")
             .insert(
                 {
@@ -174,8 +186,8 @@ class Database:
                     "started_at": datetime.now(timezone.utc).isoformat(),
                 }
             )
-            .execute()
         )
+        resp = self._execute(query)
         data = resp.data or []
         return data[0]["id"] if data else 0
 
@@ -193,7 +205,7 @@ class Database:
     ) -> None:
         if not row_id:
             return
-        self.client.table("scraping_runs").update(
+        query = self.client.table("scraping_runs").update(
             {
                 "status": status,
                 "records_found": records_found,
@@ -204,7 +216,8 @@ class Database:
                 "duration_ms": duration_ms,
                 "finished_at": datetime.now(timezone.utc).isoformat(),
             }
-        ).eq("id", row_id).execute()
+        ).eq("id", row_id)
+        self._execute(query)
 
 
 def _chunks(seq: list[Any], size: int):
