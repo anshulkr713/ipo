@@ -26,8 +26,8 @@ backend/
     └── sources/
         ├── base.py                       # Source ABC
         ├── chittorgarh_dashboard.py      # upcoming/open/closed IPOs
-        ├── chittorgarh_gmp.py            # GMP + kostak + subject rates
-        ├── chittorgarh_subscription.py   # live bid status
+        ├── investorgain_gmp.py           # primary GMP (Playwright-rendered)
+        ├── chittorgarh_subscription.py   # live bid status (Playwright-rendered)
         ├── chittorgarh_allotment.py      # registrar + allotment link
         ├── chittorgarh_drhp.py           # DRHP / RHP filings
         ├── chittorgarh_detail.py         # per-IPO deep scrape
@@ -77,7 +77,7 @@ backend/
 
    Or run a specific source:
    ```bash
-   python -m pipeline run chittorgarh_gmp
+   python -m pipeline run investorgain_gmp
    ```
 
 ## How the ban-resistance works

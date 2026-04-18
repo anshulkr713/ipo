@@ -52,6 +52,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install Chromium for Playwright
+        working-directory: backend
+        # `--with-deps` installs the shared libs Chromium needs on Ubuntu
+        # (libnss, libatk, etc). Skipping this step gives an opaque
+        # "executable doesn't exist" at first page.goto() on GH Actions.
+        run: python -m playwright install --with-deps chromium
+
       - name: Pick target
         id: target
         run: |

@@ -17,11 +17,13 @@ from .sources.chittorgarh_allotment import ChittorgarhAllotment
 from .sources.chittorgarh_dashboard import ChittorgarhDashboard
 from .sources.chittorgarh_detail import ChittorgarhDetail
 from .sources.chittorgarh_drhp import ChittorgarhDRHP
-from .sources.chittorgarh_gmp import ChittorgarhGMP
 from .sources.chittorgarh_history_backfill import ChittorgarhHistoryBackfill
 from .sources.chittorgarh_subscription import ChittorgarhSubscription
+from .sources.investorgain_gmp import InvestorgainGMP
 from .sources.ipocentral_shareholder import IPOCentralShareholder
+from .sources.ipoji_shareholder_quota import IpojiShareholderQuota
 from .sources.ipowatch_gmp import IPOWatchGMP
+from .sources.niftytrader_calendar import NiftytraderCalendar
 from .sources.nse_current_issues import NSECurrentIssues
 
 
@@ -29,7 +31,8 @@ ALL_SOURCES: dict[str, Type[Source]] = {
     cls.name: cls
     for cls in (
         ChittorgarhDashboard,
-        ChittorgarhGMP,
+        NiftytraderCalendar,
+        InvestorgainGMP,
         ChittorgarhSubscription,
         ChittorgarhAllotment,
         ChittorgarhDRHP,
@@ -37,6 +40,7 @@ ALL_SOURCES: dict[str, Type[Source]] = {
         ChittorgarhHistoryBackfill,
         IPOWatchGMP,
         IPOCentralShareholder,
+        IpojiShareholderQuota,
         NSECurrentIssues,
         BSECurrentIssues,
         CalendarEvents,
@@ -47,24 +51,35 @@ ALL_SOURCES: dict[str, Type[Source]] = {
 # Execution order matters within each group. "calendar" always runs
 # last so timelines reflect the freshest date columns.
 GROUPS: dict[str, tuple[str, ...]] = {
-    # High-frequency. Cheap. Safe to run every 30 min during market hours.
+    # High-frequency. Safe to run every 30 min during market hours.
+    # investorgain_gmp is the primary GMP source after Chittorgarh outsourced
+    # its GMP report to investorgain in early 2026. ipowatch_gmp stays as a
+    # cross-check (writes to gmp_history only, never upserts ipos).
     "hot": (
-        "chittorgarh_gmp",
+        "investorgain_gmp",
         "ipowatch_gmp",
         "chittorgarh_subscription",
     ),
     # Once per hour: core dashboard + official exchange APIs.
+    # niftytrader_calendar has the broadest coverage (500+ IPOs across
+    # SME + Mainboard with post-listing prices), so it runs first and
+    # seeds the ipos table. Chittorgarh fills in the registrar /
+    # Indian-site-specific detail columns it alone provides.
     "core": (
+        "niftytrader_calendar",
         "chittorgarh_dashboard",
         "nse_current_issues",
         "bse_current_issues",
         "calendar_events",
     ),
     # Every 6h: slower-moving metadata.
+    # ipoji_shareholder_quota updates when SEBI sees a new filing from a
+    # listed parent's subsidiary — rare, so cold cadence is plenty.
     "cold": (
         "chittorgarh_drhp",
         "chittorgarh_allotment",
         "ipocentral_shareholder",
+        "ipoji_shareholder_quota",
         "calendar_events",
     ),
     # Daily: per-IPO deep scrape (throttled by detail_batch_size).
@@ -80,15 +95,17 @@ GROUPS: dict[str, tuple[str, ...]] = {
     ),
     # Full pass — use sparingly (e.g. initial backfill).
     "all": (
+        "niftytrader_calendar",
         "chittorgarh_dashboard",
         "nse_current_issues",
         "bse_current_issues",
-        "chittorgarh_gmp",
+        "investorgain_gmp",
         "ipowatch_gmp",
         "chittorgarh_subscription",
         "chittorgarh_allotment",
         "chittorgarh_drhp",
         "ipocentral_shareholder",
+        "ipoji_shareholder_quota",
         "chittorgarh_detail",
         "calendar_events",
     ),

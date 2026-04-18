@@ -39,10 +39,13 @@ class _HostState:
 _DEFAULT_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
-    # Brotli/zstd decoding requires the `brotli` / `zstandard` packages;
-    # both are in requirements.txt. Keep them advertised so we don't look
-    # like a bot by only asking for gzip (real browsers always list br).
-    "Accept-Encoding": "gzip, deflate, br, zstd",
+    # Brotli decoding requires the `brotli` package (in requirements.txt).
+    # We intentionally do NOT advertise `zstd` — urllib3 2.x has a
+    # registration quirk where zstd-encoded responses come back undecoded
+    # even with `zstandard` installed, which silently broke investorgain
+    # scrapes (binary garbage, 0 tables). gzip + br covers every site we
+    # care about and every real browser still ships with these too.
+    "Accept-Encoding": "gzip, deflate, br",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
     "Sec-Fetch-Dest": "document",

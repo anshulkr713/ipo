@@ -7,6 +7,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 
+from .browser import HeadlessBrowser
 from .config import Settings
 from .db import Database
 from .http_client import PoliteClient
@@ -53,29 +54,40 @@ def run(sources: list[str], *, settings: Settings) -> RunReport:
     db = Database(settings)
     report = RunReport()
 
-    for i, name in enumerate(sources):
-        cls = ALL_SOURCES.get(name)
-        if cls is None:
-            log.error("unknown source", extra={"source": name})
-            continue
+    # Lazy Chromium launch — only started if one of the scheduled
+    # sources actually needs JS-rendered HTML. For a "hot" run with
+    # only static-parse sources, the browser never boots.
+    browser: HeadlessBrowser | None = None
+    try:
+        for i, name in enumerate(sources):
+            cls = ALL_SOURCES.get(name)
+            if cls is None:
+                log.error("unknown source", extra={"source": name})
+                continue
 
-        if i > 0:
-            time.sleep(settings.inter_source_gap_sec)
+            if i > 0:
+                time.sleep(settings.inter_source_gap_sec)
 
-        log.info("starting source", extra={"source": name})
-        source = cls(http=http, db=db)
-        result = source.execute()
-        report.results[name] = result
-        log.info(
-            "finished source",
-            extra={
-                "source": name,
-                "status": result.status,
-                "records_found": result.records_found,
-                "records_updated": result.records_updated,
-                "records_appended": result.records_appended,
-                "errors": len(result.errors),
-            },
-        )
+            if cls.needs_browser and browser is None:
+                browser = HeadlessBrowser(settings)
+
+            log.info("starting source", extra={"source": name})
+            source = cls(http=http, db=db, browser=browser)
+            result = source.execute()
+            report.results[name] = result
+            log.info(
+                "finished source",
+                extra={
+                    "source": name,
+                    "status": result.status,
+                    "records_found": result.records_found,
+                    "records_updated": result.records_updated,
+                    "records_appended": result.records_appended,
+                    "errors": len(result.errors),
+                },
+            )
+    finally:
+        if browser is not None:
+            browser.close()
 
     return report

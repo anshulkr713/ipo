@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from ..browser import HeadlessBrowser
 from ..db import Database
 from ..http_client import HostBlocked, PoliteClient
 from ..logger import get_logger
@@ -41,9 +42,23 @@ class Source(ABC):
     # network behaviour. Genuine crashes still go to "failed".
     expected_flaky: bool = False
 
-    def __init__(self, http: PoliteClient, db: Database):
+    # Sources whose target page is client-rendered (Next.js/React/SPA with
+    # no data in the initial HTML) opt in to the shared headless browser
+    # by setting this to True. The runner hands them a ready HeadlessBrowser
+    # via kwargs; they use self.browser.fetch(url, wait_for_selector=...)
+    # to get rendered HTML. Leaving it False skips the Chromium launch
+    # entirely for runs that don't need it.
+    needs_browser: bool = False
+
+    def __init__(
+        self,
+        http: PoliteClient,
+        db: Database,
+        browser: Optional[HeadlessBrowser] = None,
+    ):
         self.http = http
         self.db = db
+        self.browser = browser
         self.log = get_logger(f"pipeline.source.{self.name}")
 
     # -------------------------------------------------------------- #

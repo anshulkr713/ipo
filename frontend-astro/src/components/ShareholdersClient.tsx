@@ -7,7 +7,9 @@ import { supabase } from '../lib/supabase';
 interface ShareholderData {
     id: number;
     ipo_name: string;
+    slug: string | null;
     parent_company: string | null;
+    shareholder_quota: boolean | null;
     category: string | null;
     drhp_status: string | null;
     rhp_status: string | null;
@@ -17,7 +19,8 @@ interface ShareholderData {
 async function fetchShareholderData() {
     const { data, error } = await supabase
         .from('ipos')
-        .select('id, ipo_name, parent_company, category, drhp_status, rhp_status, issue_size_cr')
+        .select('id, ipo_name, slug, parent_company, shareholder_quota, category, drhp_status, rhp_status, issue_size_cr')
+        .or('parent_company.not.is.null,shareholder_quota.eq.true')
         .order('open_date', { ascending: false });
 
     if (error) {
@@ -72,6 +75,7 @@ export default function ShareholdersClient() {
                         <tr>
                             <th>Company Name</th>
                             <th>Parent Company</th>
+                            <th>Quota</th>
                             <th>Category</th>
                             <th>DRHP Status</th>
                             <th>RHP Status</th>
@@ -83,6 +87,11 @@ export default function ShareholdersClient() {
                             <tr key={row.id}>
                                 <td className={styles.companyName}>{row.ipo_name}</td>
                                 <td>{row.parent_company || 'TBA'}</td>
+                                <td>
+                                    {row.shareholder_quota ? (
+                                        <span className={`${styles.badge} ${styles.badgeFiled}`}>Reserved</span>
+                                    ) : '—'}
+                                </td>
                                 <td>
                                     {row.category ? (
                                         <span className={styles.categoryBadge}>{row.category}</span>

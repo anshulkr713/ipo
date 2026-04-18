@@ -1,4 +1,14 @@
-"""Chittorgarh live subscription status."""
+"""Chittorgarh live subscription status — Playwright-rendered.
+
+The /report/... page was migrated to Next.js App Router RSC. The initial
+HTML ships an empty table shell and the rows stream in via React Server
+Components. Static GETs return 0 tables / 0 rows even with brotli decoded.
+
+We render with headless Chromium, wait for the `QIB` column header to
+appear (that's our "the real table has hydrated" signal), then parse
+exactly as before. The rendered DOM keeps the same table/th/td structure
+the old static parser expected, so the header heuristic is unchanged.
+"""
 
 from __future__ import annotations
 
@@ -8,51 +18,76 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 from ..parse import canonical_slug, clean_text, parse_number
-from ._diagnostics import body_hints, classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 SUB_URL = "https://www.chittorgarh.com/report/ipo-subscription-status-live-bidding-data-bse-nse/21/"
 
+# The rendered table puts each subscription column in its own <th>.
+# Waiting on `th:has-text("QIB")` avoids the premature match that plain
+# `wait_for_selector('table')` gives us (an empty shell table exists in
+# the SSR output and matches instantly).
+_WAIT_SELECTOR = 'th:has-text("QIB")'
+
 
 class ChittorgarhSubscription(Source):
     name = "chittorgarh_subscription"
+    needs_browser = True
 
     def run(self) -> SourceResult:
         result = SourceResult()
-        self.http.warm_up("https://www.chittorgarh.com/")
 
-        resp = self.http.get(SUB_URL, referer="https://www.chittorgarh.com/")
-        if resp is None or resp.status_code != 200:
-            result.errors.append(
-                describe_failure(resp, url=SUB_URL, expected="subscription page")
-            )
+        if self.browser is None:
             result.status = "failed"
+            result.errors.append("browser not injected — runner misconfig")
             return result
 
-        tag = classify_response(resp)
-        if tag != "ok":
-            result.errors.append(
-                f"{SUB_URL} → 200 [{tag}] {body_hints(resp)}: {snippet(resp)}"
+        try:
+            html = self.browser.fetch(
+                SUB_URL,
+                wait_for_selector=_WAIT_SELECTOR,
+                wait_timeout_ms=25_000,
+                referer="https://www.chittorgarh.com/",
             )
+        except Exception as exc:  # noqa: BLE001
+            # Playwright raises TimeoutError when the QIB column never
+            # appears (either the page shape changed or the browser was
+            # served a challenge). Record diagnostic context.
             result.status = "failed"
+            result.errors.append(
+                f"browser fetch failed for {SUB_URL}: "
+                f"{type(exc).__name__}: {str(exc)[:300]}"
+            )
             return result
 
-        soup = BeautifulSoup(resp.text, "html.parser")
+        soup = BeautifulSoup(html, "html.parser")
         target = None
         for table in soup.find_all("table"):
-            header_text = " ".join(th.get_text(" ", strip=True).lower() for th in table.find_all("th"))
+            header_text = " ".join(
+                th.get_text(" ", strip=True).lower() for th in table.find_all("th")
+            )
             if "qib" in header_text and "retail" in header_text:
                 target = table
                 break
         if target is None:
             result.status = "failed"
             result.errors.append(
-                f"subscription table not found at {SUB_URL} [{body_hints(resp)}]: {snippet(resp)}"
+                f"subscription table not found at {SUB_URL} "
+                f"(rendered len={len(html)} tables={html.lower().count('<table')})"
             )
             return result
 
-        header_cols = [th.get_text(" ", strip=True).lower() for th in target.find_all("th")]
+        header_cols = [
+            th.get_text(" ", strip=True).lower() for th in target.find_all("th")
+        ]
         idx = _sub_columns(header_cols)
+
+        # Enrichment-only: pre-filter to slugs already known to the
+        # dashboard sources so we don't create stub rows that fail
+        # NOT NULL on category/lot_size. See investorgain_gmp.py for
+        # the same pattern — history inserts still run for every row.
+        # fetch_known_slugs (not fetch_active_slugs) so listed IPOs
+        # with late subscription updates still match.
+        known = self.db.fetch_known_slugs()
 
         ipos_updates: list[dict[str, Any]] = []
         history_rows: list[dict[str, Any]] = []
@@ -78,21 +113,22 @@ class ChittorgarhSubscription(Source):
             shareholder = parse_number(_cell(tds, idx.get("shareholder")))
             total = parse_number(_cell(tds, idx.get("total")))
 
-            ipos_updates.append(
-                {
-                    "slug": slug,
-                    "ipo_name": name,
-                    "subscription_retail": retail,
-                    "subscription_nii": nii,
-                    "subscription_bnii": bnii,
-                    "subscription_qib": qib,
-                    "subscription_employee": employee,
-                    "subscription_shareholder": shareholder,
-                    "subscription_total": total,
-                    "last_scraped_at": now_iso,
-                    "scrape_source": self.name,
-                }
-            )
+            if slug in known:
+                ipos_updates.append(
+                    {
+                        "slug": slug,
+                        "ipo_name": name,
+                        "subscription_retail": retail,
+                        "subscription_nii": nii,
+                        "subscription_bnii": bnii,
+                        "subscription_qib": qib,
+                        "subscription_employee": employee,
+                        "subscription_shareholder": shareholder,
+                        "subscription_total": total,
+                        "last_scraped_at": now_iso,
+                        "scrape_source": self.name,
+                    }
+                )
             history_rows.append(
                 {
                     "ipo_slug": slug,
@@ -108,10 +144,12 @@ class ChittorgarhSubscription(Source):
                 }
             )
 
-        result.records_found = len(ipos_updates)
-        result.records_updated = self.db.upsert_ipos(ipos_updates)
+        result.records_found = len(history_rows)
+        # See Database.bulk_update_ipos — enrichment sources use pure
+        # UPDATE, not upsert, to sidestep NOT NULL on INSERT.
+        result.records_updated = self.db.bulk_update_ipos(ipos_updates)
         result.records_appended = self.db.append_subscription_history(history_rows)
-        if result.records_updated == 0:
+        if result.records_found == 0:
             result.status = "partial"
         return result
 
@@ -123,9 +161,21 @@ def _cell(tds, i):
 
 
 def _sub_columns(headers: list[str]) -> dict[str, int]:
+    """Map a header row to canonical column keys.
+
+    Chittorgarh's rendered headers come through with trailing sort arrows
+    and a `(x)` suffix on subscription-ratio columns (e.g. `qib (x)▲▼`).
+    Beware the "Total Issue Amount (Incl. Firm reservations)" column
+    that appears *before* the subscription block — an earlier version
+    of this mapper matched it as `total` and we wrote issue size (in
+    crores) into `subscription_total` by mistake. The `(x)` suffix is
+    the reliable marker for the subscription total column.
+    """
     out: dict[str, int] = {}
     for i, h in enumerate(headers):
         if "ipo" in h and "name" in h:
+            out.setdefault("name", i)
+        elif "company" in h:
             out.setdefault("name", i)
         elif "qib" in h:
             out.setdefault("qib", i)
@@ -141,7 +191,8 @@ def _sub_columns(headers: list[str]) -> dict[str, int]:
             out.setdefault("employee", i)
         elif "shareholder" in h:
             out.setdefault("shareholder", i)
-        elif "total" in h:
+        elif "total" in h and "amount" not in h and "issue" not in h:
+            # Subscription total — NOT "Total Issue Amount".
             out.setdefault("total", i)
     out.setdefault("name", 0)
     return out

@@ -93,6 +93,29 @@ class Database:
         resp = self._execute(query)
         return len(resp.data or [])
 
+    def bulk_update_ipos(self, rows: list[dict[str, Any]]) -> int:
+        """Pure UPDATE per row by slug. Use this from enrichment sources
+        (investorgain_gmp, chittorgarh_subscription) that have filtered
+        input to known slugs but can't satisfy all NOT NULL columns on
+        the INSERT side of an upsert — PostgreSQL checks NOT NULL
+        *before* ON CONFLICT DO UPDATE resolves, so upsert with a
+        partial payload blows up even when the row already exists.
+
+        One PostgREST round-trip per row. Callers should have already
+        pre-filtered with fetch_known_slugs(); rows for unknown slugs
+        here simply update zero rows (no error).
+        """
+        sent = 0
+        for row in rows:
+            slug = row.get("slug")
+            if not slug:
+                continue
+            changes = {k: v for k, v in row.items() if k != "slug"}
+            sent += self.update_ipo_by_slug(slug, changes)
+        if sent:
+            log.info("bulk-updated ipos", extra={"records": sent})
+        return sent
+
     def fetch_ipos_missing_detail(self, limit: int) -> list[dict[str, Any]]:
         """Candidates for the detail scraper: have a cached detail_url and
         haven't had their financials populated yet (or were last scraped >7d ago).
@@ -140,6 +163,19 @@ class Database:
             .select("slug")
             .in_("status", ["upcoming", "open", "closed"])
         )
+        resp = self._execute(query)
+        return {row["slug"] for row in (resp.data or []) if row.get("slug")}
+
+    def fetch_known_slugs(self) -> set[str]:
+        """Every slug the pipeline has ever seen, regardless of status.
+
+        Enrichment sources (GMP, subscription) use this to gate writes
+        so they only update IPOs a dashboard source has already created
+        with full NOT NULL values (category / ipo_name / lot_size). Using
+        fetch_active_slugs() drops 'listed' and 'unknown' rows, so a GMP
+        row for a just-listed IPO gets skipped — not what we want.
+        """
+        query = self.client.table("ipos").select("slug")
         resp = self._execute(query)
         return {row["slug"] for row in (resp.data or []) if row.get("slug")}
 

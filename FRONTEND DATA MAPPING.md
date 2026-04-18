@@ -65,6 +65,11 @@ graph TD
 | `registrar`            | string               | AllotmentClient                 |
 | `listing_gain_percent` | number               | DashboardTabs (listed IPOs)     |
 | `is_featured`          | boolean              | fetchFeaturedIPOs               |
+| `parent_company`       | string               | ShareholdersClient              |
+| `shareholder_quota`    | boolean              | ShareholdersClient (Quota col)  |
+| `prospectus_url`       | string               | IPO detail "Documents"          |
+| `drhp_url`             | string               | IPO detail "Documents"          |
+| `anchor_amount_cr`     | number               | IPO detail "Anchor Book"        |
 
 ### Related Table: `ipo_gmp`
 

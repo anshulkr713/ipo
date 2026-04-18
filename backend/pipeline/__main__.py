@@ -10,7 +10,7 @@ Examples:
     python -m pipeline run cold         # DRHP/RHP + allotment + shareholder
     python -m pipeline run detail       # per-IPO deep scrape (throttled)
     python -m pipeline run all          # full pass
-    python -m pipeline run chittorgarh_gmp chittorgarh_subscription
+    python -m pipeline run investorgain_gmp chittorgarh_subscription
 """
 
 from __future__ import annotations

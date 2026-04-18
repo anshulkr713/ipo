@@ -1,14 +1,21 @@
 requests>=2.32,<3
-# urllib3 only auto-decodes gzip/deflate out of the box. Without these
-# extras we get raw Brotli/Zstd bytes when the server ignores our
-# Accept-Encoding preference (Chittorgarh does — we were getting back
-# binary noise that the parser read as "table not found").
+# urllib3 only auto-decodes gzip/deflate out of the box. Without brotli
+# installed we get raw binary noise when a server serves `Content-Encoding:
+# br` (Chittorgarh and investorgain both do). We used to also include
+# zstandard + advertise zstd, but urllib3 2.x doesn't register the zstd
+# decoder reliably and investorgain was sending zstd we couldn't decode.
+# Fix was to drop zstd from Accept-Encoding (http_client.py).
 brotli>=1.1,<2
-zstandard>=0.22,<1
 beautifulsoup4>=4.12,<5
 lxml>=5.0,<6
 supabase>=2.5,<3
 python-dotenv>=1.0,<2
+
+# Headless Chromium for sources whose data only appears after JS runs
+# (chittorgarh GMP/subscription report pages, investorgain, niftytrader
+# per-IPO). Launched once per pipeline run and reused across sources.
+# CI also needs `python -m playwright install --with-deps chromium`.
+playwright>=1.48,<2
 
 # FastAPI surface (main.py — kept separate from pipeline)
 fastapi>=0.110,<1

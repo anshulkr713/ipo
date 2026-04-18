@@ -60,6 +60,10 @@ export interface IPO {
     timeline_events?: Array<Record<string, any>>;
 
     parent_company?: string;
+    shareholder_quota?: boolean;
+    prospectus_url?: string;
+    drhp_url?: string;
+    anchor_amount_cr?: number;
     company_description?: string;
     industry_sector?: string;
     incorporation_date?: string;
