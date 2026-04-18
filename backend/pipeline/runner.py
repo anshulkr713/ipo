@@ -37,6 +37,14 @@ class RunReport:
                 f"found={res.records_found} updated={res.records_updated} "
                 f"appended={res.records_appended} errors={len(res.errors)}"
             )
+            # When something went wrong, dump the first error inline so
+            # you can debug from the GitHub Actions log without needing
+            # to query scraping_runs.error_details in Supabase.
+            if res.errors and res.status != "success":
+                first = str(res.errors[0]).replace("\n", " ")
+                if len(first) > 500:
+                    first = first[:500] + "…"
+                lines.append(f"        └─ {first}")
         return lines
 
 
