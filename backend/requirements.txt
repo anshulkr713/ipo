@@ -1,4 +1,10 @@
 requests>=2.32,<3
+# urllib3 only auto-decodes gzip/deflate out of the box. Without these
+# extras we get raw Brotli/Zstd bytes when the server ignores our
+# Accept-Encoding preference (Chittorgarh does — we were getting back
+# binary noise that the parser read as "table not found").
+brotli>=1.1,<2
+zstandard>=0.22,<1
 beautifulsoup4>=4.12,<5
 lxml>=5.0,<6
 supabase>=2.5,<3

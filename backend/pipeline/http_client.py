@@ -39,7 +39,10 @@ class _HostState:
 _DEFAULT_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    # Brotli/zstd decoding requires the `brotli` / `zstandard` packages;
+    # both are in requirements.txt. Keep them advertised so we don't look
+    # like a bot by only asking for gzip (real browsers always list br).
+    "Accept-Encoding": "gzip, deflate, br, zstd",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
     "Sec-Fetch-Dest": "document",
