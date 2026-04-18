@@ -13,7 +13,7 @@ from ..parse import (
     parse_int,
     parse_number,
 )
-from ._diagnostics import classify_response, describe_failure, snippet
+from ._diagnostics import body_hints, classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 GMP_URL = "https://www.chittorgarh.com/report/ipo-grey-market-premium-gmp-current-rate/83/"
@@ -36,7 +36,9 @@ class ChittorgarhGMP(Source):
 
         tag = classify_response(resp)
         if tag != "ok":
-            result.errors.append(f"{GMP_URL} → 200 [{tag}]: {snippet(resp)}")
+            result.errors.append(
+                f"{GMP_URL} → 200 [{tag}] {body_hints(resp)}: {snippet(resp)}"
+            )
             result.status = "failed"
             return result
 
@@ -50,7 +52,7 @@ class ChittorgarhGMP(Source):
         if target is None:
             result.status = "failed"
             result.errors.append(
-                f"GMP table not found at {GMP_URL}: {snippet(resp)}"
+                f"GMP table not found at {GMP_URL} [{body_hints(resp)}]: {snippet(resp)}"
             )
             return result
 

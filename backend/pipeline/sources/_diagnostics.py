@@ -16,15 +16,19 @@ from typing import Any, Optional
 import requests
 
 
+# High-specificity challenge markers only. Earlier versions included
+# "captcha" and "access denied" — both produced false positives because
+# normal React pages embed reCAPTCHA scripts and legitimate pages have
+# unrelated "access denied" strings in error banners.
 _BLOCK_MARKERS = (
     "just a moment",
     "checking your browser",
     "enable javascript and cookies",
-    "cf-challenge",
-    "attention required",
-    "access denied",
-    "captcha",
+    "cf-challenge-running",
+    "cf_chl_opt",
+    "cf-browser-verification",
     "please verify you are a human",
+    "_cf_chl_opt",
 )
 
 
@@ -33,7 +37,7 @@ def classify_response(resp: Optional[requests.Response]) -> str:
     The tag is stable so you can grep scraping_runs for it."""
     if resp is None:
         return "no-response"
-    body = (resp.text or "").lower()[:8192]
+    body = (resp.text or "").lower()[:16384]
     if resp.status_code >= 500:
         return f"http-{resp.status_code}"
     if resp.status_code in (401, 403):
@@ -41,15 +45,41 @@ def classify_response(resp: Optional[requests.Response]) -> str:
     if any(m in body for m in _BLOCK_MARKERS):
         return "blocked-challenge"
     server = (resp.headers.get("Server") or "").lower()
-    cf_ray = resp.headers.get("cf-ray") or resp.headers.get("CF-RAY")
-    if cf_ray and ("challenge" in body or "cloudflare" in body):
-        return "blocked-challenge"
     if server.startswith("cloudflare") and resp.status_code in (403, 503):
         return "blocked-challenge"
     return "ok"
 
 
-def snippet(resp: Optional[requests.Response], limit: int = 240) -> str:
+def body_hints(resp: Optional[requests.Response]) -> str:
+    """One-line fingerprint of the response body to help distinguish
+    'Cloudflare ate it' from 'Next.js renders client-side' from 'real
+    page but selector missed'. Dropped into error messages so the next
+    run tells us which reality we're in without a browser DevTools
+    session against Supabase."""
+    if resp is None:
+        return ""
+    text = resp.text or ""
+    lower = text.lower()
+    hints = [
+        f"len={len(text)}",
+        f"tables={lower.count('<table')}",
+        f"trs={lower.count('<tr')}",
+    ]
+    if "__next_data__" in lower or '"__next_data__"' in lower:
+        hints.append("next-data=yes")
+    if 'id="__nuxt"' in lower or "window.__nuxt__" in lower:
+        hints.append("nuxt=yes")
+    if "react-root" in lower or "data-reactroot" in lower or "charset=" not in lower and "charSet=" in text:
+        hints.append("react-ssr=yes")
+    srv = (resp.headers.get("Server") or "").lower()
+    if srv:
+        hints.append(f"server={srv.split()[0]}")
+    if resp.headers.get("cf-ray"):
+        hints.append("cf-ray=yes")
+    return " ".join(hints)
+
+
+def snippet(resp: Optional[requests.Response], limit: int = 600) -> str:
     """First `limit` chars of body, collapsed to a single line, safe for
     `scraping_runs.error_details`. Strips NUL bytes because Postgres
     JSONB rejects \\u0000 and the detail column is JSONB."""

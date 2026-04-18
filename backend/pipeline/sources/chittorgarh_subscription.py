@@ -8,7 +8,7 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 from ..parse import canonical_slug, clean_text, parse_number
-from ._diagnostics import classify_response, describe_failure, snippet
+from ._diagnostics import body_hints, classify_response, describe_failure, snippet
 from .base import Source, SourceResult
 
 SUB_URL = "https://www.chittorgarh.com/report/ipo-subscription-status-live-bidding-data-bse-nse/21/"
@@ -31,7 +31,9 @@ class ChittorgarhSubscription(Source):
 
         tag = classify_response(resp)
         if tag != "ok":
-            result.errors.append(f"{SUB_URL} → 200 [{tag}]: {snippet(resp)}")
+            result.errors.append(
+                f"{SUB_URL} → 200 [{tag}] {body_hints(resp)}: {snippet(resp)}"
+            )
             result.status = "failed"
             return result
 
@@ -45,7 +47,7 @@ class ChittorgarhSubscription(Source):
         if target is None:
             result.status = "failed"
             result.errors.append(
-                f"subscription table not found at {SUB_URL}: {snippet(resp)}"
+                f"subscription table not found at {SUB_URL} [{body_hints(resp)}]: {snippet(resp)}"
             )
             return result
 
