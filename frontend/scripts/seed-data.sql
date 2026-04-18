@@ -1,5 +1,5 @@
 -- =============================================
--- DUMMY DATA FOR IPO TRACKER
+-- DUMMY DATA FOR IPO TARGET
 -- Run this in Supabase SQL Editor
 -- =============================================
 

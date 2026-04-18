@@ -49,7 +49,7 @@ export default function Home() {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loader}></div>
-        <p className={styles.loadingText}>Loading IPO Tracker...</p>
+        <p className={styles.loadingText}>Loading IPO Target...</p>
       </div>
     );
   }

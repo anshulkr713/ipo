@@ -30,14 +30,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
-    template: '%s | IPO Tracker',
+    default: 'IPO Target - Live GMP, Subscription & Allotment Status',
+    template: '%s | IPO Target',
   },
   description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis. Your comprehensive IPO investment companion for informed decisions.',
-  keywords: ['IPO', 'Grey Market Premium', 'GMP', 'IPO subscription', 'IPO allotment', 'upcoming IPO', 'IPO tracker', 'stock market', 'NSE IPO', 'BSE IPO'],
-  authors: [{ name: 'IPO Tracker' }],
-  creator: 'IPO Tracker',
-  publisher: 'IPO Tracker',
+  keywords: ['IPO', 'Grey Market Premium', 'GMP', 'IPO subscription', 'IPO allotment', 'upcoming IPO', 'IPO target', 'stock market', 'NSE IPO', 'BSE IPO'],
+  authors: [{ name: 'IPO Target' }],
+  creator: 'IPO Target',
+  publisher: 'IPO Target',
   robots: {
     index: true,
     follow: true,
@@ -52,21 +52,21 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    siteName: 'IPO Tracker',
-    title: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
+    siteName: 'IPO Target',
+    title: 'IPO Target - Live GMP, Subscription & Allotment Status',
     description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'IPO Tracker - Your IPO Investment Companion',
+        alt: 'IPO Target - Your IPO Investment Companion',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IPO Tracker - Live GMP, Subscription & Allotment Status',
+    title: 'IPO Target - Live GMP, Subscription & Allotment Status',
     description: 'Track live IPO Grey Market Premium (GMP), subscription status, allotment dates, and get expert analysis.',
     images: ['/og-image.png'],
   },
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   alternates: {
-    canonical: 'https://ipotracker.in',
+    canonical: 'https://ipotarget.com',
   },
 };
 

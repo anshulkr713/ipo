@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const ipo = await getIPOData(slug);
     const currentYear = new Date().getFullYear();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ipotracker.in';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ipotarget.com';
     const pageUrl = `${baseUrl}/ipo/${slug}`;
     const logoUrl = `${baseUrl}/images/ipo/${slug}-logo.png`;
 
@@ -53,9 +53,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             'upcoming ipo',
             'ipo allotment',
         ],
-        authors: [{ name: 'IPO Tracker' }],
-        creator: 'IPO Tracker',
-        publisher: 'IPO Tracker',
+        authors: [{ name: 'IPO Target' }],
+        creator: 'IPO Target',
+        publisher: 'IPO Target',
         robots: {
             index: true,
             follow: true,
@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: `${ipo.companyName} IPO - GMP ₹${ipo.gmp}, Subscription ${ipo.subscription}x`,
             description: `Get live updates on ${ipo.companyName} IPO. Current GMP, subscription status, allotment date & detailed review.`,
             url: pageUrl,
-            siteName: 'IPO Tracker',
+            siteName: 'IPO Target',
             images: [
                 {
                     url: logoUrl,
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: `${ipo.companyName} IPO - Live GMP & Subscription Status`,
             description: `Track ${ipo.companyName} IPO: GMP ₹${ipo.gmp}, Subscription ${ipo.subscription}x`,
             images: [logoUrl],
-            creator: '@ipotracker',
+            creator: '@ipotarget',
         },
         other: {
             'article:published_time': new Date().toISOString(),

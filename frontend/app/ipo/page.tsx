@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import IPOListingClient from './IPOListingClient';
 
 export const metadata: Metadata = {
-    title: 'Analyse All IPOs - GMP, Subscription, Allotment Status | IPO Tracker',
+    title: 'Analyse All IPOs - GMP, Subscription, Allotment Status | IPO Target',
     description: 'Comprehensive analysis of all IPOs in India. Check live GMP, subscription status, allotment probability, and expert recommendations for every IPO.',
     keywords: [
         'IPO analysis',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
         title: 'Analyse All IPOs - Complete IPO List',
         description: 'Complete list of all IPOs with GMP, subscription, and allotment details',
         type: 'website',
-        url: 'https://ipotracker.in/ipo',
+        url: 'https://ipotarget.com/ipo',
     },
 };
 

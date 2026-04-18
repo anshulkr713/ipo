@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ipotracker.in';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ipotarget.com';
 
 export default function robots(): MetadataRoute.Robots {
     return {

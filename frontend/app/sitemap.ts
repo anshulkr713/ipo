@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export const runtime = 'edge';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ipotracker.in';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ipotarget.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Static pages
